@@ -1,4 +1,3 @@
-// app/layout.jsx
 export const metadata = {
   title: 'Gift Card Report',
   description: 'Report and search suspected gift card misuse.'
