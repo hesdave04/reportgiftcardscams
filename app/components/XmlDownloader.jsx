@@ -36,7 +36,6 @@ export default function XmlDownloader() {
         return;
       }
 
-      // Show a small preview and trigger a file download
       setPreview(text.slice(0, 1200) + (text.length > 1200 ? '\n...\n' : ''));
 
       const blob = new Blob([text], { type: 'application/xml;charset=utf-8' });
