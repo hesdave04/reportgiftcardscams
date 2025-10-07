@@ -1,72 +1,104 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+const PAGE_SIZE = 20;
+const DEBOUNCE_MS = 400;
+
+function Badge({ children, type = 'default' }) {
+  const base =
+    'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset';
+  const map = {
+    default: 'bg-slate-50 text-slate-700 ring-slate-600/20',
+    success: 'bg-green-50 text-green-700 ring-green-600/20',
+    warn: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+    error: 'bg-rose-50 text-rose-700 ring-rose-600/20',
+  };
+  return <span className={`${base} ${map[type]}`}>{children}</span>;
+}
+
+function Money({ value }) {
+  if (value === null || value === undefined || value === '') return <span className="text-slate-400">—</span>;
+  try {
+    const n = Number(value);
+    return <span className="font-semibold">{n.toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 })}</span>;
+  } catch {
+    return <span className="text-slate-400">—</span>;
+  }
+}
+
+function MaskLast4({ last4 }) {
+  if (!last4) return <span className="text-slate-400">—</span>;
+  return <code className="font-mono text-xs">•••• {last4}</code>;
+}
 
 export default function Stream() {
-  const [items, setItems] = useState([]);
-  const [page, setPage] = useState(0);
   const [q, setQ] = useState('');
+  const [page, setPage] = useState(0);
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [end, setEnd] = useState(false);
-  const loaderRef = useRef(null);
+  const [err, setErr] = useState(null);
 
+  // for debounce
+  const typingRef = useRef(null);
+
+  // fetch list
   useEffect(() => {
-    setItems([]); setPage(0); setEnd(false);
-    loadPage(0, true);
-  }, [q]);
-
-  useEffect(() => {
-    const obs = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !loading && !end) loadPage(page + 1);
-    }, { rootMargin: '200px' });
-    if (loaderRef.current) obs.observe(loaderRef.current);
-    return () => obs.disconnect();
-  }, [page, loading, end]);
-
-  async function loadPage(nextPage, replace = false) {
-    try {
+    const ac = new AbortController();
+    async function run() {
       setLoading(true);
-      const res = await axios.get('/api/search', { params: { page: nextPage, pageSize: 20, q } });
-      const rows = res.data?.results || [];
-      if (replace) setItems(rows); else setItems((prev) => [...prev, ...rows]);
-      setPage(nextPage);
-      if (rows.length < 20) setEnd(true);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
+      setErr(null);
+      try {
+        const url = `/api/search?page=${page}&pageSize=${PAGE_SIZE}&q=${encodeURIComponent(q)}`;
+        const res = await fetch(url, { signal: ac.signal, cache: 'no-store' });
+        if (!res.ok) throw new Error(`Search failed (${res.status})`);
+        const json = await res.json();
+        setItems(json?.results || []);
+      } catch (e) {
+        if (e.name !== 'AbortError') setErr(e.message || 'Failed to load');
+      } finally {
+        setLoading(false);
+      }
     }
-  }
+    run();
+    return () => ac.abort();
+  }, [q, page]);
 
-  return (
-    <div style={{ border: '1px solid #eee', borderRadius: 8, padding: 16 }}>
-      <div style={{ marginBottom: 12, display: 'flex', gap: 8 }}>
-        <input
-          value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by retailer, last4, or notes…"
-          style={{ flex: 1, padding: 10, borderRadius: 6, border: '1px solid #ccc' }}
-        />
-      </div>
+  // debounce search input
+  const onChangeQ = (e) => {
+    const v = e.target.value;
+    window.clearTimeout(typingRef.current);
+    typingRef.current = window.setTimeout(() => {
+      setPage(0);
+      setQ(v.trim());
+    }, DEBOUNCE_MS);
+  };
 
-      {items.map((it) => (
-        <div key={it.id} style={{ borderTop: '1px solid #f0f0f0', padding: '12px 4px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-            <div>
-              <div style={{ fontWeight: 700 }}>{it.retailer}</div>
-              <div style={{ fontSize: 13, color: '#666' }}>
-                Last4: ****{it.card_last4} • {it.amount != null ? `$${Number(it.amount).toFixed(2)}` : '—'}
-              </div>
-            </div>
-            <div style={{ fontSize: 12, color: '#888' }}>{new Date(it.created_at).toLocaleString()}</div>
-          </div>
-          {it.notes && <div style={{ marginTop: 6, fontSize: 14 }}>{it.notes}</div>}
-          <div style={{ fontSize: 12, color: '#999', marginTop: 6 }}>Status: {it.status}</div>
+  const onRefresh = () => {
+    setPage(0);
+    setQ((prev) => prev); // trigger effect via setPage
+  };
+
+  const canPrev = page > 0;
+  const canNext = items.length === PAGE_SIZE; // if less than page size, probably end
+
+  const header = useMemo(
+    () => (
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:max-w-md">
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4a6 6 0 014.472 9.985l4.771 4.772a1 1 0 01-1.415 1.414l-4.771-4.771A6 6 0 1110 4zm0 2a4 4 0 100 8 4 4 0 000-8z"/></svg>
+          </span>
+          <input
+            onChange={onChangeQ}
+            placeholder="Search retailer, last 4, or notes…"
+            className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm shadow-sm placeholder-slate-400 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/70"
+            defaultValue=""
+          />
         </div>
-      ))}
 
-      <div ref={loaderRef} style={{ textAlign: 'center', padding: 16, color: '#666' }}>
-        {end ? 'End of results' : (loading ? 'Loading…' : 'Scroll to load more')}
-      </div>
-    </div>
-  );
-}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={!canPrev || loading}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-
