@@ -17,7 +17,7 @@ export default function HomePage() {
         </p>
       </header>
 
-      <ReportForm onSubmitted={() => { /* optional hook */ }} />
+      <ReportForm onSubmitted={() => {}} />
 
       <h3 style={{ margin: '24px 0 12px', fontWeight: 700 }}>Recent Reports</h3>
       <Stream />
