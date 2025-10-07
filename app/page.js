@@ -1,9 +1,10 @@
 import ReportForm from './components/ReportForm';
 import Stream from './components/Stream';
+import XmlSidebar from './components/XmlSidebar';
 
 export const metadata = {
-  title: 'Report Gift Card Scams and Fraud',
-  description: 'Report and search suspected gift card misuse. Reduce gift card scams by reporting and sharing the information.',
+  title: 'Gift Card Report',
+  description: 'Report and search suspected gift card misuse.',
 };
 
 export default function HomePage() {
@@ -19,13 +20,18 @@ export default function HomePage() {
         </p>
       </header>
 
-      {/* Form */}
-      <section className="rounded-2xl bg-white p-6 shadow-md ring-1 ring-slate-200">
-        <ReportForm />
+      {/* Form + XML sidebar */}
+      <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <div className="rounded-2xl bg-white p-6 shadow-md ring-1 ring-slate-200">
+            <ReportForm />
+          </div>
+        </div>
+        <XmlSidebar />
       </section>
 
       {/* Recent reports */}
-      <section className="mt-10">
+      <section id="reports" className="mt-10">
         <h3 className="mb-3 text-lg font-semibold">Recent Reports</h3>
         <div className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-slate-200">
           <Stream />
@@ -34,7 +40,7 @@ export default function HomePage() {
 
       <footer className="mt-10 text-xs text-slate-500">
         <p>
-          XML export: <code className="font-mono">/api/xml</code> — requires header{' '}
+          Server endpoint: <code className="font-mono">/api/xml</code> — preferred auth header{' '}
           <code className="font-mono">x-api-key: YOUR_XML_API_KEY</code>.
         </p>
       </footer>
