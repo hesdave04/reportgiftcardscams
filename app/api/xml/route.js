@@ -1,8 +1,13 @@
 // app/api/xml/route.js
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '../../../lib/supabaseAdmin'; // relative path avoids alias issues
+import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
 
-// --- config -----
+// Make sure this is never statically analyzed/prerendered
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// ---- Config ----
 const TABLE = 'giftcard_reports';
 
 // Allow one or many keys: XML_API_KEYS="key1,key2" or XML_API_KEY="key"
@@ -60,6 +65,12 @@ export async function GET(request) {
   try {
     if (!isAuthorized(request)) {
       return new NextResponse('Unauthorized', { status: 401, headers: { 'content-type': 'text/plain' } });
+    }
+
+    const supabaseAdmin = getSupabaseAdmin();
+    if (!supabaseAdmin) {
+      console.error('Supabase admin env vars missing');
+      return new NextResponse('Server misconfiguration', { status: 500, headers: { 'content-type': 'text/plain' } });
     }
 
     const { searchParams } = new URL(request.url);
