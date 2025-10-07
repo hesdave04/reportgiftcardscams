@@ -1,69 +1,24 @@
-export const dynamic = 'force-dynamic';
-
 import { NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
-import { encrypt, hmacHex } from '../../../lib/crypto';
-import rateLimit from '../../../utils/rate-limit';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { encrypt, hmacHex } from '@/lib/crypto';
+import rateLimit from '@/utils/rate-limit';
+import { verifyRecaptchaV2 } from '@/lib/recaptcha';
 
 const limiter = rateLimit({
   window: parseInt(process.env.RATE_LIMIT_WINDOW || '60', 10),
   limit: parseInt(process.env.RATE_LIMIT_MAX || '20', 10),
 });
 
-/**
- * Verify Google reCAPTCHA v2 (checkbox) token.
- * Env needed: RECAPTCHA_SECRET_KEY
- */
-async function verifyRecaptcha(token, ip) {
-  const secret = process.env.RECAPTCHA_SECRET_KEY;
-  if (!secret) {
-    return { ok: false, errors: ['server_misconfig:RECAPTCHA_SECRET_KEY'] };
-  }
-  if (!token) {
-    return { ok: false, errors: ['missing_token'] };
-  }
-
-  const body = new URLSearchParams({
-    secret,
-    response: token,
-    // remoteip is optional but helps Google risk signals
-    remoteip: ip || '',
-  }).toString();
-
-  const res = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body,
-    // no-cache to avoid any proxy weirdness
-    cache: 'no-store',
-  });
-
-  // If Google is unreachable, fail closed
-  if (!res.ok) return { ok: false, errors: ['recaptcha_http_' + res.status] };
-
-  const data = await res.json();
-  return { ok: !!data.success, errors: data['error-codes'] || [] };
-}
-
 export async function POST(request) {
   try {
-    const supabaseAdmin = getSupabaseAdmin();
-    if (!supabaseAdmin) {
-      return NextResponse.json(
-        { error: 'Server not configured: missing SUPABASE_URL or SERVICE_ROLE_KEY' },
-        { status: 500 }
-      );
-    }
+    const ip = request.headers.get('x-forwarded-for') || '0.0.0.0';
 
-    // Basic IP rate-limit (MVP); replace with Redis for production
-    const rawIp = request.headers.get('x-forwarded-for') || '';
-    const ip = rawIp.split(',')[0]?.trim() || '0.0.0.0';
-    const { ok: underLimit } = await limiter.check(ip);
-    if (!underLimit) {
+    // rate limit
+    const { ok: allowed } = await limiter.check(ip);
+    if (!allowed) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
-    // Parse body
     const body = await request.json();
     const {
       retailer,
@@ -73,19 +28,18 @@ export async function POST(request) {
       recipient_email,
       reporter_email,
       notes,
-      recaptchaToken, // <-- sent from client
+      captcha, // token from client
     } = body || {};
 
-    // 1) Verify reCAPTCHA first
-    const cap = await verifyRecaptcha(recaptchaToken, ip);
-    if (!cap.ok) {
+    // Verify CAPTCHA
+    const captchaRes = await verifyRecaptchaV2(captcha, ip);
+    if (!captchaRes.ok) {
       return NextResponse.json(
-        { error: 'CAPTCHA verification failed', details: cap.errors },
+        { error: 'captcha_failed', details: captchaRes.errorCodes || [] },
         { status: 400 }
       );
     }
 
-    // 2) Validate inputs
     if (!retailer || !cardNumber) {
       return NextResponse.json({ error: 'Missing retailer or cardNumber' }, { status: 400 });
     }
@@ -95,12 +49,10 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid card number format' }, { status: 400 });
     }
 
-    // 3) Prepare secure fields
     const last4 = normalized.slice(-4);
     const card_hash = hmacHex(normalized);
     const encrypted_card = encrypt(normalized);
 
-    // 4) Insert
     const insert = {
       retailer,
       amount: amount ? Number(amount) : null,
@@ -122,11 +74,10 @@ export async function POST(request) {
       .single();
 
     if (error) {
-      console.error('supabase insert error:', error);
+      console.error(error);
       return NextResponse.json({ error: 'Database insert failed' }, { status: 500 });
     }
 
-    // 5) Public response (no sensitive fields)
     const publicView = {
       id: data.id,
       retailer: data.retailer,
@@ -139,7 +90,7 @@ export async function POST(request) {
 
     return NextResponse.json({ ok: true, report: publicView }, { status: 201 });
   } catch (e) {
-    console.error('report route error:', e);
+    console.error(e);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
   }
 }
