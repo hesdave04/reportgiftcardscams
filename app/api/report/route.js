@@ -1,53 +1,28 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '../../../lib/supabaseAdmin';
-import { encrypt, hmacHex } from '../../../lib/crypto';
-import rateLimit from '../../../utils/rate-limit';
 
-const limiter = rateLimit({
-  window: parseInt(process.env.RATE_LIMIT_WINDOW || '60', 10),
-  limit: parseInt(process.env.RATE_LIMIT_MAX || '20', 10),
-});
-
-export async function POST(request) {
+export async function GET(req) {
   try {
-    const ip = request.headers.get('x-forwarded-for') || '0.0.0.0';
-    const { ok } = await limiter.check(ip);
-    if (!ok) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(0, parseInt(searchParams.get('page') || '0', 10));
+    const pageSize = Math.min(100, parseInt(searchParams.get('pageSize') || '20', 10));
+    const q = (searchParams.get('q') || '').trim();
 
-    const body = await request.json();
-    const { retailer, cardNumber, amount, recipient_name, recipient_email, reporter_email, notes } = body || {};
-    if (!retailer || !cardNumber) return NextResponse.json({ error: 'Missing retailer or cardNumber' }, { status: 400 });
+    let query = supabaseAdmin
+      .from('giftcard_reports')
+      .select('id, retailer, amount, card_last4, notes, status, created_at')
+      .order('created_at', { ascending: false });
 
-    const normalized = String(cardNumber).replace(/\s|-/g, '');
-    if (!/^\d{8,19}$/.test(normalized)) return NextResponse.json({ error: 'Invalid card number format' }, { status: 400 });
+    if (q) {
+      query = query.or(`retailer.ilike.%${q}%,card_last4.ilike.%${q}%,notes.ilike.%${q}%`);
+    }
 
-    const last4 = normalized.slice(-4);
-    const card_hash = hmacHex(normalized);
-    const encrypted_card = encrypt(normalized);
+    const from = page * pageSize;
+    const to = from + pageSize - 1;
+    const { data, error } = await query.range(from, to);
+    if (error) return NextResponse.json({ error: 'Database search failed' }, { status: 500 });
 
-    const insert = {
-      retailer,
-      amount: amount ? Number(amount) : null,
-      encrypted_card,
-      card_hash,
-      card_last4: last4,
-      recipient_name: recipient_name || null,
-      recipient_email: recipient_email || null,
-      reporter_email: reporter_email || null,
-      reporter_ip: ip,
-      notes: notes || null,
-      status: 'pending'
-    };
-
-    const { data, error } = await supabaseAdmin.from('giftcard_reports').insert(insert).select().single();
-    if (error) return NextResponse.json({ error: 'Database insert failed' }, { status: 500 });
-
-    const publicView = {
-      id: data.id, retailer: data.retailer, amount: data.amount, card_last4: data.card_last4,
-      notes: data.notes ? (data.notes.length > 220 ? data.notes.slice(0, 220) + '…' : data.notes) : null,
-      status: data.status, created_at: data.created_at
-    };
-    return NextResponse.json({ ok: true, report: publicView }, { status: 201 });
+    return NextResponse.json({ page, pageSize, results: data || [] });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
