@@ -5,14 +5,13 @@ import Link from 'next/link';
 export default function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/80 backdrop-blur">
-      {/* Increased header height to fit a wider logo */}
-      <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-4">
+      <div className="mx-auto flex h-20 max-w-6xl items-center justify-between overflow-hidden px-4">
         <Link href="/" className="flex items-center gap-3">
-          {/* Make the logo readable: control width, keep aspect ratio */}
           <img
             src="/logo.svg"
-            alt="ReportGiftCardScams"
-            className="block h-auto w-[200px] md:w-[260px] lg:w-[300px]"
+            alt="Report Gift Card Scams"
+            className="block h-12 w-auto select-none md:h-14 lg:h-16"
+            height={64}
           />
           <span className="sr-only">Report Gift Card Scams</span>
         </Link>
