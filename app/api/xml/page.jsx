@@ -12,7 +12,7 @@ export default function XmlFeedPage() {
       <h1 className="mb-2 text-3xl font-bold text-slate-900">XML Feed Access</h1>
       <p className="mb-6 text-slate-600">
         This endpoint provides an authenticated XML export for law enforcement, gift card issuers and verified resellers.
-        Access requires an <code className="rounded bg-slate-100 px-1">x-api-key</code>. Contact the admin for credentials.
+        Access requires an <code className="rounded bg-slate-100 px-1">x-api-key</code>.
       </p>
 
       <div className="mb-8 rounded-lg border border-slate-200 bg-white p-5">
