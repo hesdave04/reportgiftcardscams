@@ -6,7 +6,7 @@ export default function AnnouncementBar() {
       <div className="mx-auto max-w-6xl px-4 py-2 text-center text-sm">
         Made by{' '}
         <a
-          href="https://www.socialcatfish.com/"
+          href="https://socialcatfish.com/"
           target="_blank"
           rel="noopener noreferrer"
           className="font-semibold underline decoration-white/30 underline-offset-4 hover:decoration-white"
