@@ -26,13 +26,8 @@ export default function ReportForm({ onSubmitted }) {
       const { data } = await axios.post('/api/report', form);
       setMsg({ type: 'success', text: 'Report submitted.' });
       setForm({
-        retailer: '',
-        cardNumber: '',
-        amount: '',
-        recipient_name: '',
-        recipient_email: '',
-        reporter_email: '',
-        notes: ''
+        retailer: '', cardNumber: '', amount: '',
+        recipient_name: '', recipient_email: '', reporter_email: '', notes: ''
       });
       onSubmitted && onSubmitted(data.report);
     } catch (err) {
