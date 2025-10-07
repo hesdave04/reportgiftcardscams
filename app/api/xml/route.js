@@ -1,7 +1,17 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { decrypt } from '@/lib/crypto';
-import { create } from 'xmlbuilder2';
+
+// minimal XML escaper
+function x(s) {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
 
 export async function GET(request) {
   try {
@@ -44,25 +54,27 @@ export async function GET(request) {
       created_at: r.created_at
     }));
 
-    const doc = create({ version: '1.0', encoding: 'UTF-8' }).ele('GiftCardReports');
+    // Build XML string manually
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<GiftCardReports>';
     for (const r of rows) {
-      const e = doc.ele('Report');
-      e.ele('ID').txt(r.id || '');
-      e.ele('Retailer').txt(r.retailer || '');
-      e.ele('Amount').txt(r.amount != null ? String(r.amount) : '');
-      e.ele('CardNumber').txt(r.card_number || '');
-      e.ele('CardLast4').txt(r.card_last4 || '');
-      e.ele('RecipientName').txt(r.recipient_name || '');
-      e.ele('RecipientEmail').txt(r.recipient_email || '');
-      e.ele('ReporterEmail').txt(r.reporter_email || '');
-      e.ele('ReporterIP').txt(r.reporter_ip || '');
-      e.ele('Notes').txt(r.notes || '');
-      e.ele('Status').txt(r.status || '');
-      e.ele('CreatedAt').txt(new Date(r.created_at).toISOString());
+      xml += '\n  <Report>';
+      xml += `\n    <ID>${x(r.id)}</ID>`;
+      xml += `\n    <Retailer>${x(r.retailer)}</Retailer>`;
+      xml += `\n    <Amount>${r.amount != null ? x(r.amount) : ''}</Amount>`;
+      xml += `\n    <CardNumber>${x(r.card_number)}</CardNumber>`;
+      xml += `\n    <CardLast4>${x(r.card_last4)}</CardLast4>`;
+      xml += `\n    <RecipientName>${x(r.recipient_name)}</RecipientName>`;
+      xml += `\n    <RecipientEmail>${x(r.recipient_email)}</RecipientEmail>`;
+      xml += `\n    <ReporterEmail>${x(r.reporter_email)}</ReporterEmail>`;
+      xml += `\n    <ReporterIP>${x(r.reporter_ip)}</ReporterIP>`;
+      xml += `\n    <Notes>${x(r.notes)}</Notes>`;
+      xml += `\n    <Status>${x(r.status)}</Status>`;
+      xml += `\n    <CreatedAt>${x(new Date(r.created_at).toISOString())}</CreatedAt>`;
+      xml += '\n  </Report>';
     }
-    const xml = doc.end({ prettyPrint: true });
+    xml += '\n</GiftCardReports>\n';
 
-    // Best-effort audit (don’t block response if it fails)
+    // Best-effort audit
     try {
       await supabaseAdmin.from('xml_exports').insert({
         api_key: String(apiKey).slice(0, 8),
