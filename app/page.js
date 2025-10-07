@@ -2,29 +2,41 @@ import ReportForm from './components/ReportForm';
 import Stream from './components/Stream';
 
 export const metadata = {
-  title: 'Gift Card Report',
-  description: 'Report and search suspected gift card misuse.'
+  title: 'Report Gift Card Scams and Fraud',
+  description: 'Report and search suspected gift card misuse. Reduce gift card scams by reporting and sharing the information.',
 };
 
 export default function HomePage() {
   return (
-    <main style={{ maxWidth: 900, margin: '0 auto', padding: 20 }}>
-      <header style={{ margin: '12px 0 20px' }}>
-        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800 }}>Gift Card Number Reporting</h1>
-        <p style={{ color: '#555' }}>
-          Submit details of a gift card you shared and to whom. Public stream shows only last 4 digits.
+    <main className="container mx-auto max-w-5xl px-4 py-10">
+      <header className="mb-8">
+        <h1 className="text-3xl font-extrabold tracking-tight">
+          Gift Card Number Reporting
+        </h1>
+        <p className="mt-2 text-slate-600">
+          Submit details of a gift card you shared and to whom. The public stream only shows the last 4 digits.
           Full numbers are encrypted and available via authenticated XML export for verified parties.
         </p>
       </header>
 
-      {/* IMPORTANT: Do NOT pass function props from a Server Component to a Client Component */}
-      <ReportForm />
+      {/* Form */}
+      <section className="rounded-2xl bg-white p-6 shadow-md ring-1 ring-slate-200">
+        <ReportForm />
+      </section>
 
-      <h3 style={{ margin: '24px 0 12px', fontWeight: 700 }}>Recent Reports</h3>
-      <Stream />
+      {/* Recent reports */}
+      <section className="mt-10">
+        <h3 className="mb-3 text-lg font-semibold">Recent Reports</h3>
+        <div className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-slate-200">
+          <Stream />
+        </div>
+      </section>
 
-      <footer style={{ marginTop: 40, fontSize: 12, color: '#777' }}>
-        <p>XML export: <code>/api/xml</code> — requires header <code>x-api-key: YOUR_XML_API_KEY</code>.</p>
+      <footer className="mt-10 text-xs text-slate-500">
+        <p>
+          XML export: <code className="font-mono">/api/xml</code> — requires header{' '}
+          <code className="font-mono">x-api-key: YOUR_XML_API_KEY</code>.
+        </p>
       </footer>
     </main>
   );
