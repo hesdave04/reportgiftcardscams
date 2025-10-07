@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabaseAdmin';
-import { decrypt } from '@/lib/crypto';
+import { supabaseAdmin } from '../../../lib/supabaseAdmin';
+import { decrypt } from '../../../lib/crypto';
 
-// minimal XML escaper
+// minimal XML escape
 function x(s) {
   if (s === null || s === undefined) return '';
   return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&apos;');
 }
 
 export async function GET(request) {
@@ -34,10 +34,7 @@ export async function GET(request) {
     if (since) query = query.gte('created_at', since);
 
     const { data, error } = await query;
-    if (error) {
-      console.error(error);
-      return NextResponse.json({ error: 'Database read failed' }, { status: 500 });
-    }
+    if (error) return NextResponse.json({ error: 'Database read failed' }, { status: 500 });
 
     const rows = (data || []).map(r => ({
       id: r.id,
@@ -54,7 +51,6 @@ export async function GET(request) {
       created_at: r.created_at
     }));
 
-    // Build XML string manually
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<GiftCardReports>';
     for (const r of rows) {
       xml += '\n  <Report>';
@@ -74,7 +70,7 @@ export async function GET(request) {
     }
     xml += '\n</GiftCardReports>\n';
 
-    // Best-effort audit
+    // best-effort audit
     try {
       await supabaseAdmin.from('xml_exports').insert({
         api_key: String(apiKey).slice(0, 8),
