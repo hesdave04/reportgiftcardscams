@@ -17,10 +17,12 @@ export default function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-700 sm:flex">
-          <Link href="/" className="hover:text-slate-900">Home</Link>
-          <Link href="/xml" className="hover:text-slate-900">Download Data</Link>
+          <<a href="/" className="hover:text-slate-900">Home</a>
+          <a href="/xml" className="hover:text-slate-900">Download Data</a>
+          <a href="/wall-of-shame" className="hover:text-slate-900">Wall of Shame Leaderboard</a>
         </nav>
       </div>
     </header>
   );
 }
+<
