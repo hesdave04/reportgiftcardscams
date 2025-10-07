@@ -17,7 +17,8 @@ export default function HomePage() {
         </p>
       </header>
 
-      <ReportForm onSubmitted={() => {}} />
+      {/* IMPORTANT: Do NOT pass function props from a Server Component to a Client Component */}
+      <ReportForm />
 
       <h3 style={{ margin: '24px 0 12px', fontWeight: 700 }}>Recent Reports</h3>
       <Stream />
