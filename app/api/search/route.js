@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { supabaseAdmin } from '../../../lib/supabaseAdmin';
 
 export async function GET(req) {
   try {
@@ -14,18 +14,13 @@ export async function GET(req) {
       .order('created_at', { ascending: false });
 
     if (q) {
-      // Search retailer, last4, notes (simple ILIKE; you can upgrade to FTS later)
       query = query.or(`retailer.ilike.%${q}%,card_last4.ilike.%${q}%,notes.ilike.%${q}%`);
     }
 
     const from = page * pageSize;
     const to = from + pageSize - 1;
-
     const { data, error } = await query.range(from, to);
-    if (error) {
-      console.error(error);
-      return NextResponse.json({ error: 'Database search failed' }, { status: 500 });
-    }
+    if (error) return NextResponse.json({ error: 'Database search failed' }, { status: 500 });
 
     return NextResponse.json({ page, pageSize, results: data || [] });
   } catch (e) {
