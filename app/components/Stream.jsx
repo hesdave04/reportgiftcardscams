@@ -12,20 +12,14 @@ export default function Stream() {
   const loaderRef = useRef(null);
 
   useEffect(() => {
-    // initial load & on query change
-    setItems([]);
-    setPage(0);
-    setEnd(false);
+    setItems([]); setPage(0); setEnd(false);
     loadPage(0, true);
   }, [q]);
 
   useEffect(() => {
     const obs = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !loading && !end) {
-        loadPage(page + 1);
-      }
+      if (entries[0].isIntersecting && !loading && !end) loadPage(page + 1);
     }, { rootMargin: '200px' });
-
     if (loaderRef.current) obs.observe(loaderRef.current);
     return () => obs.disconnect();
   }, [page, loading, end]);
@@ -35,8 +29,7 @@ export default function Stream() {
       setLoading(true);
       const res = await axios.get('/api/search', { params: { page: nextPage, pageSize: 20, q } });
       const rows = res.data?.results || [];
-      if (replace) setItems(rows);
-      else setItems((prev) => [...prev, ...rows]);
+      if (replace) setItems(rows); else setItems((prev) => [...prev, ...rows]);
       setPage(nextPage);
       if (rows.length < 20) setEnd(true);
     } catch (e) {
@@ -64,9 +57,7 @@ export default function Stream() {
                 Last4: ****{it.card_last4} • {it.amount != null ? `$${Number(it.amount).toFixed(2)}` : '—'}
               </div>
             </div>
-            <div style={{ fontSize: 12, color: '#888' }}>
-              {new Date(it.created_at).toLocaleString()}
-            </div>
+            <div style={{ fontSize: 12, color: '#888' }}>{new Date(it.created_at).toLocaleString()}</div>
           </div>
           {it.notes && <div style={{ marginTop: 6, fontSize: 14 }}>{it.notes}</div>}
           <div style={{ fontSize: 12, color: '#999', marginTop: 6 }}>Status: {it.status}</div>
