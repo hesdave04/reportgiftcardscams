@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '../../../lib/supabaseAdmin';
+import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
 
 export async function GET(req) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
+    if (!supabaseAdmin) return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
+
     const { searchParams } = new URL(req.url);
     const page = Math.max(0, parseInt(searchParams.get('page') || '0', 10));
     const pageSize = Math.min(100, parseInt(searchParams.get('pageSize') || '20', 10));
