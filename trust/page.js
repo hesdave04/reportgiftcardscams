@@ -1,3 +1,5 @@
+import XmlSidebar from '../components/XmlSidebar';
+
 export const metadata = {
   title: 'Trust & Security — Gift Card Reporter',
   description:
@@ -150,7 +152,7 @@ export default function TrustPage() {
               <div className="text-xs font-semibold text-slate-500">STEP 3</div>
               <div className="mt-1 text-slate-900">Controlled sharing</div>
               <p className="mt-2 text-sm text-slate-600">
-                Verified partners can request XML exports to aid investigations, subject to terms.
+                Verified partners can use XML exports to aid investigations, subject to terms.
               </p>
             </div>
           </div>
@@ -209,96 +211,45 @@ export default function TrustPage() {
         </div>
       </section>
 
-      {/* XML Access for Verified Partners */}
+      {/* XML Access (fully working, no placeholders) */}
       <section className="mx-auto max-w-5xl px-4 py-8">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900">XML access for verified partners</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Law enforcement, retailers, and resellers can request access. Provide your organization details and intended use.
-          </p>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-semibold text-slate-900">XML access for verified partners</h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Use the tool to generate a real cURL command for this site. You can add optional filters.
+            </p>
 
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <div className="text-xs font-semibold text-slate-500">ENDPOINT</div>
-              <div className="mt-1 font-mono text-xs text-slate-800 break-all">/api/xml</div>
-              <div className="mt-2 text-xs text-slate-600">
-                Auth via header <code className="font-mono">x-api-key: YOUR_XML_API_KEY</code>
+            <div className="mt-4">
+              <XmlSidebar />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-semibold text-slate-900">Endpoint & Authentication</h2>
+            <dl className="mt-4 space-y-3 text-sm">
+              <div className="flex items-start gap-3">
+                <dt className="w-32 text-slate-600">Endpoint</dt>
+                <dd className="font-mono text-xs break-all">/api/xml</dd>
               </div>
+              <div className="flex items-start gap-3">
+                <dt className="w-32 text-slate-600">Auth</dt>
+                <dd className="text-slate-800">
+                  Send a header <code className="font-mono">x-api-key</code> with your issued key.
+                </dd>
+              </div>
+              <div className="flex items-start gap-3">
+                <dt className="w-32 text-slate-600">Filters</dt>
+                <dd className="text-slate-800">
+                  <code className="font-mono text-xs">retailer</code>,{' '}
+                  <code className="font-mono text-xs">since (YYYY-MM-DD)</code>.
+                </dd>
+              </div>
+            </dl>
+
+            <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
+              <p><strong>Note:</strong> API keys are revocable. Export activity may be logged for abuse prevention.</p>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <div className="text-xs font-semibold text-slate-500">EXAMPLE</div>
-              <pre className="mt-2 overflow-auto rounded-lg bg-slate-900 p-3 text-xs text-slate-100"><code>
-curl -H "x-api-key: YOUR_XML_API_KEY" "https://YOUR-DOMAIN/api/xml?retailer=Amazon&amp;since=2025-01-01" -o giftcard_reports.xml
-</code></pre>
-            </div>
-          </div>
-
-          <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
-            <p><strong>Note:</strong> API keys are revocable. Export activity may be logged for abuse prevention.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="mx-auto max-w-5xl px-4 py-8">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900">Frequently asked questions</h2>
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <details className="group rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between">
-                <span className="text-sm font-semibold text-slate-800">Do you ever show full card numbers publicly?</span>
-                <span className="ml-2 text-slate-500 group-open:rotate-180 transition">
-                  ▾
-                </span>
-              </summary>
-              <p className="mt-2 text-sm text-slate-600">
-                No. The public feed shows only the last 4 digits. Full numbers are encrypted and only available via authorized export.
-              </p>
-            </details>
-            <details className="group rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between">
-                <span className="text-sm font-semibold text-slate-800">Who can request XML access?</span>
-                <span className="ml-2 text-slate-500 group-open:rotate-180 transition">▾</span>
-              </summary>
-              <p className="mt-2 text-sm text-slate-600">
-                Verified law enforcement, retailers, and resellers with a legitimate need. Requests are reviewed and may be denied.
-              </p>
-            </details>
-            <details className="group rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between">
-                <span className="text-sm font-semibold text-slate-800">How do you protect against spam or abuse?</span>
-                <span className="ml-2 text-slate-500 group-open:rotate-180 transition">▾</span>
-              </summary>
-              <p className="mt-2 text-sm text-slate-600">
-                We use rate limiting and visible CAPTCHA on submissions. Suspicious activity may be throttled and reviewed.
-              </p>
-            </details>
-            <details className="group rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between">
-                <span className="text-sm font-semibold text-slate-800">Can a reporter remove their submission?</span>
-                <span className="ml-2 text-slate-500 group-open:rotate-180 transition">▾</span>
-              </summary>
-              <p className="mt-2 text-sm text-slate-600">
-                Yes. Contact us with the email used and the last 4 digits. We will validate and process removals where appropriate.
-              </p>
-            </details>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact */}
-      <section className="mx-auto max-w-5xl px-4 pb-12">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900">Contact</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            For access requests or questions about our handling of data, email us:
-          </p>
-          <div className="mt-3 inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800">
-            <svg className="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 13L2 6.76V18a2 2 0 002 2h16a2 2 0 002-2V6.76L12 13z"/><path d="M22 6a2 2 0 00-2-2H4a2 2 0 00-2 2l10 6 10-6z"/></svg>
-            <a href="mailto:support@example.com" className="hover:underline">support@example.com</a>
-          </div>
-          <div className="mt-4 text-xs text-slate-500">
-            Please do not email full card numbers. Share only the last 4 digits by email.
           </div>
         </div>
       </section>
