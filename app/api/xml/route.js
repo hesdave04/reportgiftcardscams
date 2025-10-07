@@ -2,15 +2,13 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
 
-// Make sure this is never statically analyzed/prerendered
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// ---- Config ----
 const TABLE = 'giftcard_reports';
 
-// Allow one or many keys: XML_API_KEYS="key1,key2" or XML_API_KEY="key"
+// Accept XML_API_KEYS="key1,key2" or XML_API_KEY="key"
 function isAuthorized(request) {
   const headerKey = (request.headers.get('x-api-key') || '').trim();
   const keysEnv = (process.env.XML_API_KEYS || process.env.XML_API_KEY || '')
@@ -20,7 +18,7 @@ function isAuthorized(request) {
   return headerKey && keysEnv.includes(headerKey);
 }
 
-// Minimal XML escaper
+// XML escape
 function x(s) {
   if (s === null || s === undefined) return '';
   return String(s)
@@ -78,8 +76,8 @@ export async function GET(request) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '500', 10), 2000);
     const pageSize = Math.min(parseInt(searchParams.get('page_size') || String(limit), 10), 2000);
     const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
-    const since = searchParams.get('since') || null;       // ISO date
-    const retailer = searchParams.get('retailer') || null; // exact match
+    const since = searchParams.get('since') || null;
+    const retailer = searchParams.get('retailer') || null;
     const status = searchParams.get('status') || null;
 
     let query = supabaseAdmin.from(TABLE).select('*').order('created_at', { ascending: false });
