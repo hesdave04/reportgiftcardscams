@@ -1,80 +1,68 @@
+// app/api/stats/wall-of-shame/route.js
 import { NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const TABLE = 'giftcard_reports';
-
-// normalize names for grouping
-function norm(s) {
-  if (!s) return null;
-  const t = String(s).trim();
-  if (!t) return null;
-  return t;
-}
-function titleCase(s) {
-  return s.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+function countBy(arr) {
+  const map = new Map();
+  for (const key of arr) {
+    if (!key) continue;
+    map.set(key, (map.get(key) || 0) + 1);
+  }
+  return [...map.entries()]
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
 }
 
-export async function GET(request) {
+export async function GET(req) {
   try {
     const supabase = getSupabaseAdmin();
     if (!supabase) {
-      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Supabase admin env vars missing' },
+        { status: 500 }
+      );
     }
 
-    const { searchParams } = new URL(request.url);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '10', 10), 50);
-    const since = searchParams.get('since'); // YYYY-MM-DD or ISO, optional
-    // Pull a bounded dataset (defaults to ~6 months if since not provided)
-    const defaultSince = new Date();
-    defaultSince.setMonth(defaultSince.getMonth() - 6);
-    const sinceISO = since ? new Date(since).toISOString() : defaultSince.toISOString();
+    const { searchParams } = new URL(req.url);
+    const days = Math.max(1, Math.min(365, Number(searchParams.get('days') || 180)));
+    const since = new Date();
+    since.setDate(since.getDate() - days);
 
-    let query = supabase
-      .from(TABLE)
-      .select('retailer, purchase_retailer, created_at')
-      .order('created_at', { ascending: false });
+    // Pull the minimum set of columns, then aggregate in memory.
+    // We support both existing and new column names:
+    // - gift card brand: prefer gift_card_brand, else retailer
+    // - merchant (place purchased): prefer purchase_retailer, else retailer_merchant, retailer_store
+    const { data, error } = await supabase
+      .from('giftcard_reports')
+      .select('gift_card_brand, retailer, purchase_retailer, retailer_merchant, retailer_store, created_at')
+      .gte('created_at', since.toISOString())
+      .limit(10000); // put a sane cap for now
 
-    if (sinceISO) query = query.gte('created_at', sinceISO);
-
-    // NOTE: This fetches recent rows and aggregates in Node.
-    // For huge datasets, move this to SQL functions (RPC).
-    const { data, error } = await query.limit(20000);
     if (error) {
-      console.error(error);
-      return NextResponse.json({ error: 'Query failed' }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const issuerCounts = new Map();
-    const storeCounts  = new Map();
+    // Normalize fields
+    const brands = [];
+    const merchants = [];
 
-    for (const r of data || []) {
-      const issuer = norm(r.retailer);
-      const store  = norm(r.purchase_retailer);
+    for (const row of data || []) {
+      const brand = row.gift_card_brand || row.retailer || null;
+      const merchant =
+        row.purchase_retailer || row.retailer_merchant || row.retailer_store || null;
 
-      if (issuer) issuerCounts.set(issuer, (issuerCounts.get(issuer) || 0) + 1);
-      if (store)  storeCounts.set(store,  (storeCounts.get(store)  || 0) + 1);
+      if (brand) brands.push(brand.trim());
+      if (merchant) merchants.push(merchant.trim());
     }
 
-    const topIssuers = [...issuerCounts.entries()]
-      .sort((a,b) => b[1] - a[1])
-      .slice(0, limit)
-      .map(([name, count]) => ({ name, count }));
+    const topGiftCards = countBy(brands).slice(0, 10);
+    const topRetailers = countBy(merchants).slice(0, 10);
 
-    const topStores = [...storeCounts.entries()]
-      .sort((a,b) => b[1] - a[1])
-      .slice(0, limit)
-      .map(([name, count]) => ({ name, count }));
-
-    return NextResponse.json({
-      ok: true,
-      since: sinceISO,
-      topGiftCardIssuers: topIssuers,
-      topSellingRetailers: topStores
-    });
+    return NextResponse.json({ days, topGiftCards, topRetailers }, { status: 200 });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
