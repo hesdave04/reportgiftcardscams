@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '../../../lib/supabaseAdmin';
+import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
 import { decrypt } from '../../../lib/crypto';
 
 // minimal XML escape
@@ -15,6 +15,9 @@ function x(s) {
 
 export async function GET(request) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
+    if (!supabaseAdmin) return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
+
     const url = new URL(request.url);
     const apiKey = request.headers.get('x-api-key') || url.searchParams.get('api_key');
     if (!apiKey || apiKey !== process.env.XML_API_KEY) {
