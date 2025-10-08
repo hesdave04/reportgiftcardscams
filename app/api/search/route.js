@@ -1,33 +1,35 @@
-export const dynamic = 'force-dynamic';
-
 import { NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
-export async function GET(req) {
+export async function GET(request) {
   try {
-    const supabaseAdmin = getSupabaseAdmin();
-    if (!supabaseAdmin) return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
-
-    const { searchParams } = new URL(req.url);
-    const page = Math.max(0, parseInt(searchParams.get('page') || '0', 10));
-    const pageSize = Math.min(100, parseInt(searchParams.get('pageSize') || '20', 10));
+    const { searchParams } = new URL(request.url);
     const q = (searchParams.get('q') || '').trim();
-
-    let query = supabaseAdmin
-      .from('giftcard_reports')
-      .select('id, retailer, amount, card_last4, notes, status, created_at')
-      .order('created_at', { ascending: false });
-
-    if (q) {
-      query = query.or(`retailer.ilike.%${q}%,card_last4.ilike.%${q}%,notes.ilike.%${q}%`);
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase admin env missing' }, { status: 500 });
     }
 
-    const from = page * pageSize;
-    const to = from + pageSize - 1;
-    const { data, error } = await query.range(from, to);
-    if (error) return NextResponse.json({ error: 'Database search failed' }, { status: 500 });
+    // Basic “contains” search on brand/retailer or exact last4
+    let query = supabase.from('giftcard_reports').select(`
+      id, gift_card_brand, retailer, amount, card_last4, notes, created_at, purchase_city, purchase_state, purchase_date
+    `).order('created_at', { ascending: false }).limit(50);
 
-    return NextResponse.json({ page, pageSize, results: data || [] });
+    if (q) {
+      if (/^\d{4}$/.test(q)) {
+        query = query.eq('card_last4', q);
+      } else {
+        query = query.or(`gift_card_brand.ilike.%${q}%,retailer.ilike.%${q}%`);
+      }
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error(error);
+      return NextResponse.json({ error: 'Search failed' }, { status: 500 });
+    }
+
+    return NextResponse.json({ results: data || [] });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
