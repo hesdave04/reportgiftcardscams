@@ -46,7 +46,7 @@ export default function QuickBatch() {
   const [stickyDate, setStickyDate] = useState('');
   const [useDateForAll, setUseDateForAll] = useState(true);
 
-  // NEW: fraudster sticky
+  // Fraudster sticky (applies to all rows in this batch)
   const [fraud_phone, setFraudPhone] = useState('');
   const [fraud_email, setFraudEmail] = useState('');
   const [fraud_social, setFraudSocial] = useState('');
@@ -131,7 +131,7 @@ export default function QuickBatch() {
           purchase_state: r.purchase_state || stickyState || null,
           purchase_date: r.purchase_date || (useDateForAll ? stickyDate || null : null),
           notes: r.notes || null,
-          // NEW: fraudster sticky (applies to all rows in this batch)
+          // fraudster sticky (applies to all rows)
           fraud_phone: fraud_phone || null,
           fraud_email: fraud_email || null,
           fraud_social: fraud_social || null,
@@ -202,11 +202,7 @@ export default function QuickBatch() {
             aria-label="Purchase date sticky"
           />
           <label className="flex items-center gap-2 whitespace-nowrap text-xs text-slate-600">
-            <input
-              type="checkbox"
-              checked={useDateForAll}
-              onChange={(e) => setUseDateForAll(e.target.checked)}
-            />
+            <input type="checkbox" checked={useDateForAll} onChange={(e) => setUseDateForAll(e.target.checked)} />
             Use this date for all rows
           </label>
         </div>
@@ -252,18 +248,10 @@ Tip: Write the money with a $ sign. You can also include the brand at the start.
           aria-label="Paste many"
         />
         <div className="col-span-12 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={addRowsFromText}
-            className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-black/85"
-          >
+          <button type="button" onClick={addRowsFromText} className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-black/85">
             Add these cards
           </button>
-          <button
-            type="button"
-            onClick={addBlankRow}
-            className="rounded border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-          >
+          <button type="button" onClick={addBlankRow} className="rounded border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
             Add blank row
           </button>
         </div>
@@ -271,4 +259,65 @@ Tip: Write the money with a $ sign. You can also include the brand at the start.
 
       {/* Rows table */}
       <div className="mt-4 overflow-x-auto">
-        <table className="min-w-full
+        <table className="min-w-full text-left text-sm">
+          <thead>
+            <tr className="border-b bg-slate-50 text-slate-700">
+              <th className="px-3 py-2">Brand</th>
+              <th className="px-3 py-2">Retailer</th>
+              <th className="px-3 py-2">Card # (last 4)</th>
+              <th className="px-3 py-2">Amount</th>
+              <th className="px-3 py-2">Date</th>
+              <th className="px-3 py-2">City</th>
+              <th className="px-3 py-2">State</th>
+              <th className="px-3 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan="8" className="px-3 py-6 text-center text-slate-500">No rows yet. Paste above or add a blank row.</td>
+              </tr>
+            )}
+            {rows.map((r) => (
+              <tr key={r.id} className="border-b">
+                <td className="px-3 py-2">
+                  <input value={r.gift_card_brand} onChange={(e) => updateRow(r.id, { gift_card_brand: e.target.value })} className="w-40 rounded border border-slate-300 px-2 py-1" />
+                </td>
+                <td className="px-3 py-2">
+                  <input value={r.retailer} onChange={(e) => updateRow(r.id, { retailer: e.target.value })} className="w-40 rounded border border-slate-300 px-2 py-1" />
+                </td>
+                <td className="px-3 py-2 text-slate-600">{r.card_last4 || '—'}</td>
+                <td className="px-3 py-2">
+                  <input value={r.amount ?? ''} onChange={(e) => updateRow(r.id, { amount: e.target.value })} className="w-24 rounded border border-slate-300 px-2 py-1" placeholder="$100" />
+                </td>
+                <td className="px-3 py-2">
+                  <input value={r.purchase_date} onChange={(e) => updateRow(r.id, { purchase_date: e.target.value })} type="date" className="w-40 rounded border border-slate-300 px-2 py-1" />
+                </td>
+                <td className="px-3 py-2">
+                  <input value={r.purchase_city} onChange={(e) => updateRow(r.id, { purchase_city: e.target.value })} className="w-36 rounded border border-slate-300 px-2 py-1" />
+                </td>
+                <td className="px-3 py-2">
+                  <input value={r.purchase_state} onChange={(e) => updateRow(r.id, { purchase_state: e.target.value })} className="w-28 rounded border border-slate-300 px-2 py-1" />
+                </td>
+                <td className="px-3 py-2 text-right">
+                  <button type="button" onClick={() => removeRow(r.id)} className="rounded border border-slate-300 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50">
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Submit all */}
+      <div className="mt-4 flex items-center gap-3">
+        <button disabled={!rows.length || saving} onClick={submitAll} type="button" className="rounded bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">
+          {saving ? 'Submitting…' : `Submit all (${rows.length})`}
+        </button>
+        <p className="text-xs text-slate-500">Tip: keep brand/retailer/city/state/date filled above — they auto-apply to new rows.</p>
+        {msg && <span className="text-sm text-slate-700">{msg}</span>}
+      </div>
+    </section>
+  );
+}
