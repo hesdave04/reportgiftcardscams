@@ -1,81 +1,82 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabaseAdmin'; // OR use getSupabaseAdmin if that's your helper
-import { encrypt, hmacHex } from '@/lib/crypto';
-import rateLimit from '@/utils/rate-limit';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
-const limiter = rateLimit({
-  window: parseInt(process.env.RATE_LIMIT_WINDOW || '60', 10),
-  limit: parseInt(process.env.RATE_LIMIT_MAX || '20', 10),
-});
-
-function normalizeAmount(input) {
-  if (input == null || input === '') return null;
-  const cleaned = String(input).replace(/[^\d.]/g, '');
-  const val = Number(cleaned);
-  return Number.isFinite(val) ? val : null;
+function normalizeDigits(str = '') {
+  return String(str).replace(/\D/g, '');
 }
 
 export async function POST(request) {
   try {
     const ip = request.headers.get('x-forwarded-for') || '0.0.0.0';
-    const { ok } = await limiter.check(ip);
-    if (!ok) {
-      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
-    }
-
     const body = await request.json();
-
-    // NEW: fraudster fields
-    const { fraud_phone, fraud_email, fraud_social } = body;
-
     const {
-      gift_card_brand,
-      retailer,
-      cardNumber,
-      amount,
+      gift_card_brand,       // e.g., "Apple", "Google Play"
+      retailer,              // e.g., "CVS", "Staples"
+      cardNumber,            // full digits now
+      amount,                // number or string "$200"
       purchase_city,
       purchase_state,
-      purchase_date,
-      recipient_email,
+      purchase_date,         // "YYYY-MM-DD" or "MM/DD/YYYY"
+      recipient_email,       // optional legacy
+      reporter_email,        // optional legacy
       notes,
+      fraud_phone,
+      fraud_email,
+      fraud_social
     } = body || {};
 
-    // basic validation
     if (!cardNumber) {
-      return NextResponse.json({ error: 'Missing card number' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing cardNumber' }, { status: 400 });
     }
 
-    const normalizedCard = String(cardNumber).replace(/\s|-/g, '');
-    if (!/^\d{8,19}$/.test(normalizedCard)) {
-      return NextResponse.json({ error: 'Invalid card number format' }, { status: 400 });
+    const digits = normalizeDigits(cardNumber);
+    if (!/^\d{8,22}$/.test(digits)) {
+      return NextResponse.json({ error: 'Invalid card number' }, { status: 400 });
     }
 
-    const last4 = normalizedCard.slice(-4);
-    const card_hash = hmacHex(normalizedCard);
-    const encrypted_card = encrypt(normalizedCard);
+    // normalise amount like "$200", "200", "200.00"
+    let amt = null;
+    if (amount !== undefined && amount !== null && String(amount).trim() !== '') {
+      const num = Number(String(amount).replace(/[^0-9.]/g, ''));
+      if (!Number.isNaN(num)) amt = num;
+    }
+
+    // normalise date
+    let dt = null;
+    if (purchase_date) {
+      const m = String(purchase_date).trim();
+      // accept YYYY-MM-DD or MM/DD/YYYY
+      if (/^\d{4}-\d{2}-\d{2}$/.test(m)) dt = m;
+      else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(m)) {
+        const [mm, dd, yyyy] = m.split('/');
+        dt = `${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
+      }
+    }
+
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase admin env missing' }, { status: 500 });
+    }
 
     const insert = {
       gift_card_brand: gift_card_brand || null,
       retailer: retailer || null,
-      amount: normalizeAmount(amount),
-      encrypted_card,
-      card_hash,
-      card_last4: last4,
+      card_number_plain: digits,   // <-- store full number
+      amount: amt,
       purchase_city: purchase_city || null,
       purchase_state: purchase_state || null,
-      purchase_date: purchase_date || null,
+      purchase_date: dt,
       recipient_email: recipient_email || null,
-      reporter_email: null, // keep if you previously used it
+      reporter_email: reporter_email || null,
       reporter_ip: ip,
       notes: notes || null,
-      // NEW columns:
       fraud_phone: fraud_phone || null,
       fraud_email: fraud_email || null,
       fraud_social: fraud_social || null,
-      status: 'pending',
+      status: 'pending'
     };
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('giftcard_reports')
       .insert(insert)
       .select()
@@ -86,18 +87,19 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Database insert failed' }, { status: 500 });
     }
 
+    // public-safe response (mask full number)
     const publicView = {
       id: data.id,
       gift_card_brand: data.gift_card_brand,
       retailer: data.retailer,
       amount: data.amount,
       card_last4: data.card_last4,
-      purchase_city: data.purchase_city,
-      purchase_state: data.purchase_state,
-      purchase_date: data.purchase_date,
       notes: data.notes ? (data.notes.length > 220 ? data.notes.slice(0, 220) + '…' : data.notes) : null,
       status: data.status,
-      created_at: data.created_at
+      created_at: data.created_at,
+      purchase_city: data.purchase_city,
+      purchase_state: data.purchase_state,
+      purchase_date: data.purchase_date
     };
 
     return NextResponse.json({ ok: true, report: publicView }, { status: 201 });
