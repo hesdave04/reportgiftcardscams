@@ -18,7 +18,14 @@ export default function QuickBatch() {
   function addEmptyRow() {
     setBatch((b) => [
       ...b,
-      { retailer: sticky.retailer, cardNumber: '', amount: '', purchase_city: sticky.purchase_city, purchase_state: sticky.purchase_state, purchase_date: sticky.purchase_date }
+      {
+        retailer: sticky.retailer,
+        cardNumber: '',
+        amount: '',
+        purchase_city: sticky.purchase_city,
+        purchase_state: sticky.purchase_state,
+        purchase_date: sticky.purchase_date
+      }
     ]);
   }
 
@@ -53,7 +60,8 @@ export default function QuickBatch() {
             amount: r.amount,
             purchase_city: r.purchase_city || null,
             purchase_state: r.purchase_state || null,
-            purchase_date: r.purchase_date || null
+            purchase_date: r.purchase_date || null,
+            notes: r.notes || null
           }))
         })
       });
@@ -123,12 +131,14 @@ Target, 603488******1234, 100`}
           <button
             onClick={applyPaste}
             className="rounded bg-slate-900 px-4 py-2 text-white hover:bg-slate-800"
+            type="button"
           >
             Parse & add
           </button>
           <button
             onClick={addEmptyRow}
             className="rounded border border-slate-300 px-4 py-2 hover:bg-slate-50"
+            type="button"
           >
             Add blank row
           </button>
@@ -232,6 +242,7 @@ Target, 603488******1234, 100`}
                   <td className="p-2">
                     <button
                       className="text-red-600 hover:underline"
+                      type="button"
                       onClick={() => setBatch((b) => b.filter((_, idx) => idx !== i))}
                     >
                       Remove
@@ -248,4 +259,15 @@ Target, 603488******1234, 100`}
         <button
           onClick={submitAll}
           disabled={!batch.length || saving}
-          className="rounded bg-emerald-600 px-4
+          className="rounded bg-emerald-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
+          type="button"
+        >
+          {saving ? 'Submitting…' : `Submit all (${batch.length})`}
+        </button>
+        <span className="text-xs text-slate-500">
+          Tip: keep retailer/city/state/date filled above — they auto-apply to new rows.
+        </span>
+      </div>
+    </section>
+  );
+}
