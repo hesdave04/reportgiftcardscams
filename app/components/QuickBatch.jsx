@@ -44,6 +44,11 @@ export default function QuickBatch() {
     setPasteText('');
   }
 
+  function applyStickyDateToAll() {
+    if (!sticky.purchase_date) return;
+    setBatch((b) => b.map((r) => ({ ...r, purchase_date: sticky.purchase_date })));
+  }
+
   async function submitAll() {
     if (!batch.length) return;
     setSaving(true);
@@ -88,7 +93,7 @@ export default function QuickBatch() {
         )}
       </div>
 
-      {/* Sticky fields apply to all newly added rows */}
+      {/* Sticky fields apply to all NEW rows */}
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-4">
         <input
           className="rounded border border-slate-300 p-2"
@@ -108,32 +113,52 @@ export default function QuickBatch() {
           value={sticky.purchase_state}
           onChange={(e) => setSticky((s) => ({ ...s, purchase_state: e.target.value }))}
         />
-        <input
-          className="rounded border border-slate-300 p-2"
-          type="date"
-          value={sticky.purchase_date}
-          onChange={(e) => setSticky((s) => ({ ...s, purchase_date: e.target.value }))}
-        />
+        <div className="flex items-center gap-2">
+          <input
+            className="w-full rounded border border-slate-300 p-2"
+            type="date"
+            value={sticky.purchase_date}
+            onChange={(e) => setSticky((s) => ({ ...s, purchase_date: e.target.value }))}
+          />
+          <button
+            type="button"
+            onClick={applyStickyDateToAll}
+            className="whitespace-nowrap rounded border border-slate-300 px-3 py-2 text-xs hover:bg-slate-50"
+            title="Set this date for all rows below"
+          >
+            Use this date for all rows
+          </button>
+        </div>
       </div>
 
       {/* Paste-many */}
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <textarea
-          className="h-28 w-full rounded border border-slate-300 p-2"
-          placeholder={`Paste many, e.g.
-603488******1234, 100
-489514******9988 50
-Target, 603488******1234, 100`}
-          value={pasteText}
-          onChange={(e) => setPasteText(e.target.value)}
-        />
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto_auto]">
+        <div>
+          <textarea
+            className="h-28 w-full rounded border border-slate-300 p-2"
+            placeholder={`Paste your list. One card per line, like:
+603488******1234, $100
+489514******9988 $50
+Target, 603488******1234, $100`}
+            value={pasteText}
+            onChange={(e) => setPasteText(e.target.value)}
+          />
+          <p className="mt-2 text-xs text-slate-500">
+            Tip: Write the money with a <strong>$</strong> sign. You can also include the brand at the start
+            (for example: <em>Target, 6034..., $100</em>).
+          </p>
+          <p className="text-xs text-slate-500">
+            After you add the cards, you can change the date for any row in the table below.
+          </p>
+        </div>
+
         <div className="flex items-start gap-2">
           <button
             onClick={applyPaste}
             className="rounded bg-slate-900 px-4 py-2 text-white hover:bg-slate-800"
             type="button"
           >
-            Parse & add
+            Add these cards
           </button>
           <button
             onClick={addEmptyRow}
@@ -191,6 +216,7 @@ Target, 603488******1234, 100`}
                     <input
                       className="w-24 rounded border border-slate-300 p-1"
                       inputMode="decimal"
+                      placeholder="$"
                       value={row.amount}
                       onChange={(e) =>
                         setBatch((b) =>
