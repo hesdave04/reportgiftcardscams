@@ -5,10 +5,7 @@ import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 export async function GET(request) {
   try {
     const url = new URL(request.url);
-    const days = Math.max(
-      1,
-      Math.min(365, parseInt(url.searchParams.get('days') || '180', 10))
-    );
+    const days = Math.max(1, Math.min(365, parseInt(url.searchParams.get('days') || '180', 10)));
 
     const since = new Date();
     since.setDate(since.getDate() - days);
@@ -18,12 +15,12 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
     }
 
-    // Pull the minimum fields we need, then aggregate in memory.
+    // Select * so the query succeeds even if some columns don't exist yet.
     const { data, error } = await supabase
       .from('giftcard_reports')
-      .select('gift_card_brand, seller_retailer, created_at')
+      .select('*')
       .gte('created_at', since.toISOString())
-      .limit(50000); // safety
+      .limit(50000);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
@@ -33,8 +30,20 @@ export async function GET(request) {
     const sellerCounts = {};
 
     for (const row of data || []) {
-      const brand = (row.gift_card_brand || 'Unknown').trim();
-      const seller = (row.seller_retailer || 'Unknown').trim();
+      // Backwards-compatible mapping:
+      const brand =
+        ((row.gift_card_brand ?? row.retailer) || 'Unknown').toString().trim();
+
+      // Try multiple possible seller field names; fall back to Unknown for now
+      const seller =
+        (
+          row.seller_retailer ??
+          row.purchase_retailer ??
+          row.purchase_store ??
+          row.store_name ??
+          ''
+        ).toString().trim() || 'Unknown';
+
       brandCounts[brand] = (brandCounts[brand] || 0) + 1;
       sellerCounts[seller] = (sellerCounts[seller] || 0) + 1;
     }
@@ -52,6 +61,6 @@ export async function GET(request) {
       range_days: days,
     });
   } catch (e) {
-    return NextResponse.json({ error: String(e.message || e) }, { status: 500 });
+    return NextResponse.json({ error: String(e?.message || e) }, { status: 500 });
   }
 }
