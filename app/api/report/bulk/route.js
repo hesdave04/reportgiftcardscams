@@ -13,7 +13,6 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
     }
 
-    // Normalize + basic validation
     const rows = items
       .map((i) => {
         const number = String(i.cardNumber || '').replace(/\D/g, '');
