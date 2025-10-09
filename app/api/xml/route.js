@@ -1,61 +1,81 @@
+// app/api/xml/route.js
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const runtime = 'nodejs';
+
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
-const XML_KEY = process.env.XML_API_KEY; // keep this
-
-function toXml(rows) {
-  const items = rows.map(r => `
-    <report>
-      <id>${r.id}</id>
-      <gift_card_brand>${r.gift_card_brand ?? ''}</gift_card_brand>
-      <retailer>${r.retailer ?? ''}</retailer>
-      <card_number>${r.card_number_plain ?? ''}</card_number>
-      <card_last4>${r.card_last4 ?? ''}</card_last4>
-      <amount>${r.amount ?? ''}</amount>
-      <purchase_city>${r.purchase_city ?? ''}</purchase_city>
-      <purchase_state>${r.purchase_state ?? ''}</purchase_state>
-      <purchase_date>${r.purchase_date ?? ''}</purchase_date>
-      <fraud_phone>${r.fraud_phone ?? ''}</fraud_phone>
-      <fraud_email>${r.fraud_email ?? ''}</fraud_email>
-      <fraud_social>${r.fraud_social ?? ''}</fraud_social>
-      <notes>${(r.notes ?? '').replace(/[<&>]/g, s => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[s]))}</notes>
-      <created_at>${r.created_at}</created_at>
-    </report>`).join('');
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<giftcard_reports>${items}
-</giftcard_reports>`;
+function esc(x = '') {
+  return String(x)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 export async function GET(request) {
   try {
-    if (!XML_KEY) {
-      return NextResponse.json({ error: 'XML key missing' }, { status: 500 });
-    }
-    const authHeader = request.headers.get('x-api-key');
-    if (authHeader !== XML_KEY) {
+    const apiKey = process.env.XML_API_KEY || '';
+    const headerKey = request.headers.get('x-api-key') || '';
+    if (!apiKey || headerKey !== apiKey) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const supabase = getSupabaseAdmin();
     if (!supabase) {
-      return NextResponse.json({ error: 'Supabase admin env missing' }, { status: 500 });
+      return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
     }
 
-    const { data, error } = await supabase
-      .from('giftcard_reports')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(1000);
+    const url = new URL(request.url);
+    const brand = (url.searchParams.get('brand') || '').trim();
+    const retailer = (url.searchParams.get('retailer') || '').trim();
+    const q = (url.searchParams.get('q') || '').trim();
+    const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '5000', 10), 1), 20000);
 
+    let query = supabase
+      .from('giftcard_reports')
+      .select(
+        'id, retailer, gift_card_brand, card_number_plain, card_last4, amount, purchase_date, fraud_phone, fraud_email, fraud_social, notes, created_at'
+      )
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (brand) query = query.ilike('gift_card_brand', `%${brand}%`);
+    if (retailer) query = query.ilike('retailer', `%${retailer}%`);
+    if (q) query = query.or(`retailer.ilike.%${q}%,gift_card_brand.ilike.%${q}%,notes.ilike.%${q}%`);
+
+    const { data, error } = await query;
     if (error) {
       console.error(error);
       return NextResponse.json({ error: 'Query failed' }, { status: 500 });
     }
 
-    const xml = toXml(data || []);
+    const now = new Date().toISOString();
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<giftcardReports generated="${esc(now)}">\n`;
+    for (const r of data || []) {
+      xml += `  <report id="${esc(r.id)}">\n`;
+      xml += `    <retailer>${esc(r.retailer || '')}</retailer>\n`;
+      xml += `    <brand>${esc(r.gift_card_brand || '')}</brand>\n`;
+      xml += `    <cardNumber>${esc(r.card_number_plain || '')}</cardNumber>\n`;
+      xml += `    <last4>${esc(r.card_last4 || '')}</last4>\n`;
+      xml += `    <amount>${r.amount != null ? Number(r.amount) : ''}</amount>\n`;
+      xml += `    <purchaseDate>${esc(r.purchase_date || '')}</purchaseDate>\n`;
+      xml += `    <fraudPhone>${esc(r.fraud_phone || '')}</fraudPhone>\n`;
+      xml += `    <fraudEmail>${esc(r.fraud_email || '')}</fraudEmail>\n`;
+      xml += `    <fraudSocial>${esc(r.fraud_social || '')}</fraudSocial>\n`;
+      xml += `    <notes>${esc(r.notes || '')}</notes>\n`;
+      xml += `    <createdAt>${esc(r.created_at || '')}</createdAt>\n`;
+      xml += `  </report>\n`;
+    }
+    xml += `</giftcardReports>\n`;
+
     return new NextResponse(xml, {
       status: 200,
-      headers: { 'Content-Type': 'application/xml; charset=utf-8' }
+      headers: {
+        'Content-Type': 'application/xml; charset=utf-8',
+        'Cache-Control': 'no-store',
+      },
     });
   } catch (e) {
     console.error(e);
