@@ -2,18 +2,41 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 
+/**
+ * NOTE: We intentionally avoid next/navigation's useSearchParams()
+ * to eliminate the CSR-bailout build warning. We read the query
+ * from window.location.search instead (client-only).
+ */
 export default function Stream() {
-  const searchParams = useSearchParams();
-  const q = (searchParams.get("q") || "").trim();
-
+  const [q, setQ] = useState("");
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [pageSize] = useState(20);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+
+  // Pull ?q=... from the browser URL on mount and when history changes
+  useEffect(() => {
+    function readQ() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        setQ((params.get("q") || "").trim());
+      } catch {
+        setQ("");
+      }
+    }
+    readQ();
+    window.addEventListener("popstate", readQ);
+    window.addEventListener("pushstate", readQ); // in case your router pushes state
+    window.addEventListener("replacestate", readQ);
+    return () => {
+      window.removeEventListener("popstate", readQ);
+      window.removeEventListener("pushstate", readQ);
+      window.removeEventListener("replacestate", readQ);
+    };
+  }, []);
 
   const queryKey = useMemo(() => `${q}|${page}|${pageSize}`, [q, page, pageSize]);
 
