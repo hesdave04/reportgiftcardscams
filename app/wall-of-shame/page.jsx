@@ -1,125 +1,73 @@
-'use client';
+// app/api/stats/wall-of-shame/route.js
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
-import { useEffect, useState } from 'react';
+import { NextResponse } from 'next/server';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
-export default function WallOfShamePage() {
-  const [days, setDays] = useState(180);
-  const [brands, setBrands] = useState([]);
-  const [sellers, setSellers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState('');
-
-  useEffect(() => {
-    let abort = false;
-
-    async function run() {
-      setLoading(true);
-      setErr('');
-      try {
-        // IMPORTANT: absolute path (leading slash)
-        const res = await fetch(`/api/stats/wall-of-shame?days=${days}`, {
-          cache: 'no-store',
-        });
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(`HTTP ${res.status}: ${text.slice(0, 140)}`);
-        }
-        const json = await res.json();
-        if (!abort) {
-          setBrands(json.brands || []);
-          setSellers(json.sellers || []);
-        }
-      } catch (e) {
-        if (!abort) setErr(String(e.message || e));
-      } finally {
-        if (!abort) setLoading(false);
-      }
+/**
+ * GET /api/stats/wall-of-shame?days=180
+ * => { brands: [{name, count, total_amount}], sellers: [{name, count, total_amount}] }
+ */
+export async function GET(request) {
+  try {
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
     }
 
-    run();
-    return () => {
-      abort = true;
-    };
-  }, [days]);
+    const url = new URL(request.url);
+    const daysParam = parseInt(url.searchParams.get('days') || '180', 10);
+    const days = Number.isFinite(daysParam) ? Math.min(Math.max(daysParam, 1), 3650) : 180;
+    const sinceISO = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
 
-  return (
-    <main className="max-w-6xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold text-slate-900">Wall of Shame</h1>
-      <p className="text-slate-600 mt-2">
-        Ranked lists of the most abused gift card brands and the retailers selling the most scam-related gift cards.
-      </p>
+    const batchSize = 1000;
+    let from = 0;
+    let all = [];
 
-      <div className="mt-6 flex items-center gap-3">
-        <label className="text-sm text-slate-600">Range:</label>
-        <select
-          className="border rounded-md px-3 py-2 text-sm"
-          value={days}
-          onChange={(e) => setDays(Number(e.target.value))}
-        >
-          <option value={30}>Last 30 days</option>
-          <option value={90}>Last 90 days</option>
-          <option value={180}>Last 180 days</option>
-          <option value={365}>Last 365 days</option>
-        </select>
-      </div>
+    for (;;) {
+      const { data, error } = await supabase
+        .from('giftcard_reports')
+        .select('gift_card_brand, retailer, amount, created_at')
+        .gte('created_at', sinceISO)
+        .order('created_at', { ascending: false })
+        .range(from, from + batchSize - 1);
 
-      {err && (
-        <div className="mt-4 rounded-md border border-red-300 bg-red-50 p-4 text-red-700">
-          <strong>Error:</strong> {err}
-        </div>
-      )}
+      if (error) {
+        console.error(error);
+        return NextResponse.json({ error: 'Query failed' }, { status: 500 });
+      }
+      if (!data || data.length === 0) break;
 
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <section className="rounded-xl border bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Gift Cards Used Most in Scams</h2>
-          <div className="mt-3">
-            {loading ? (
-              <p className="text-slate-500 text-sm">Loading…</p>
-            ) : brands.length === 0 ? (
-              <p className="text-slate-500 text-sm">No data yet for this range.</p>
-            ) : (
-              <ol className="mt-2 space-y-2">
-                {brands.map((row, idx) => (
-                  <li key={row.name} className="flex items-center justify-between border-b py-2 last:border-b-0">
-                    <span className="flex items-center gap-2">
-                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700">
-                        {idx + 1}
-                      </span>
-                      <span className="font-medium">{row.name}</span>
-                    </span>
-                    <span className="text-slate-600">{row.count}</span>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </div>
-        </section>
+      all = all.concat(data);
+      if (data.length < batchSize || all.length >= 10000) break;
+      from += batchSize;
+    }
 
-        <section className="rounded-xl border bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Retailers Selling the Most Scam Gift Cards</h2>
-          <div className="mt-3">
-            {loading ? (
-              <p className="text-slate-500 text-sm">Loading…</p>
-            ) : sellers.length === 0 ? (
-              <p className="text-slate-500 text-sm">No data yet for this range.</p>
-            ) : (
-              <ol className="mt-2 space-y-2">
-                {sellers.map((row, idx) => (
-                  <li key={row.name} className="flex items-center justify-between border-b py-2 last:border-b-0">
-                    <span className="flex items-center gap-2">
-                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700">
-                        {idx + 1}
-                      </span>
-                      <span className="font-medium">{row.name}</span>
-                    </span>
-                    <span className="text-slate-600">{row.count}</span>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </div>
-        </section>
-      </div>
-    </main>
-  );
+    const byBrand = new Map();
+    const bySeller = new Map();
+
+    for (const r of all) {
+      const brand = (r.gift_card_brand || '').trim() || 'Unknown';
+      const seller = (r.retailer || '').trim() || 'Unknown';
+      const amt = r.amount != null ? Number(r.amount) : 0;
+
+      const b = byBrand.get(brand) || { name: brand, count: 0, total_amount: 0 };
+      b.count += 1; b.total_amount += amt; byBrand.set(brand, b);
+
+      const s = bySeller.get(seller) || { name: seller, count: 0, total_amount: 0 };
+      s.count += 1; s.total_amount += amt; bySeller.set(seller, s);
+    }
+
+    const sortAgg = (arr) =>
+      arr.sort((a, b) => b.count - a.count || b.total_amount - a.total_amount).slice(0, 50);
+
+    return NextResponse.json({
+      brands: sortAgg(Array.from(byBrand.values())),
+      sellers: sortAgg(Array.from(bySeller.values())),
+    });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
+  }
 }
