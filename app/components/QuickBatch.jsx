@@ -1,323 +1,269 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-
-function normalizeAmount(input) {
-  if (input == null || input === '') return null;
-  const cleaned = String(input).replace(/[^\d.]/g, '');
-  const n = Number(cleaned);
-  return Number.isFinite(n) ? n : null;
-}
-
-function parseLine(line) {
-  // Accept lines like:
-  //   603488******1234, $100
-  //   Target, 603488******1234, $100
-  //   Google Play 489514******9988 $50
-  //   Target 6034..., 100
-  const raw = line.trim();
-  if (!raw) return null;
-
-  // Card-like number
-  const numMatch = raw.match(/(\d[\d*\-\s]{6,}\d)/);
-  if (!numMatch) return null;
-
-  const cardNumRaw = numMatch[1].replace(/\s|-/g, '');
-  const last4 = cardNumRaw.replace(/[^\d]/g, '').slice(-4);
-
-  // Amount
-  let amount = null;
-  const amtMatch = raw.match(/\$?\s*([\d,]+(?:\.\d{1,2})?)\s*$/);
-  if (amtMatch) amount = normalizeAmount(amtMatch[1]);
-
-  // Brand before number
-  const brandBefore = raw.slice(0, numMatch.index).trim().replace(/[,]+$/, '').trim();
-  const brand = brandBefore && /[a-z]/i.test(brandBefore) ? brandBefore : null;
-
-  return { cardNumber: cardNumRaw, card_last4: last4, amount, gift_card_brand: brand };
-}
+import { useMemo, useState } from "react";
+import SearchSelect from "./SearchSelect";
+import { BRANDS, RETAILERS } from "@/lib/prefill";
 
 export default function QuickBatch() {
-  // Sticky helpers
-  const [stickyBrand, setStickyBrand] = useState('');
-  const [stickyRetailer, setStickyRetailer] = useState('');
-  const [stickyCity, setStickyCity] = useState('');
-  const [stickyState, setStickyState] = useState('');
-  const [stickyDate, setStickyDate] = useState('');
-  const [useDateForAll, setUseDateForAll] = useState(true);
-
-  // Fraudster sticky (applies to all rows in this batch)
-  const [fraud_phone, setFraudPhone] = useState('');
-  const [fraud_email, setFraudEmail] = useState('');
-  const [fraud_social, setFraudSocial] = useState('');
-
-  // Paste
-  const [text, setText] = useState('');
-
-  // Parsed rows
   const [rows, setRows] = useState([]);
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState(null);
 
-  const addRowsFromText = () => {
-    const next = [];
-    text
-      .split('\n')
-      .map((l) => l.trim())
-      .filter(Boolean)
-      .forEach((line) => {
-        const parsed = parseLine(line);
-        if (parsed) {
-          next.push({
-            id: crypto.randomUUID(),
-            gift_card_brand: parsed.gift_card_brand || stickyBrand || '',
-            retailer: stickyRetailer || '',
-            purchase_city: stickyCity || '',
-            purchase_state: stickyState || '',
-            purchase_date: useDateForAll ? stickyDate || '' : '',
-            cardNumber: parsed.cardNumber,
-            card_last4: parsed.card_last4,
-            amount: parsed.amount ?? '',
-            notes: '',
-          });
-        }
-      });
+  // sticky fields (auto-applied)
+  const [sticky, setSticky] = useState({
+    brand: "",
+    retailer: "",
+    city: "",
+    state: "",
+    dateAll: "",
+  });
 
-    if (next.length) {
-      setRows((prev) => [...next, ...prev]);
-      setText('');
-    }
-  };
-
-  const addBlankRow = () => {
-    setRows((prev) => [
+  function addBlank() {
+    setRows((r) => [
+      ...r,
       {
-        id: crypto.randomUUID(),
-        gift_card_brand: stickyBrand || '',
-        retailer: stickyRetailer || '',
-        purchase_city: stickyCity || '',
-        purchase_state: stickyState || '',
-        purchase_date: stickyDate || '',
-        cardNumber: '',
-        card_last4: '',
-        amount: '',
-        notes: '',
+        brand: sticky.brand,
+        retailer: sticky.retailer,
+        card_number_plain: "",
+        amount: "",
+        purchase_city: sticky.city,
+        purchase_state: sticky.state,
+        purchase_date: sticky.dateAll,
       },
-      ...prev,
     ]);
-  };
+  }
 
-  const updateRow = (id, patch) => {
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
-  };
+  function parseAndAdd(text) {
+    // lines like:
+    // 603488******1234, $100
+    // Target, 603488******1234, $100
+    const lines = text
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
 
-  const removeRow = (id) => {
-    setRows((prev) => prev.filter((r) => r.id !== id));
-  };
+    const parsed = lines.map((l) => {
+      const amtMatch = l.match(/\$?\s*([0-9]+(?:\.[0-9]{1,2})?)/);
+      const digits = l.replace(/\D/g, "");
+      const brandHint =
+        BRANDS.find((b) => l.toLowerCase().includes(b.name.toLowerCase()))
+          ?.name || sticky.brand;
+      const retailerHint =
+        RETAILERS.find((r) => l.toLowerCase().includes(r.name.toLowerCase()))
+          ?.name || sticky.retailer;
 
-  const submitAll = async () => {
-    if (!rows.length || saving) return;
+      return {
+        brand: brandHint || "",
+        retailer: retailerHint || "",
+        card_number_plain: digits || "",
+        amount: amtMatch ? amtMatch[1] : "",
+        purchase_city: sticky.city || "",
+        purchase_state: sticky.state || "",
+        purchase_date: sticky.dateAll || "",
+      };
+    });
+
+    setRows((r) => [...r, ...parsed]);
+  }
+
+  async function submitAll() {
+    if (!rows.length) return;
     setSaving(true);
-    setMsg(null);
-
     try {
-      for (const r of rows) {
-        const payload = {
-          gift_card_brand: r.gift_card_brand || stickyBrand || null,
-          retailer: r.retailer || stickyRetailer || null,
-          cardNumber: r.cardNumber,
-          amount: normalizeAmount(r.amount),
-          purchase_city: r.purchase_city || stickyCity || null,
-          purchase_state: r.purchase_state || stickyState || null,
-          purchase_date: r.purchase_date || (useDateForAll ? stickyDate || null : null),
-          notes: r.notes || null,
-          // fraudster sticky (applies to all rows)
-          fraud_phone: fraud_phone || null,
-          fraud_email: fraud_email || null,
-          fraud_social: fraud_social || null,
-        };
-
-        const res = await fetch('/api/report', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        if (!res.ok) {
-          const j = await res.json().catch(() => ({}));
-          throw new Error(j.error || 'Failed to submit some rows');
-        }
-      }
-
+      const res = await fetch("/api/report/batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rows }),
+      });
+      if (!res.ok) throw new Error(await res.text());
       setRows([]);
-      setMsg('All rows submitted. Thank you!');
-    } catch (err) {
-      console.error(err);
-      setMsg(err.message || 'There was a problem submitting some rows.');
+      alert("Uploaded!");
+    } catch (e) {
+      alert(`Error: ${e.message}`);
     } finally {
       setSaving(false);
     }
-  };
+  }
+
+  function setRow(i, updates) {
+    setRows((r) => {
+      const clone = r.slice();
+      clone[i] = { ...clone[i], ...updates };
+      return clone;
+    });
+  }
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6">
-      <h3 className="mb-4 text-lg font-semibold text-slate-900">Batch mode (Paste many)</h3>
+    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <h3 className="mb-3 text-lg font-semibold text-slate-900">
+        Batch mode (Paste many)
+      </h3>
 
-      {/* Sticky helpers (top row) */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
-        <input
-          value={stickyBrand}
-          onChange={(e) => setStickyBrand(e.target.value)}
-          className="col-span-12 rounded border border-slate-300 px-3 py-2 text-sm md:col-span-3"
-          placeholder="Gift card brand (sticky) — e.g., Target, Google Play"
-          aria-label="Gift card brand sticky"
+      {/* sticky toolbar */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
+        <SearchSelect
+          items={BRANDS}
+          name="sticky_brand"
+          label="Gift Card Brand (sticky)"
+          placeholder="Apple, Google Play…"
+          kind="brands"
+          allowFreeText
+          defaultValue={sticky.brand ? { label: sticky.brand } : undefined}
         />
-        <input
-          value={stickyRetailer}
-          onChange={(e) => setStickyRetailer(e.target.value)}
-          className="col-span-12 rounded border border-slate-300 px-3 py-2 text-sm md:col-span-3"
-          placeholder="Retailer (where you bought the card)"
-          aria-label="Retailer sticky"
+        <SearchSelect
+          items={RETAILERS}
+          name="sticky_retailer"
+          label="Retailer (sticky)"
+          placeholder="CVS, Walmart…"
+          kind="retailers"
+          allowFreeText
+          defaultValue={sticky.retailer ? { label: sticky.retailer } : undefined}
         />
-        <input
-          value={stickyCity}
-          onChange={(e) => setStickyCity(e.target.value)}
-          className="col-span-6 rounded border border-slate-300 px-3 py-2 text-sm md:col-span-2"
-          placeholder="Purchase city"
-          aria-label="Purchase city sticky"
-        />
-        <input
-          value={stickyState}
-          onChange={(e) => setStickyState(e.target.value)}
-          className="col-span-6 rounded border border-slate-300 px-3 py-2 text-sm md:col-span-2"
-          placeholder="Purchase state"
-          aria-label="Purchase state sticky"
-        />
-        <div className="col-span-12 flex items-center gap-2 md:col-span-2">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Purchase city (sticky)
+          </label>
           <input
-            value={stickyDate}
-            onChange={(e) => setStickyDate(e.target.value)}
-            type="date"
-            className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
-            aria-label="Purchase date sticky"
+            value={sticky.city}
+            onChange={(e) => setSticky((s) => ({ ...s, city: e.target.value }))}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
           />
-          <label className="flex items-center gap-2 whitespace-nowrap text-xs text-slate-600">
-            <input type="checkbox" checked={useDateForAll} onChange={(e) => setUseDateForAll(e.target.checked)} />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Purchase state (sticky)
+          </label>
+          <input
+            value={sticky.state}
+            onChange={(e) =>
+              setSticky((s) => ({ ...s, state: e.target.value }))
+            }
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
             Use this date for all rows
           </label>
+          <input
+            type="date"
+            value={sticky.dateAll}
+            onChange={(e) =>
+              setSticky((s) => ({ ...s, dateAll: e.target.value }))
+            }
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          />
         </div>
       </div>
 
-      {/* Fraudster sticky row */}
-      <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-12">
-        <input
-          value={fraud_phone}
-          onChange={(e) => setFraudPhone(e.target.value)}
-          className="col-span-12 rounded border border-slate-300 px-3 py-2 text-sm md:col-span-3"
-          placeholder="Fraudster's phone (applies to all rows)"
-          aria-label="Fraudster phone"
-        />
-        <input
-          value={fraud_email}
-          onChange={(e) => setFraudEmail(e.target.value)}
-          className="col-span-12 rounded border border-slate-300 px-3 py-2 text-sm md:col-span-4"
-          placeholder="Fraudster's email (applies to all rows)"
-          aria-label="Fraudster email"
-        />
-        <input
-          value={fraud_social}
-          onChange={(e) => setFraudSocial(e.target.value)}
-          className="col-span-12 rounded border border-slate-300 px-3 py-2 text-sm md:col-span-5"
-          placeholder="Fraudster’s social profile link(s) (applies to all rows)"
-          aria-label="Fraudster social"
-        />
-      </div>
-
-      {/* Paste box + buttons */}
-      <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-12">
+      <div className="mt-3 grid grid-cols-[1fr_auto_auto] gap-2">
         <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="col-span-12 min-h-[140px] rounded border border-slate-300 px-3 py-2 text-sm font-mono"
-          placeholder={`Paste your list. One card per line, like:
-603488******1234, $100
-489514******9988 $50
-Target, 603488******1234, $100
-
-Tip: Write the money with a $ sign. You can also include the brand at the start.`}
-          aria-label="Paste many"
+          rows={5}
+          placeholder={`Paste your list. One card per line, like:\n603488******1234, $100\nTarget, 603488******1234, $100`}
+          className="col-span-1 rounded-lg border border-slate-300 px-3 py-2 font-mono text-[13px]"
+          onPaste={(e) => {
+            // allow paste → parse & add quickly
+          }}
+          id="batchPaste"
         />
-        <div className="col-span-12 flex flex-wrap items-center gap-2">
-          <button type="button" onClick={addRowsFromText} className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-black/85">
-            Add these cards
-          </button>
-          <button type="button" onClick={addBlankRow} className="rounded border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-            Add blank row
-          </button>
-        </div>
+        <button
+          type="button"
+          className="rounded-lg bg-slate-900 px-4 py-2 font-semibold text-white hover:bg-slate-800"
+          onClick={() => {
+            const el = document.getElementById("batchPaste");
+            parseAndAdd(el.value);
+            el.value = "";
+          }}
+        >
+          Add these cards
+        </button>
+        <button
+          type="button"
+          className="rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-50"
+          onClick={addBlank}
+        >
+          Add blank row
+        </button>
       </div>
 
-      {/* Rows table */}
+      {/* rows table */}
       <div className="mt-4 overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
+        <table className="min-w-full text-sm">
           <thead>
-            <tr className="border-b bg-slate-50 text-slate-700">
+            <tr className="bg-slate-50 text-left text-slate-600">
               <th className="px-3 py-2">Brand</th>
               <th className="px-3 py-2">Retailer</th>
-              <th className="px-3 py-2">Card # (last 4)</th>
+              <th className="px-3 py-2">Card #</th>
               <th className="px-3 py-2">Amount</th>
-              <th className="px-3 py-2">Date</th>
               <th className="px-3 py-2">City</th>
               <th className="px-3 py-2">State</th>
+              <th className="px-3 py-2">Date</th>
               <th className="px-3 py-2"></th>
             </tr>
           </thead>
           <tbody>
-            {rows.length === 0 && (
-              <tr>
-                <td colSpan="8" className="px-3 py-6 text-center text-slate-500">No rows yet. Paste above or add a blank row.</td>
-              </tr>
-            )}
-            {rows.map((r) => (
-              <tr key={r.id} className="border-b">
+            {rows.map((r, i) => (
+              <tr key={i} className="border-b">
                 <td className="px-3 py-2">
-                  <input value={r.gift_card_brand} onChange={(e) => updateRow(r.id, { gift_card_brand: e.target.value })} className="w-40 rounded border border-slate-300 px-2 py-1" />
-                </td>
-                <td className="px-3 py-2">
-                  <input value={r.retailer} onChange={(e) => updateRow(r.id, { retailer: e.target.value })} className="w-40 rounded border border-slate-300 px-2 py-1" />
-                </td>
-                <td className="px-3 py-2 text-slate-600">{r.card_last4 || '—'}</td>
-                <td className="px-3 py-2">
-                  <input value={r.amount ?? ''} onChange={(e) => updateRow(r.id, { amount: e.target.value })} className="w-24 rounded border border-slate-300 px-2 py-1" placeholder="$100" />
+                  <input
+                    value={r.brand}
+                    onChange={(e) => setRow(i, { brand: e.target.value })}
+                    className="w-40 rounded border border-slate-300 px-2 py-1"
+                    placeholder="Apple"
+                  />
                 </td>
                 <td className="px-3 py-2">
-                  <input value={r.purchase_date} onChange={(e) => updateRow(r.id, { purchase_date: e.target.value })} type="date" className="w-40 rounded border border-slate-300 px-2 py-1" />
+                  <input
+                    value={r.retailer}
+                    onChange={(e) => setRow(i, { retailer: e.target.value })}
+                    className="w-40 rounded border border-slate-300 px-2 py-1"
+                    placeholder="CVS"
+                  />
                 </td>
                 <td className="px-3 py-2">
-                  <input value={r.purchase_city} onChange={(e) => updateRow(r.id, { purchase_city: e.target.value })} className="w-36 rounded border border-slate-300 px-2 py-1" />
+                  <input
+                    value={r.card_number_plain}
+                    onChange={(e) =>
+                      setRow(i, { card_number_plain: e.target.value })
+                    }
+                    className="w-56 rounded border border-slate-300 px-2 py-1"
+                    placeholder="digits only"
+                  />
                 </td>
                 <td className="px-3 py-2">
-                  <input value={r.purchase_state} onChange={(e) => updateRow(r.id, { purchase_state: e.target.value })} className="w-28 rounded border border-slate-300 px-2 py-1" />
+                  <input
+                    value={r.amount}
+                    onChange={(e) => setRow(i, { amount: e.target.value })}
+                    className="w-24 rounded border border-slate-300 px-2 py-1"
+                    placeholder="$200"
+                  />
                 </td>
-                <td className="px-3 py-2 text-right">
-                  <button type="button" onClick={() => removeRow(r.id)} className="rounded border border-slate-300 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50">
-                    Remove
-                  </button>
+                <td className="px-3 py-2">
+                  <input
+                    value={r.purchase_city}
+                    onChange={(e) => setRow(i, { purchase_city: e.target.value })}
+                    className="w-36 rounded border border-slate-300 px-2 py-1"
+                  />
                 </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Submit all */}
-      <div className="mt-4 flex items-center gap-3">
-        <button disabled={!rows.length || saving} onClick={submitAll} type="button" className="rounded bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">
-          {saving ? 'Submitting…' : `Submit all (${rows.length})`}
-        </button>
-        <p className="text-xs text-slate-500">Tip: keep brand/retailer/city/state/date filled above — they auto-apply to new rows.</p>
-        {msg && <span className="text-sm text-slate-700">{msg}</span>}
-      </div>
-    </section>
-  );
-}
+                <td className="px-3 py-2">
+                  <input
+                    value={r.purchase_state}
+                    onChange={(e) =>
+                      setRow(i, { purchase_state: e.target.value })
+                    }
+                    className="w-20 rounded border border-slate-300 px-2 py-1"
+                  />
+                </td>
+                <td className="px-3 py-2">
+                  <input
+                    type="date"
+                    value={r.purchase_date}
+                    onChange={(e) =>
+                      setRow(i, { purchase_date: e.target.value })
+                    }
+                    className="rounded border border-slate-300 px-2 py-1"
+                  />
+                </td>
+                <td className="px-3 py-2">
+                  <button
+                    type="button"
+                    className="rounded border border-slate-300
