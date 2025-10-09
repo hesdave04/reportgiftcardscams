@@ -1,4 +1,7 @@
 // app/page.jsx
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import ReportForm from './components/ReportForm';
@@ -6,7 +9,7 @@ import SiteHeader from './components/SiteHeader';
 import HowItWorks from './components/HowItWorks';
 import QuickBatch from './components/QuickBatch';
 
-// Dynamically import Stream (CSR only) to avoid SSR + useSearchParams conflict
+// CSR-only to avoid any SSR coupling
 const Stream = dynamic(() => import('./components/Stream'), { ssr: false });
 
 export const metadata = {
