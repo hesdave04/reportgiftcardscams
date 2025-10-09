@@ -1,15 +1,11 @@
 // app/api/stats/wall-of-shame/route.js
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const runtime = 'nodejs';
+
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
-/**
- * GET /api/stats/wall-of-shame?days=180
- * Returns:
- * {
- *   brands:  [{ name: "Amazon", count: 12, total_amount: 2400.00 }, ...],
- *   sellers: [{ name: "CVS (in-store)", count: 8, total_amount: 1600.00 }, ...]
- * }
- */
 export async function GET(request) {
   try {
     const supabase = getSupabaseAdmin();
@@ -22,7 +18,6 @@ export async function GET(request) {
     const days = Number.isFinite(daysParam) ? Math.min(Math.max(daysParam, 1), 3650) : 180;
     const sinceISO = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
 
-    // Page through rows to avoid huge single requests (cap ~10k)
     const batchSize = 1000;
     let from = 0;
     let all = [];
@@ -46,7 +41,6 @@ export async function GET(request) {
       from += batchSize;
     }
 
-    // Aggregate in memory
     const byBrand = new Map();
     const bySeller = new Map();
 
@@ -55,24 +49,20 @@ export async function GET(request) {
       const seller = (r.retailer || '').trim() || 'Unknown';
       const amt = r.amount != null ? Number(r.amount) : 0;
 
-      const bAgg = byBrand.get(brand) || { name: brand, count: 0, total_amount: 0 };
-      bAgg.count += 1;
-      bAgg.total_amount += amt;
-      byBrand.set(brand, bAgg);
+      const b = byBrand.get(brand) || { name: brand, count: 0, total_amount: 0 };
+      b.count += 1; b.total_amount += amt; byBrand.set(brand, b);
 
-      const sAgg = bySeller.get(seller) || { name: seller, count: 0, total_amount: 0 };
-      sAgg.count += 1;
-      sAgg.total_amount += amt;
-      bySeller.set(seller, sAgg);
+      const s = bySeller.get(seller) || { name: seller, count: 0, total_amount: 0 };
+      s.count += 1; s.total_amount += amt; bySeller.set(seller, s);
     }
 
     const sortAgg = (arr) =>
       arr.sort((a, b) => b.count - a.count || b.total_amount - a.total_amount).slice(0, 50);
 
-    const brands = sortAgg(Array.from(byBrand.values()));
-    const sellers = sortAgg(Array.from(bySeller.values()));
-
-    return NextResponse.json({ brands, sellers });
+    return NextResponse.json({
+      brands: sortAgg(Array.from(byBrand.values())),
+      sellers: sortAgg(Array.from(bySeller.values())),
+    });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
