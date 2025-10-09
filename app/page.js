@@ -1,6 +1,13 @@
+// app/page.jsx
+import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import ReportForm from './components/ReportForm';
-import Stream from './components/Stream';
-import XmlSidebar from './components/XmlSidebar';
+import SiteHeader from './components/SiteHeader';
+import HowItWorks from './components/HowItWorks';
+import QuickBatch from './components/QuickBatch';
+
+// Dynamically import Stream (CSR only) to avoid SSR + useSearchParams conflict
+const Stream = dynamic(() => import('./components/Stream'), { ssr: false });
 
 export const metadata = {
   title: 'Gift Card Report',
@@ -9,41 +16,25 @@ export const metadata = {
 
 export default function HomePage() {
   return (
-    <main className="container mx-auto max-w-5xl px-4 py-10">
-      <header className="mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight">
-          Gift Card Number Reporting
-        </h1>
-        <p className="mt-2 text-slate-600">
-          Submit details of a gift card you shared and to whom. The public stream only shows the last 4 digits.
-          Full numbers are encrypted and available via authenticated XML export for verified parties.
-        </p>
-      </header>
+    <main className="mx-auto max-w-6xl px-4 py-6">
+      <SiteHeader />
+      <HowItWorks />
 
-      {/* Form + XML sidebar */}
-      <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <div className="rounded-2xl bg-white p-6 shadow-md ring-1 ring-slate-200">
-            <ReportForm />
-          </div>
-        </div>
-        <XmlSidebar />
+      <section id="report-form" className="mt-8">
+        <ReportForm />
       </section>
 
-      {/* Recent reports */}
-      <section id="reports" className="mt-10">
-        <h3 className="mb-3 text-lg font-semibold">Recent Reports</h3>
-        <div className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-slate-200">
+      <h3 className="mt-10 text-xl font-bold text-slate-900">Quick Batch Upload</h3>
+      <div className="mt-3">
+        <QuickBatch />
+      </div>
+
+      <h3 className="mt-10 text-xl font-bold text-slate-900">Recent Reports</h3>
+      <div className="mt-3">
+        <Suspense fallback={<div className="text-slate-500 text-sm">Loading stream…</div>}>
           <Stream />
-        </div>
-      </section>
-
-      <footer className="mt-10 text-xs text-slate-500">
-        <p>
-          Server endpoint: <code className="font-mono">/api/xml</code> — preferred auth header{' '}
-          <code className="font-mono">x-api-key: YOUR_XML_API_KEY</code>.
-        </p>
-      </footer>
+        </Suspense>
+      </div>
     </main>
   );
 }
