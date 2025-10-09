@@ -1,210 +1,188 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-
-function normalizeAmount(input) {
-  if (input == null || input === '') return null;
-  const cleaned = String(input).replace(/[^\d.]/g, '');
-  const n = Number(cleaned);
-  return Number.isFinite(n) ? n : null;
-}
+import { useState } from "react";
+import SearchSelect from "./SearchSelect";
+import { BRANDS, RETAILERS } from "@/lib/prefill";
 
 export default function ReportForm() {
-  const [gift_card_brand, setBrand] = useState('');
-  const [retailer, setRetailer] = useState('');
-
-  const [cardNumber, setCardNumber] = useState('');
-  const [amount, setAmount] = useState('');
-
-  const [purchase_city, setCity] = useState('');
-  const [purchase_state, setStateCode] = useState('');
-  const [purchase_date, setDate] = useState('');
-
-  const [recipient_email, setRecipientEmail] = useState('');
-  const [notes, setNotes] = useState('');
-
-  // NEW fraudster fields
-  const [fraud_phone, setFraudPhone] = useState('');
-  const [fraud_email, setFraudEmail] = useState('');
-  const [fraud_social, setFraudSocial] = useState('');
-
   const [submitting, setSubmitting] = useState(false);
-  const [msg, setMsg] = useState(null);
+  const [message, setMessage] = useState("");
 
-  const onSubmit = async (e) => {
+  async function onSubmit(e) {
     e.preventDefault();
-    if (submitting) return;
     setSubmitting(true);
-    setMsg(null);
+    setMessage("");
+
+    const form = new FormData(e.currentTarget);
+    const payload = Object.fromEntries(form.entries());
+
+    // normalize amount
+    if (payload.amount) {
+      const n = String(payload.amount).replace(/[^0-9.]/g, "");
+      payload.amount = n ? Number(n) : null;
+    }
 
     try {
-      const payload = {
-        gift_card_brand: gift_card_brand || null,
-        retailer: retailer || null,
-        cardNumber: cardNumber,
-        amount: normalizeAmount(amount),
-        purchase_city: purchase_city || null,
-        purchase_state: purchase_state || null,
-        purchase_date: purchase_date || null,
-        recipient_email: recipient_email || null,
-        notes: notes || null,
-        // NEW:
-        fraud_phone: fraud_phone || null,
-        fraud_email: fraud_email || null,
-        fraud_social: fraud_social || null,
-      };
-
-      const res = await fetch('/api/report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        throw new Error(j.error || 'Failed to submit');
-      }
-
-      setMsg('Report submitted. Thank you!');
-      // clear most fields, keep brand/retailer to ease repeated entries
-      setCardNumber('');
-      setAmount('');
-      setCity('');
-      setStateCode('');
-      setDate('');
-      setRecipientEmail('');
-      setNotes('');
-      setFraudPhone('');
-      setFraudEmail('');
-      setFraudSocial('');
+      if (!res.ok) throw new Error(await res.text());
+      e.currentTarget.reset();
+      setMessage("Report submitted. Thank you for helping others!");
     } catch (err) {
-      console.error(err);
-      setMsg(err.message || 'Something went wrong');
+      setMessage(`Error: ${err.message}`);
     } finally {
       setSubmitting(false);
     }
-  };
+  }
 
   return (
-    <form onSubmit={onSubmit} className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6">
-      <h2 className="mb-1 text-xl font-semibold text-slate-900">Submit a Gift Card</h2>
-      <p className="mb-4 text-sm text-slate-600">
-        Only the last 4 digits are displayed publicly. Full numbers are protected and used for verification.
-      </p>
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {/* Gift card brand */}
-        <input
-          value={gift_card_brand}
-          onChange={(e) => setBrand(e.target.value)}
-          className="rounded border border-slate-300 px-3 py-2 text-sm"
-          placeholder="Gift Card Brand (e.g., Target, Google Play)"
-          aria-label="Gift card brand"
+    <form id="report-form" onSubmit={onSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <SearchSelect
+          items={BRANDS}
+          name="gift_card_brand"
+          label="Gift Card Brand"
+          placeholder="Start typing (e.g., Apple, Google Play)…"
+          kind="brands"
+          allowFreeText
         />
 
-        {/* Retailer */}
-        <input
-          value={retailer}
-          onChange={(e) => setRetailer(e.target.value)}
-          className="rounded border border-slate-300 px-3 py-2 text-sm"
-          placeholder="Retailer (where you bought the card)"
-          aria-label="Retailer where purchased"
+        <SearchSelect
+          items={RETAILERS}
+          name="retailer"
+          label="Retailer (where you bought the card)"
+          placeholder="Start typing (e.g., CVS, Walmart)…"
+          kind="retailers"
+          allowFreeText
         />
+      </div>
 
-        {/* Card number */}
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Gift Card Number
+        </label>
         <input
-          value={cardNumber}
-          onChange={(e) => setCardNumber(e.target.value)}
-          className="col-span-1 sm:col-span-2 rounded border border-slate-300 px-3 py-2 text-sm"
-          placeholder="Gift Card Number (digits only)"
-          aria-label="Gift Card Number"
+          name="card_number_plain"
+          inputMode="numeric"
+          placeholder="Digits only"
+          className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          required
         />
+        <p className="mt-1 text-xs text-slate-500">
+          We only show the last 4 publicly. Full numbers help investigators and
+          card issuers.
+        </p>
+      </div>
 
-        {/* City/state/date */}
-        <input
-          value={purchase_city}
-          onChange={(e) => setCity(e.target.value)}
-          className="rounded border border-slate-300 px-3 py-2 text-sm"
-          placeholder="Purchase City (optional)"
-          aria-label="Purchase city"
-        />
-        <input
-          value={purchase_state}
-          onChange={(e) => setStateCode(e.target.value)}
-          className="rounded border border-slate-300 px-3 py-2 text-sm"
-          placeholder="Purchase State (optional)"
-          aria-label="Purchase state"
-        />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Purchase City (optional)
+          </label>
+          <input
+            name="purchase_city"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+            placeholder="e.g., University Park"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Purchase State (optional)
+          </label>
+          <input
+            name="purchase_state"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+            placeholder="e.g., FL"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Purchase Date (optional)
+          </label>
+          <input
+            name="purchase_date"
+            type="date"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          />
+        </div>
+      </div>
 
-        <input
-          value={purchase_date}
-          type="date"
-          onChange={(e) => setDate(e.target.value)}
-          className="rounded border border-slate-300 px-3 py-2 text-sm"
-          placeholder="Purchase Date (optional)"
-          aria-label="Purchase date"
-        />
-        {/* Amount */}
-        <input
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="rounded border border-slate-300 px-3 py-2 text-sm"
-          placeholder="Amount (e.g., $100)"
-          aria-label="Amount"
-        />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Amount (optional)
+          </label>
+          <input
+            name="amount"
+            inputMode="decimal"
+            placeholder="$200"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Fraudster Phone (optional)
+          </label>
+          <input
+            name="fraud_phone"
+            placeholder="e.g., 903-319-1092"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Fraudster Email (optional)
+          </label>
+          <input
+            name="fraud_email"
+            type="email"
+            placeholder="name@example.com"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          />
+        </div>
+      </div>
 
-        {/* Fraudster fields */}
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Fraudster Social (optional)
+        </label>
         <input
-          value={fraud_phone}
-          onChange={(e) => setFraudPhone(e.target.value)}
-          className="rounded border border-slate-300 px-3 py-2 text-sm"
-          placeholder="Fraudster's phone (optional)"
-          aria-label="Fraudster phone"
+          name="fraud_social"
+          placeholder="Links or @handles"
+          className="w-full rounded-lg border border-slate-300 px-3 py-2"
         />
-        <input
-          value={fraud_email}
-          onChange={(e) => setFraudEmail(e.target.value)}
-          className="rounded border border-slate-300 px-3 py-2 text-sm"
-          placeholder="Fraudster's email (optional)"
-          aria-label="Fraudster email"
-        />
-        <input
-          value={fraud_social}
-          onChange={(e) => setFraudSocial(e.target.value)}
-          className="col-span-1 sm:col-span-2 rounded border border-slate-300 px-3 py-2 text-sm"
-          placeholder="Fraudster's social profile link(s) (optional)"
-          aria-label="Fraudster social"
-        />
+      </div>
 
-        {/* Recipient email */}
-        <input
-          value={recipient_email}
-          onChange={(e) => setRecipientEmail(e.target.value)}
-          className="col-span-1 sm:col-span-2 rounded border border-slate-300 px-3 py-2 text-sm"
-          placeholder="Recipient Email (optional)"
-          aria-label="Recipient email"
-        />
-
-        {/* Notes */}
+      <div>
+        <label className="mb-1 block text-sm font-medium text-slate-700">
+          Notes (optional)
+        </label>
         <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="col-span-1 sm:col-span-2 min-h-[96px] rounded border border-slate-300 px-3 py-2 text-sm"
-          placeholder="Notes (optional)"
-          aria-label="Notes"
+          name="notes"
+          rows={3}
+          className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          placeholder="Any extra details (keep factual; no sensitive personal data)."
         />
       </div>
 
-      <div className="mt-4 flex items-center gap-3">
+      <div className="pt-2">
         <button
-          disabled={submitting}
-          className="rounded bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
           type="submit"
+          disabled={submitting}
+          className="rounded-lg bg-slate-900 px-5 py-2.5 font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
         >
-          {submitting ? 'Submitting…' : 'Submit Report'}
+          {submitting ? "Submitting…" : "Submit Report"}
         </button>
-        {msg && <span className="text-sm text-slate-700">{msg}</span>}
       </div>
+
+      {message && (
+        <div className="text-sm text-slate-700" role="status">
+          {message}
+        </div>
+      )}
     </form>
   );
 }
