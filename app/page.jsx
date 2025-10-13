@@ -3,14 +3,14 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
+import NextDynamic from 'next/dynamic'; // ← renamed to avoid clashing with export above
 import ReportForm from './components/ReportForm';
 import SiteHeader from './components/SiteHeader';
 import HowItWorks from './components/HowItWorks';
 import QuickBatch from './components/QuickBatch';
 
-// CSR-only to avoid any SSR coupling
-const Stream = dynamic(() => import('./components/Stream'), { ssr: false });
+// CSR-only to avoid SSR + query issues
+const Stream = NextDynamic(() => import('./components/Stream'), { ssr: false });
 
 export const metadata = {
   title: 'Gift Card Report',
@@ -21,6 +21,7 @@ export default function HomePage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-6">
       <SiteHeader />
+
       <HowItWorks />
 
       <section id="report-form" className="mt-8">
