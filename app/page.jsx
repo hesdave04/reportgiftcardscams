@@ -3,13 +3,13 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
+import dynamicImport from 'next/dynamic';
 
 import ReportForm from './components/ReportForm';
 import QuickBatch from './components/QuickBatch';
 
-// RecentReports is a client component that uses hooks; load it on the client.
-const RecentReports = dynamic(() => import('./components/RecentReports'), {
+// Load RecentReports only on the client
+const RecentReports = dynamicImport(() => import('./components/RecentReports'), {
   ssr: false,
   loading: () => <div className="text-slate-500 text-sm">Loading stream…</div>,
 });
@@ -17,7 +17,7 @@ const RecentReports = dynamic(() => import('./components/RecentReports'), {
 export default function HomePage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-6">
-      {/* DO NOT render <SiteHeader /> here; it's already in app/layout.jsx */}
+      {/* Header/nav is provided by app/layout.jsx, so nothing here */}
 
       <section id="report-form" className="mt-2">
         <ReportForm />
