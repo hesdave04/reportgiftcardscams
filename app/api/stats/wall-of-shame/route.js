@@ -1,70 +1,66 @@
 // app/api/stats/wall-of-shame/route.js
+import { NextResponse } from 'next/server';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
+
+// Make this route dynamic so Vercel doesn't try to prerender it
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const runtime = 'nodejs';
 
-import { NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
-
 export async function GET(request) {
   try {
-    const supabase = getSupabaseAdmin();
-    if (!supabase) {
-      return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
+    const { searchParams } = new URL(request.url);
+    let days = parseInt(searchParams.get('days') || '180', 10);
+    if (!Number.isFinite(days) || days <= 0) days = 180;
+
+    const supa = getSupabaseAdmin();
+    if (!supa) {
+      return NextResponse.json(
+        { error: 'Supabase admin client not configured (check env vars).' },
+        { status: 500 }
+      );
     }
 
-    const url = new URL(request.url);
-    const daysParam = parseInt(url.searchParams.get('days') || '180', 10);
-    const days = Number.isFinite(daysParam) ? Math.min(Math.max(daysParam, 1), 3650) : 180;
-    const sinceISO = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+    // Cutoff: now - N days
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const cutoffISO = cutoff.toISOString();
 
-    const batchSize = 1000;
-    let from = 0;
-    let all = [];
+    // Pull minimal columns and filter by purchase_date OR created_at
+    const { data, error } = await supa
+      .from('giftcard_reports')
+      .select('gift_card_brand, retailer, purchase_date, created_at')
+      .or(`purchase_date.gte.${cutoffISO},created_at.gte.${cutoffISO}`)
+      .limit(50000); // generous but safe cap
 
-    for (;;) {
-      const { data, error } = await supabase
-        .from('giftcard_reports')
-        .select('gift_card_brand, retailer, amount, created_at')
-        .gte('created_at', sinceISO)
-        .order('created_at', { ascending: false })
-        .range(from, from + batchSize - 1);
+    if (error) throw error;
 
-      if (error) {
-        console.error(error);
-        return NextResponse.json({ error: 'Query failed' }, { status: 500 });
-      }
-      if (!data || data.length === 0) break;
+    const brandCounts = new Map();
+    const sellerCounts = new Map();
 
-      all = all.concat(data);
-      if (data.length < batchSize || all.length >= 10000) break;
-      from += batchSize;
+    for (const row of data || []) {
+      const brand = (row.gift_card_brand || 'Unknown').trim();
+      const seller = (row.retailer || 'Unknown').trim();
+
+      brandCounts.set(brand, (brandCounts.get(brand) || 0) + 1);
+      sellerCounts.set(seller, (sellerCounts.get(seller) || 0) + 1);
     }
 
-    const byBrand = new Map();
-    const bySeller = new Map();
+    const topify = (map) =>
+      Array.from(map.entries())
+        .filter(([k]) => k && k.toLowerCase() !== 'other')
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 20)
+        .map(([name, count]) => ({ name, count }));
 
-    for (const r of all) {
-      const brand = (r.gift_card_brand || '').trim() || 'Unknown';
-      const seller = (r.retailer || '').trim() || 'Unknown';
-      const amt = r.amount != null ? Number(r.amount) : 0;
-
-      const b = byBrand.get(brand) || { name: brand, count: 0, total_amount: 0 };
-      b.count += 1; b.total_amount += amt; byBrand.set(brand, b);
-
-      const s = bySeller.get(seller) || { name: seller, count: 0, total_amount: 0 };
-      s.count += 1; s.total_amount += amt; bySeller.set(seller, s);
-    }
-
-    const sortAgg = (arr) =>
-      arr.sort((a, b) => b.count - a.count || b.total_amount - a.total_amount).slice(0, 50);
-
-    return NextResponse.json({
-      brands: sortAgg(Array.from(byBrand.values())),
-      sellers: sortAgg(Array.from(bySeller.values())),
-    });
-  } catch (e) {
-    console.error(e);
-    return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
+    return NextResponse.json(
+      { brands: topify(brandCounts), sellers: topify(sellerCounts) },
+      { headers: { 'cache-control': 'no-store' } }
+    );
+  } catch (err) {
+    return NextResponse.json(
+      { error: String(err?.message || err) },
+      { status: 500 }
+    );
   }
 }
