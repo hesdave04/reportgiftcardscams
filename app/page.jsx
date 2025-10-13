@@ -3,23 +3,21 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { Suspense } from 'react';
-import NextDynamic from 'next/dynamic'; // avoid name clash with export above
+import dynamic from 'next/dynamic';
+
 import ReportForm from './components/ReportForm';
-import SiteHeader from './components/SiteHeader';
 import QuickBatch from './components/QuickBatch';
 
-// CSR-only to avoid SSR/query issues
-const Stream = NextDynamic(() => import('./components/Stream'), { ssr: false });
-
-export const metadata = {
-  title: 'Gift Card Report',
-  description: 'Report and search suspected gift card misuse.',
-};
+// RecentReports is a client component that uses hooks; load it on the client.
+const RecentReports = dynamic(() => import('./components/RecentReports'), {
+  ssr: false,
+  loading: () => <div className="text-slate-500 text-sm">Loading stream…</div>,
+});
 
 export default function HomePage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-6">
-      <SiteHeader />
+      {/* DO NOT render <SiteHeader /> here; it's already in app/layout.jsx */}
 
       <section id="report-form" className="mt-2">
         <ReportForm />
@@ -33,7 +31,7 @@ export default function HomePage() {
       <h3 className="mt-10 text-xl font-bold text-slate-900">Recent Reports</h3>
       <div className="mt-3">
         <Suspense fallback={<div className="text-slate-500 text-sm">Loading stream…</div>}>
-          <Stream />
+          <RecentReports />
         </Suspense>
       </div>
     </main>
