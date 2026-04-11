@@ -1,7 +1,7 @@
 import XmlSidebar from '../components/XmlSidebar';
 
 export const metadata = {
-  title: 'Trust & Security — Gift Card Reporter',
+  title: 'Trust & Security — Scam and Gift Card Reporter',
   description:
     'How we handle data, what we show publicly, and how verified partners can request access.',
 };
