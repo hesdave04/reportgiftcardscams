@@ -5,11 +5,20 @@ export default function Nav() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <a href="/" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white font-bold">GC</div>
-          <span className="text-sm font-semibold text-slate-900">Gift Card Reporter</span>
+          <span className="text-sm font-semibold text-slate-900">Scam Reporter</span>
         </a>
 
         <div className="flex items-center gap-3 text-sm">
           <a href="/" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">Home</a>
+          
+          {/* NEW LINK */}
+          <a
+            href="/case-builder"
+            className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
+          >
+            Build Report
+          </a>
+
           <a href="/trust" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">Trust</a>
           <a href="/#xml" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">XML</a>
           <a href="/#reports" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">Reports</a>
