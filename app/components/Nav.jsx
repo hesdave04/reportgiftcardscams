@@ -22,6 +22,7 @@ export default function Nav() {
           <a href="/trust" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">Trust</a>
           <a href="/#xml" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">XML</a>
           <a href="/#reports" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">Reports</a>
+          <a href="/case-builder" className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-gray-100">Build Your Report</a>
         </div>
       </div>
     </nav>
