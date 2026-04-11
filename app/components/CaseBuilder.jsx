@@ -56,6 +56,8 @@ const steps = [
 export default function CaseBuilder() {
   const [step, setStep] = useState(0);
   const [isListening, setIsListening] = useState(false);
+  const [voiceDraft, setVoiceDraft] = useState("");
+  const [showVoiceReview, setShowVoiceReview] = useState(false);
   const recognitionRef = useRef(null);
 
   const [formData, setFormData] = useState({
@@ -125,6 +127,9 @@ export default function CaseBuilder() {
       return;
     }
 
+    setVoiceDraft("");
+    setShowVoiceReview(false);
+
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
     recognition.interimResults = false;
@@ -136,10 +141,7 @@ export default function CaseBuilder() {
 
     recognition.onresult = (event) => {
       const transcript = event.results?.[0]?.[0]?.transcript || "";
-      setFormData((prev) => ({
-        ...prev,
-        story: prev.story ? `${prev.story} ${transcript}` : transcript,
-      }));
+      setVoiceDraft(transcript);
     };
 
     recognition.onerror = () => {
@@ -148,10 +150,39 @@ export default function CaseBuilder() {
 
     recognition.onend = () => {
       setIsListening(false);
+      if (voiceDraft || recognitionRef.current?.lastTranscript) {
+        setShowVoiceReview(true);
+      }
     };
 
     recognitionRef.current = recognition;
+    recognition.lastTranscript = "";
+
+    recognition.onresult = (event) => {
+      const transcript = event.results?.[0]?.[0]?.transcript || "";
+      recognition.lastTranscript = transcript;
+      setVoiceDraft(transcript);
+    };
+
     recognition.start();
+  }
+
+  function useVoiceDraft() {
+    if (!voiceDraft.trim()) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      story: prev.story ? `${prev.story} ${voiceDraft}` : voiceDraft,
+    }));
+
+    setVoiceDraft("");
+    setShowVoiceReview(false);
+  }
+
+  function retryVoiceInput() {
+    setVoiceDraft("");
+    setShowVoiceReview(false);
+    startVoiceInput();
   }
 
   async function handleSubmit() {
@@ -224,13 +255,82 @@ export default function CaseBuilder() {
               onChange={(e) => updateField("story", e.target.value)}
             />
 
-            <button
-              type="button"
-              onClick={startVoiceInput}
-              className="mt-4 rounded-xl bg-black px-4 py-3 text-white hover:opacity-90"
-            >
-              {isListening ? "Listening..." : "Use Voice Input"}
-            </button>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={startVoiceInput}
+                className={`rounded-xl px-4 py-3 text-white ${
+                  isListening
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-black hover:opacity-90"
+                }`}
+              >
+                {isListening ? "Listening..." : "Use Voice Input"}
+              </button>
+
+              {formData.story && (
+                <button
+                  type="button"
+                  onClick={() => updateField("story", "")}
+                  className="rounded-xl border border-gray-300 px-4 py-3 hover:border-black"
+                >
+                  Clear Story
+                </button>
+              )}
+            </div>
+
+            {isListening && (
+              <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                Recording in progress. Speak clearly, then stop speaking when you
+                are done.
+              </div>
+            )}
+
+            {showVoiceReview && voiceDraft && (
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="mb-2 text-sm font-semibold text-slate-900">
+                  Voice capture complete
+                </div>
+                <p className="text-sm text-slate-600">
+                  Review what was captured before adding it to your report.
+                </p>
+
+                <div className="mt-3 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-800">
+                  {voiceDraft}
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={useVoiceDraft}
+                    className="rounded-xl bg-black px-4 py-3 text-white hover:opacity-90"
+                  >
+                    Use This
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={retryVoiceInput}
+                    className="rounded-xl border border-gray-300 px-4 py-3 hover:border-black"
+                  >
+                    Try Again
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      useVoiceDraft();
+                      setTimeout(() => {
+                        startVoiceInput();
+                      }, 150);
+                    }}
+                    className="rounded-xl border border-gray-300 px-4 py-3 hover:border-black"
+                  >
+                    Use This and Add More
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -376,9 +476,7 @@ export default function CaseBuilder() {
                     <button
                       key={item}
                       type="button"
-                      onClick={() =>
-                        toggleArrayValue("paymentMethods", item)
-                      }
+                      onClick={() => toggleArrayValue("paymentMethods", item)}
                       className={`rounded-xl border p-4 text-left transition ${
                         selected
                           ? "border-black bg-black text-white"
