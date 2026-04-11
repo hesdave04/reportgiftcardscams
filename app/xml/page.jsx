@@ -2,7 +2,7 @@
 import XmlBuilderClient from "./XmlBuilderClient";
 
 export const metadata = {
-  title: "Download XML – Gift Card Reports",
+  title: "Download XML – Scam Reports",
   description: "Generate a filtered XML for law enforcement and issuers.",
 };
 
