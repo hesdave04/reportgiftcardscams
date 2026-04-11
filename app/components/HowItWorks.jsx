@@ -4,7 +4,7 @@
 export default function HowItWorks() {
   const steps = [
     {
-      title: '1. Report a Gift Card',
+      title: '1. Report a Scam',
       desc:
         'Share the brand, where you bought it, the amount, and the card number (only the last 4 are displayed publicly).',
       icon: '📝',
@@ -32,7 +32,7 @@ export default function HowItWorks() {
   return (
     <section className="mt-12">
       <h2 className="text-2xl font-bold text-slate-900">
-        How Reporting Gift Card Scams Works
+        How Reporting Scam Scams Works
       </h2>
       <p className="mt-2 text-slate-600">
         Your reports help expose fraud, protect victims, and support enforcement.
