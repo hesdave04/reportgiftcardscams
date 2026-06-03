@@ -1,51 +1,85 @@
-# ONBOARDING Documentation
+# Scam Complaints — Onboarding
+
+## What This Is
+**scamcomplaints.org** — a public scam reporting platform where users can submit gift card fraud reports, search existing reports, and build detailed case files. Law enforcement and verified partners can access data via authenticated XML exports.
+
+## Tech Stack
+- **Next.js 14** (App Router) + **React 18** — frontend framework
+- **Supabase** (PostgreSQL) — database and admin client
+- **Tailwind CSS** — styling
+- **Vercel** — hosting and deployment
+- **reCAPTCHA v2** — bot protection on forms
+- **AES-256-GCM** — encryption for sensitive card numbers
 
 ## Project Structure
-The project is organized into a modular structure for easy navigation and understanding. 
-
 ```
 reportgiftcardscams/
-├── src/                     # Source code
-│   ├── components/          # UI Components
-│   ├── services/            # API services
-│   ├── utils/               # Utility functions
-│   └── App.js               # Main application file
-├── tests/                   # Test files
-└── public/                  # Static files
-    └── index.html           # Main HTML file
+├── app/                        # Next.js App Router
+│   ├── api/                    # API routes
+│   │   ├── admin/bulk/         # Authenticated bulk import
+│   │   ├── config/recaptcha/   # reCAPTCHA site key endpoint
+│   │   ├── intake/             # Case builder submissions
+│   │   ├── report/             # Single report submissions
+│   │   │   └── bulk/           # Public bulk submissions
+│   │   ├── search/             # Search reports
+│   │   ├── stats/wall-of-shame/# Aggregated stats
+│   │   └── xml/                # Authenticated XML export
+│   ├── case-builder/           # Step-by-step report wizard
+│   ├── components/             # Shared UI components
+│   ├── providers/              # React context providers
+│   ├── trust/                  # Trust & Security page
+│   ├── wall-of-shame/          # Ranked scam brands/retailers
+│   └── xml/                    # XML download builder UI
+├── lib/                        # Server utilities
+│   ├── crypto.js               # AES-256-GCM encrypt/decrypt + HMAC
+│   ├── recaptcha.js            # reCAPTCHA v2 server verification
+│   ├── supabaseAdmin.js        # Supabase admin client
+│   └── prefill.js              # Form prefill helpers
+├── utils/                      # Shared utilities
+│   ├── rate-limit.js           # In-memory IP rate limiter
+│   └── parseMany.js            # Batch CSV/text parser
+├── scripts/                    # Dev/ops scripts
+│   ├── generate-logos.mjs      # Logo generation
+│   └── upload-batch.js         # Batch upload tool
+└── public/                     # Static assets
 ```
 
 ## Setup
-1. Clone the repository using:
+1. Clone the repository:
    ```bash
    git clone https://github.com/hesdave04/reportgiftcardscams.git
    cd reportgiftcardscams
    ```
-2. Install the dependencies:
+2. Install dependencies:
    ```bash
    npm install
    ```
-3. Start the development server:
+3. Copy env template and fill in values:
    ```bash
-   npm start
+   cp env.local .env.local
+   ```
+   Required variables:
+   - `SUPABASE_URL` — your Supabase project URL
+   - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key
+   - `ENCRYPTION_KEY` — base64-encoded 32-byte key for AES-256-GCM
+   - `HMAC_KEY` — base64-encoded 32-byte key for card hashing
+   - `XML_API_KEY` — API key for law enforcement XML endpoint
+   - `RECAPTCHA_SECRET_KEY` — reCAPTCHA v2 secret key
+   - `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` — reCAPTCHA v2 site key
+
+4. Start the dev server:
+   ```bash
+   npm run dev
    ```
 
-## Tech Stack
-- **React**: Frontend framework
-- **Node.js**: Backend environment
-- **Express**: Web framework for Node.js
-- **MongoDB**: NoSQL database
-- **Axios**: Promise-based HTTP client for the browser and Node.js
+## Key Pages
+| Route | Description |
+|-------|-------------|
+| `/` | Home — report form, batch upload, recent reports stream |
+| `/case-builder` | 8-step guided scam report wizard |
+| `/wall-of-shame` | Ranked lists of most-abused gift card brands and retailers |
+| `/trust` | Trust & Security — data handling policies |
+| `/xml` | XML download builder for verified partners |
 
-## How to Edit Components
-- Locate the component you wish to edit in the `src/components/` directory.
-- Ensure changes are made in accordance with the project guidelines (e.g. naming conventions, styling).  
-- Test your changes locally before committing.
-
-## File Organization for Knowledge Transfer
-- **Code Documentation**: Ensure each component and service has comments and documentation.
-- **Commit Messages**: Use clear and descriptive commit messages. 
-- **Pull Requests**: Describe the changes made in pull requests thoroughly for better understanding during reviews.
-
----
-This document serves as a guide for new contributors and team members to get acquainted with the project quickly.
+## Deployment
+Push to `main` → Vercel auto-deploys to scamcomplaints.org.

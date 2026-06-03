@@ -35,17 +35,17 @@ export default function Nav() {
           </a>
 
           <a
-            href="/#xml"
+            href="/wall-of-shame"
             className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
           >
-            XML
+            Wall of Shame
           </a>
 
           <a
-            href="/#reports"
+            href="/xml"
             className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
           >
-            Reports
+            XML
           </a>
         </div>
       </div>
