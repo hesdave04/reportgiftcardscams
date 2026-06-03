@@ -1,8 +1,42 @@
 import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyRecaptchaV2 } from "@/lib/recaptcha";
+import rateLimit from "@/utils/rate-limit";
+
+const limiter = rateLimit({ window: 60, limit: 10 });
 
 export async function POST(request) {
   try {
+    const ip = request.headers.get("x-forwarded-for") || "0.0.0.0";
+
+    // Rate limiting
+    const { ok: withinLimit } = await limiter.check(ip);
+    if (!withinLimit) {
+      return Response.json(
+        { success: false, error: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
+
+    // Verify reCAPTCHA if configured
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    if (secretKey) {
+      const token = body.recaptchaToken;
+      if (!token) {
+        return Response.json(
+          { success: false, error: "reCAPTCHA verification required" },
+          { status: 400 }
+        );
+      }
+      const { ok: captchaOk } = await verifyRecaptchaV2(token, ip);
+      if (!captchaOk) {
+        return Response.json(
+          { success: false, error: "reCAPTCHA verification failed" },
+          { status: 403 }
+        );
+      }
+    }
 
     const client = getSupabaseAdmin();
 

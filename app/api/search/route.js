@@ -5,9 +5,18 @@ export const runtime = 'nodejs';
 
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
+import rateLimit from '@/utils/rate-limit';
+
+const limiter = rateLimit({ window: 60, limit: 30 });
 
 export async function GET(request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || '0.0.0.0';
+    const { ok: withinLimit } = await limiter.check(ip);
+    if (!withinLimit) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+
     const supabase = getSupabaseAdmin();
     if (!supabase) {
       return NextResponse.json({ error: 'Server not configured' }, { status: 500 });

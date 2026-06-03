@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
+import { encrypt, hmacHex } from '@/lib/crypto';
+import { verifyRecaptchaV2 } from '@/lib/recaptcha';
+import rateLimit from '@/utils/rate-limit';
+
+const limiter = rateLimit({ window: 60, limit: 10 });
 
 function normalizeDigits(str = '') {
   return String(str).replace(/\D/g, '');
@@ -8,22 +13,42 @@ function normalizeDigits(str = '') {
 export async function POST(request) {
   try {
     const ip = request.headers.get('x-forwarded-for') || '0.0.0.0';
+
+    // Rate limiting
+    const { ok: withinLimit } = await limiter.check(ip);
+    if (!withinLimit) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    }
+
     const body = await request.json();
     const {
-      gift_card_brand,       // e.g., "Apple", "Google Play"
-      retailer,              // e.g., "CVS", "Staples"
-      cardNumber,            // full digits now
-      amount,                // number or string "$200"
+      gift_card_brand,
+      retailer,
+      cardNumber,
+      amount,
       purchase_city,
       purchase_state,
-      purchase_date,         // "YYYY-MM-DD" or "MM/DD/YYYY"
-      recipient_email,       // optional legacy
-      reporter_email,        // optional legacy
+      purchase_date,
+      recipient_email,
+      reporter_email,
       notes,
       fraud_phone,
       fraud_email,
-      fraud_social
+      fraud_social,
+      recaptchaToken
     } = body || {};
+
+    // Verify reCAPTCHA if configured
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    if (secretKey) {
+      if (!recaptchaToken) {
+        return NextResponse.json({ error: 'reCAPTCHA verification required' }, { status: 400 });
+      }
+      const { ok: captchaOk } = await verifyRecaptchaV2(recaptchaToken, ip);
+      if (!captchaOk) {
+        return NextResponse.json({ error: 'reCAPTCHA verification failed' }, { status: 403 });
+      }
+    }
 
     if (!cardNumber) {
       return NextResponse.json({ error: 'Missing cardNumber' }, { status: 400 });
@@ -34,18 +59,17 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid card number' }, { status: 400 });
     }
 
-    // normalise amount like "$200", "200", "200.00"
+    // Normalise amount like "$200", "200", "200.00"
     let amt = null;
     if (amount !== undefined && amount !== null && String(amount).trim() !== '') {
       const num = Number(String(amount).replace(/[^0-9.]/g, ''));
       if (!Number.isNaN(num)) amt = num;
     }
 
-    // normalise date
+    // Normalise date
     let dt = null;
     if (purchase_date) {
       const m = String(purchase_date).trim();
-      // accept YYYY-MM-DD or MM/DD/YYYY
       if (/^\d{4}-\d{2}-\d{2}$/.test(m)) dt = m;
       else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(m)) {
         const [mm, dd, yyyy] = m.split('/');
@@ -58,10 +82,22 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Supabase admin env missing' }, { status: 500 });
     }
 
+    // Encrypt the full card number, store hash for lookups
+    let cardEncrypted = null;
+    let cardHash = null;
+    try {
+      cardEncrypted = encrypt(digits);
+      cardHash = hmacHex(digits);
+    } catch (e) {
+      // If encryption keys aren't configured, fall back to plaintext
+      console.warn('Encryption not configured, storing plaintext:', e.message);
+    }
+
     const insert = {
       gift_card_brand: gift_card_brand || null,
       retailer: retailer || null,
-      card_number_plain: digits,   // <-- store full number
+      card_number_plain: cardEncrypted || digits, // encrypted if available, else plaintext
+      card_last4: digits.slice(-4),
       amount: amt,
       purchase_city: purchase_city || null,
       purchase_state: purchase_state || null,
@@ -76,6 +112,11 @@ export async function POST(request) {
       status: 'pending'
     };
 
+    // Add hash if available
+    if (cardHash) {
+      insert.card_hash = cardHash;
+    }
+
     const { data, error } = await supabase
       .from('giftcard_reports')
       .insert(insert)
@@ -87,7 +128,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Database insert failed' }, { status: 500 });
     }
 
-    // public-safe response (mask full number)
+    // Public-safe response (mask full number)
     const publicView = {
       id: data.id,
       gift_card_brand: data.gift_card_brand,
