@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useCallback } from "react";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 /* ─── constants ─── */
 
@@ -58,6 +59,7 @@ const steps = [
 /* ─── component ─── */
 
 export default function CaseBuilder() {
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [step, setStep] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [voiceDraft, setVoiceDraft] = useState("");
@@ -188,10 +190,20 @@ export default function CaseBuilder() {
   async function handleSubmit() {
     setSubmitting(true);
     try {
+      // Get reCAPTCHA token if available
+      let recaptchaToken = null;
+      if (executeRecaptcha) {
+        try {
+          recaptchaToken = await executeRecaptcha("submit_case");
+        } catch (e) {
+          console.warn("reCAPTCHA execution failed:", e);
+        }
+      }
+
       const response = await fetch("/api/intake", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, recaptchaToken }),
       });
       const result = await response.json();
       if (!response.ok) {

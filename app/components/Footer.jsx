@@ -26,6 +26,8 @@ export default function Footer() {
               <li><a href="/case-builder" className="text-slate-600 hover:text-slate-900">Report a Scam</a></li>
               <li><a href="/wall-of-shame" className="text-slate-600 hover:text-slate-900">Wall of Shame</a></li>
               <li><a href="/trust" className="text-slate-600 hover:text-slate-900">Trust & Security</a></li>
+              <li><a href="/about" className="text-slate-600 hover:text-slate-900">About</a></li>
+              <li><a href="/privacy" className="text-slate-600 hover:text-slate-900">Privacy Policy</a></li>
               <li><a href="/xml" className="text-slate-600 hover:text-slate-900">XML Data Access</a></li>
             </ul>
           </div>
