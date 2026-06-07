@@ -59,6 +59,7 @@ export async function POST(request) {
       suspect_username: body.suspectUsername || null,
       suspect_wallet: body.suspectWallet || null,
       suspect_website: body.suspectWebsite || null,
+      evidence_urls: Array.isArray(body.evidenceUrls) ? body.evidenceUrls : [],
       full_payload: body,
       status: "new",
     };
