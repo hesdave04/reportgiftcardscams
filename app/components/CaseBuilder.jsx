@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 /* ─── constants ─── */
+
+const STORAGE_KEY = "scamcomplaints_draft";
 
 const scamTypes = [
   { label: "Romance Scam", icon: "💔" },
@@ -41,56 +43,126 @@ const paymentMethods = [
   { label: "PayPal", icon: "🅿️" },
   { label: "Zelle", icon: "⚡" },
   { label: "Cash", icon: "💰" },
-  { label: "No Money Sent", icon: "🚫" },
   { label: "Other", icon: "❓" },
 ];
 
-const steps = [
-  { title: "Your Story", subtitle: "Tell us what happened" },
-  { title: "Scam Type", subtitle: "What kind of scam was it?" },
-  { title: "Contact Method", subtitle: "How they reached you" },
-  { title: "What Was Shared", subtitle: "Money or personal info?" },
-  { title: "Payment Details", subtitle: "How much and how" },
-  { title: "Timeline", subtitle: "Key dates" },
-  { title: "Scammer Info", subtitle: "Any details you have" },
-  { title: "Review & Submit", subtitle: "Confirm your report" },
-];
+const emptyForm = {
+  story: "",
+  scamType: "",
+  platforms: [],
+  sentMoney: "",
+  sentPersonalInfo: "",
+  amount: "",
+  paymentMethods: [],
+  startDate: "",
+  paymentDate: "",
+  realizedDate: "",
+  suspectName: "",
+  suspectEmail: "",
+  suspectPhone: "",
+  suspectUsername: "",
+  suspectWallet: "",
+  suspectWebsite: "",
+};
 
-/* ─── component ─── */
+/* ─── Flow phases ─── */
+const PHASE = {
+  WELCOME: "welcome",
+  STORY: "story",
+  EXTRACTING: "extracting",
+  CONFIRM_EXTRACTION: "confirm_extraction",
+  SCAM_TYPE: "scam_type",
+  PLATFORMS: "platforms",
+  MONEY_SENT: "money_sent",
+  PAYMENT_DETAILS: "payment_details",
+  TIMELINE: "timeline",
+  SCAMMER_INFO: "scammer_info",
+  REVIEW: "review",
+  SUBMITTING: "submitting",
+  SUCCESS: "success",
+};
+
+/* ─── Main component ─── */
 
 export default function CaseBuilder() {
   const { executeRecaptcha } = useGoogleReCaptcha();
-  const [step, setStep] = useState(0);
+  const [phase, setPhase] = useState(PHASE.WELCOME);
+  const [formData, setFormData] = useState(emptyForm);
+  const [extractedData, setExtractedData] = useState(null);
+  const [extractionError, setExtractionError] = useState(false);
+  const [intakeId, setIntakeId] = useState(null);
+  const [hasDraft, setHasDraft] = useState(false);
+  const [fadeIn, setFadeIn] = useState(true);
+  const containerRef = useRef(null);
+
+  // Voice state
   const [isListening, setIsListening] = useState(false);
   const [voiceDraft, setVoiceDraft] = useState("");
   const [showVoiceReview, setShowVoiceReview] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [intakeId, setIntakeId] = useState(null);
   const recognitionRef = useRef(null);
 
-  const [formData, setFormData] = useState({
-    story: "",
-    scamType: "",
-    platforms: [],
-    sentMoney: "",
-    sentPersonalInfo: "",
-    amount: "",
-    paymentMethods: [],
-    startDate: "",
-    paymentDate: "",
-    realizedDate: "",
-    suspectName: "",
-    suspectEmail: "",
-    suspectPhone: "",
-    suspectUsername: "",
-    suspectWallet: "",
-    suspectWebsite: "",
-  });
+  /* ─── localStorage persistence ─── */
 
-  const progress = useMemo(() => {
-    return Math.round(((step + 1) / steps.length) * 100);
-  }, [step]);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.story || parsed.scamType) {
+          setHasDraft(true);
+        }
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (phase !== PHASE.WELCOME && phase !== PHASE.SUCCESS) {
+      try {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({ ...formData, _phase: phase })
+        );
+      } catch {}
+    }
+  }, [formData, phase]);
+
+  function loadDraft() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const { _phase, ...data } = JSON.parse(saved);
+        setFormData((prev) => ({ ...prev, ...data }));
+        // Jump to where they left off, but at minimum to the story phase
+        if (_phase && _phase !== PHASE.WELCOME && _phase !== PHASE.EXTRACTING && _phase !== PHASE.SUBMITTING) {
+          transitionTo(_phase);
+        } else {
+          transitionTo(PHASE.STORY);
+        }
+      }
+    } catch {
+      transitionTo(PHASE.STORY);
+    }
+  }
+
+  function clearDraft() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    setHasDraft(false);
+  }
+
+  /* ─── phase transitions with animation ─── */
+
+  function transitionTo(nextPhase) {
+    setFadeIn(false);
+    setTimeout(() => {
+      setPhase(nextPhase);
+      setFadeIn(true);
+      if (containerRef.current) {
+        containerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 200);
+  }
+
+  /* ─── form helpers ─── */
 
   function updateField(field, value) {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -109,15 +181,7 @@ export default function CaseBuilder() {
     });
   }
 
-  function nextStep() {
-    if (step < steps.length - 1) setStep((prev) => prev + 1);
-  }
-
-  function prevStep() {
-    if (step > 0) setStep((prev) => prev - 1);
-  }
-
-  /* ─── voice ─── */
+  /* ─── voice input ─── */
 
   function startVoiceInput() {
     if (typeof window === "undefined") return;
@@ -140,23 +204,19 @@ export default function CaseBuilder() {
     let fullTranscript = "";
 
     recognition.onstart = () => setIsListening(true);
-
     recognition.onresult = (event) => {
       for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
-          fullTranscript += (fullTranscript ? " " : "") + event.results[i][0].transcript;
+          fullTranscript +=
+            (fullTranscript ? " " : "") + event.results[i][0].transcript;
         }
       }
       setVoiceDraft(fullTranscript);
     };
-
     recognition.onerror = () => setIsListening(false);
-
     recognition.onend = () => {
       setIsListening(false);
-      if (fullTranscript.trim()) {
-        setShowVoiceReview(true);
-      }
+      if (fullTranscript.trim()) setShowVoiceReview(true);
     };
 
     recognitionRef.current = recognition;
@@ -164,9 +224,7 @@ export default function CaseBuilder() {
   }
 
   function stopVoiceInput() {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-    }
+    if (recognitionRef.current) recognitionRef.current.stop();
   }
 
   function useVoiceDraft() {
@@ -185,12 +243,89 @@ export default function CaseBuilder() {
     startVoiceInput();
   }
 
+  /* ─── AI extraction ─── */
+
+  async function extractFromStory() {
+    transitionTo(PHASE.EXTRACTING);
+    setExtractionError(false);
+    try {
+      const res = await fetch("/api/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ story: formData.story }),
+      });
+
+      if (!res.ok) {
+        throw new Error("extraction failed");
+      }
+
+      const { extracted } = await res.json();
+      setExtractedData(extracted);
+
+      // Pre-fill form with extracted data
+      setFormData((prev) => ({
+        ...prev,
+        scamType: extracted.scamType || prev.scamType,
+        platforms: extracted.platforms?.length ? extracted.platforms : prev.platforms,
+        sentMoney: extracted.sentMoney || prev.sentMoney,
+        sentPersonalInfo: extracted.sentPersonalInfo || prev.sentPersonalInfo,
+        amount: extracted.amount != null ? String(extracted.amount) : prev.amount,
+        paymentMethods: extracted.paymentMethods?.length
+          ? extracted.paymentMethods
+          : prev.paymentMethods,
+        startDate: extracted.startDate || prev.startDate,
+        paymentDate: extracted.paymentDate || prev.paymentDate,
+        realizedDate: extracted.realizedDate || prev.realizedDate,
+        suspectName: extracted.suspectName || prev.suspectName,
+        suspectEmail: extracted.suspectEmail || prev.suspectEmail,
+        suspectPhone: extracted.suspectPhone || prev.suspectPhone,
+        suspectUsername: extracted.suspectUsername || prev.suspectUsername,
+        suspectWallet: extracted.suspectWallet || prev.suspectWallet,
+        suspectWebsite: extracted.suspectWebsite || prev.suspectWebsite,
+      }));
+
+      transitionTo(PHASE.CONFIRM_EXTRACTION);
+    } catch {
+      setExtractionError(true);
+      // Fallback to manual flow
+      transitionTo(PHASE.SCAM_TYPE);
+    }
+  }
+
+  /* ─── smart next step ─── */
+
+  function getNextPhase(currentPhase) {
+    switch (currentPhase) {
+      case PHASE.CONFIRM_EXTRACTION:
+        return PHASE.REVIEW;
+      case PHASE.SCAM_TYPE:
+        return PHASE.PLATFORMS;
+      case PHASE.PLATFORMS:
+        return PHASE.MONEY_SENT;
+      case PHASE.MONEY_SENT:
+        return formData.sentMoney === "No"
+          ? PHASE.TIMELINE
+          : PHASE.PAYMENT_DETAILS;
+      case PHASE.PAYMENT_DETAILS:
+        return PHASE.TIMELINE;
+      case PHASE.TIMELINE:
+        return PHASE.SCAMMER_INFO;
+      case PHASE.SCAMMER_INFO:
+        return PHASE.REVIEW;
+      default:
+        return PHASE.REVIEW;
+    }
+  }
+
+  function goNext(from) {
+    transitionTo(getNextPhase(from));
+  }
+
   /* ─── submit ─── */
 
   async function handleSubmit() {
-    setSubmitting(true);
+    transitionTo(PHASE.SUBMITTING);
     try {
-      // Get reCAPTCHA token if available
       let recaptchaToken = null;
       if (executeRecaptcha) {
         try {
@@ -206,136 +341,184 @@ export default function CaseBuilder() {
         body: JSON.stringify({ ...formData, recaptchaToken }),
       });
       const result = await response.json();
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(result?.error || "Something went wrong.");
-      }
+
       setIntakeId(result.intakeId);
-      setSubmitted(true);
+      clearDraft();
+      transitionTo(PHASE.SUCCESS);
     } catch (error) {
       alert(error.message || "Failed to submit report.");
-    } finally {
-      setSubmitting(false);
+      transitionTo(PHASE.REVIEW);
     }
   }
 
-  /* ─── success screen ─── */
+  /* ─── progress calculation ─── */
 
-  if (submitted) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
-          <svg className="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <h1 className="text-3xl font-bold text-slate-900">Report Submitted</h1>
-        <p className="mt-3 text-lg text-slate-600">
-          Thank you for reporting this scam. Your report helps protect others and supports investigators.
-        </p>
-        {intakeId && (
-          <p className="mt-4 text-sm text-slate-500">
-            Reference ID: <span className="font-mono font-medium text-slate-700">{intakeId.slice(0, 8)}</span>
-          </p>
-        )}
-        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <a
-            href="/case-builder"
-            onClick={() => {
-              setSubmitted(false);
-              setStep(0);
-              setFormData({
-                story: "", scamType: "", platforms: [], sentMoney: "",
-                sentPersonalInfo: "", amount: "", paymentMethods: [],
-                startDate: "", paymentDate: "", realizedDate: "",
-                suspectName: "", suspectEmail: "", suspectPhone: "",
-                suspectUsername: "", suspectWallet: "", suspectWebsite: "",
-              });
-            }}
-            className="rounded-xl bg-slate-900 px-6 py-3 font-medium text-white hover:bg-slate-800 transition-colors"
-          >
-            Submit Another Report
-          </a>
-          <a
-            href="/"
-            className="rounded-xl border border-slate-300 px-6 py-3 font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-          >
-            Back to Home
-          </a>
-        </div>
-      </div>
-    );
-  }
+  const phaseOrder = [
+    PHASE.WELCOME,
+    PHASE.STORY,
+    PHASE.EXTRACTING,
+    PHASE.CONFIRM_EXTRACTION,
+    PHASE.SCAM_TYPE,
+    PHASE.PLATFORMS,
+    PHASE.MONEY_SENT,
+    PHASE.PAYMENT_DETAILS,
+    PHASE.TIMELINE,
+    PHASE.SCAMMER_INFO,
+    PHASE.REVIEW,
+  ];
 
-  /* ─── main render ─── */
+  const progress = useMemo(() => {
+    const idx = phaseOrder.indexOf(phase);
+    if (idx < 0) return 100;
+    return Math.round((idx / (phaseOrder.length - 1)) * 100);
+  }, [phase]);
+
+  /* ─── Render ─── */
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          Build Your Scam Report
-        </h1>
-        <p className="mt-2 text-slate-600">
-          We'll walk you through this step by step. Take your time — every detail helps.
-        </p>
-      </div>
+    <div ref={containerRef} className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
+      {/* Progress bar — hidden on welcome/success */}
+      {phase !== PHASE.WELCOME &&
+        phase !== PHASE.SUCCESS &&
+        phase !== PHASE.SUBMITTING && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">
+                Building your report
+              </span>
+              <span className="text-xs text-slate-400">
+                ~3 min
+              </span>
+            </div>
+            <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-700 ease-out"
+                style={{ width: `${Math.max(progress, 5)}%` }}
+              />
+            </div>
+          </div>
+        )}
 
-      {/* Progress bar */}
-      <div className="mb-8">
-        <div className="mb-3 flex items-center justify-between">
-          <span className="text-sm font-medium text-slate-700">
-            Step {step + 1} of {steps.length}: {steps[step].title}
-          </span>
-          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
-            {progress}%
-          </span>
-        </div>
-        <div className="h-2 w-full rounded-full bg-slate-100">
-          <div
-            className="h-2 rounded-full bg-red-600 transition-all duration-500 ease-out"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+      {/* Phase content with fade transition */}
+      <div
+        className={`transition-all duration-200 ${
+          fadeIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+        }`}
+      >
+        {/* ── WELCOME ── */}
+        {phase === PHASE.WELCOME && (
+          <div className="text-center py-8">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50">
+              <svg
+                className="h-8 w-8 text-red-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                />
+              </svg>
+            </div>
 
-        {/* Step dots */}
-        <div className="mt-3 hidden gap-1 sm:flex">
-          {steps.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => i <= step && setStep(i)}
-              disabled={i > step}
-              className={`flex-1 rounded-md px-1 py-1.5 text-center text-[11px] font-medium transition-colors ${
-                i === step
-                  ? "bg-red-50 text-red-700"
-                  : i < step
-                  ? "bg-slate-50 text-slate-500 hover:bg-slate-100 cursor-pointer"
-                  : "text-slate-300 cursor-not-allowed"
-              }`}
-              title={s.title}
-            >
-              {i < step ? "✓" : i + 1}
-            </button>
-          ))}
-        </div>
-      </div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              You're in the right place.
+            </h1>
+            <p className="mt-4 text-lg text-slate-600 leading-relaxed max-w-lg mx-auto">
+              What happened to you isn't your fault. We'll help you build a clear, 
+              detailed report that can protect others and support investigations.
+            </p>
+            <p className="mt-3 text-sm text-slate-400">
+              Most people finish in about 3 minutes. Your progress is saved automatically.
+            </p>
 
-      {/* Step content */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        {/* ─── Step 0: Your Story ─── */}
-        {step === 0 && (
-          <div>
-            <StepHeader
-              title="Tell us what happened"
-              desc="Use your own words. You can type, or tap the microphone to speak."
-            />
+            <div className="mt-8 flex flex-col items-center gap-3">
+              <button
+                onClick={() => transitionTo(PHASE.STORY)}
+                className="inline-flex items-center gap-2 rounded-2xl bg-red-600 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-red-600/20 hover:bg-red-700 hover:shadow-red-600/30 transition-all"
+              >
+                Start Your Report
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+              </button>
+
+              {hasDraft && (
+                <button
+                  onClick={loadDraft}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  <svg
+                    className="h-4 w-4 text-slate-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  Continue where you left off
+                </button>
+              )}
+            </div>
+
+            {/* Trust signals */}
+            <div className="mt-12 grid grid-cols-3 gap-4 text-center">
+              <div className="rounded-xl bg-slate-50 p-3">
+                <div className="text-lg">🔒</div>
+                <div className="mt-1 text-xs text-slate-500">Encrypted &<br/>private</div>
+              </div>
+              <div className="rounded-xl bg-slate-50 p-3">
+                <div className="text-lg">⏱️</div>
+                <div className="mt-1 text-xs text-slate-500">~3 min to<br/>complete</div>
+              </div>
+              <div className="rounded-xl bg-slate-50 p-3">
+                <div className="text-lg">🤖</div>
+                <div className="mt-1 text-xs text-slate-500">AI helps fill<br/>in details</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── STORY ── */}
+        {phase === PHASE.STORY && (
+          <PhaseCard>
+            <QuestionBubble>
+              Tell us what happened — in your own words.
+            </QuestionBubble>
+            <p className="mt-2 text-sm text-slate-500">
+              Don't worry about getting it perfect. Just describe what happened
+              — who contacted you, what they said, what you did. You can type or use voice.
+            </p>
 
             <textarea
-              className="mt-4 min-h-[160px] w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-base leading-relaxed outline-none focus:border-red-300 focus:bg-white focus:ring-2 focus:ring-red-100 transition-colors"
-              placeholder="Example: I met someone on Facebook who told me to buy gift cards and send them the codes. I bought $2,000 in Apple gift cards from Walmart..."
+              className="mt-5 min-h-[180px] w-full rounded-2xl border border-slate-200 bg-slate-50 p-5 text-base leading-relaxed outline-none focus:border-red-300 focus:bg-white focus:ring-2 focus:ring-red-100 transition-colors resize-none"
+              placeholder="Example: Someone messaged me on Instagram pretending to be a crypto investor. They got me to send $3,000 in Bitcoin to a wallet address..."
               value={formData.story}
               onChange={(e) => updateField("story", e.target.value)}
+              autoFocus
             />
 
+            {/* Voice controls */}
             <div className="mt-4 flex flex-wrap gap-3">
               {isListening ? (
                 <button
@@ -353,26 +536,27 @@ export default function CaseBuilder() {
                 <button
                   type="button"
                   onClick={startVoiceInput}
-                  className="flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 font-medium text-white hover:bg-slate-800 transition-colors"
+                  className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                 >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  <svg
+                    className="h-5 w-5 text-slate-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                    />
                   </svg>
-                  Use Voice Input
-                </button>
-              )}
-
-              {formData.story && (
-                <button
-                  type="button"
-                  onClick={() => updateField("story", "")}
-                  className="rounded-xl border border-slate-200 px-5 py-3 text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-colors"
-                >
-                  Clear
+                  Speak Instead
                 </button>
               )}
             </div>
 
+            {/* Recording indicator */}
             {isListening && (
               <div className="mt-4 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
                 <span className="relative flex h-4 w-4 shrink-0">
@@ -380,39 +564,46 @@ export default function CaseBuilder() {
                   <span className="relative inline-flex h-4 w-4 rounded-full bg-red-500" />
                 </span>
                 <p className="text-sm text-red-800">
-                  <strong>Recording...</strong> Speak clearly. Click "Stop Recording" when you're done.
+                  <strong>Listening...</strong> Speak clearly. Click "Stop
+                  Recording" when done.
                 </p>
               </div>
             )}
 
+            {/* Voice review */}
             {showVoiceReview && voiceDraft && (
               <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
                 <div className="flex items-center gap-2 text-emerald-800">
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
-                  <span className="font-semibold">Voice capture complete</span>
+                  <span className="font-semibold">Voice captured</span>
                 </div>
-                <p className="mt-1 text-sm text-emerald-700">
-                  Review what was captured before adding it to your report.
-                </p>
-
-                <div className="mt-3 rounded-xl border border-emerald-200 bg-white p-4 text-slate-800 leading-relaxed">
-                  "{voiceDraft}"
+                <div className="mt-3 rounded-xl border border-emerald-200 bg-white p-4 text-slate-800 leading-relaxed text-sm">
+                  &ldquo;{voiceDraft}&rdquo;
                 </div>
-
-                <div className="mt-4 flex flex-wrap gap-3">
+                <div className="mt-4 flex flex-wrap gap-2">
                   <button
                     type="button"
                     onClick={useVoiceDraft}
-                    className="rounded-xl bg-emerald-600 px-5 py-3 font-medium text-white hover:bg-emerald-700 transition-colors"
+                    className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 transition-colors"
                   >
                     ✓ Use This
                   </button>
                   <button
                     type="button"
                     onClick={retryVoiceInput}
-                    className="rounded-xl border border-slate-200 px-5 py-3 text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                   >
                     Try Again
                   </button>
@@ -422,7 +613,7 @@ export default function CaseBuilder() {
                       useVoiceDraft();
                       setTimeout(() => startVoiceInput(), 150);
                     }}
-                    className="rounded-xl border border-slate-200 px-5 py-3 text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                   >
                     Use This & Add More
                   </button>
@@ -430,19 +621,235 @@ export default function CaseBuilder() {
               </div>
             )}
 
+            {/* Word count */}
             {formData.story && (
-              <div className="mt-4 text-right text-xs text-slate-400">
+              <div className="mt-3 text-right text-xs text-slate-400">
                 {formData.story.split(/\s+/).filter(Boolean).length} words
               </div>
             )}
-          </div>
+
+            {/* Continue button */}
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => {
+                  if (formData.story.trim().length >= 20) {
+                    extractFromStory();
+                  } else {
+                    // Not enough text for extraction, go manual
+                    transitionTo(PHASE.SCAM_TYPE);
+                  }
+                }}
+                disabled={!formData.story.trim()}
+                className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 font-medium text-white hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                Continue
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+              </button>
+            </div>
+          </PhaseCard>
         )}
 
-        {/* ─── Step 1: Scam Type ─── */}
-        {step === 1 && (
-          <div>
-            <StepHeader title="What type of scam was it?" desc="Pick the closest match." />
-            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {/* ── EXTRACTING (loading state) ── */}
+        {phase === PHASE.EXTRACTING && (
+          <PhaseCard>
+            <div className="py-12 text-center">
+              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
+                <svg
+                  className="h-8 w-8 text-slate-600 animate-spin"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-slate-900">
+                Reading your story...
+              </h2>
+              <p className="mt-2 text-slate-500">
+                Our AI is extracting the key details so you don't have to
+                re-enter them.
+              </p>
+            </div>
+          </PhaseCard>
+        )}
+
+        {/* ── CONFIRM EXTRACTION ── */}
+        {phase === PHASE.CONFIRM_EXTRACTION && extractedData && (
+          <PhaseCard>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+                <svg
+                  className="h-5 w-5 text-emerald-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900">
+                  Here's what we found
+                </h2>
+                <p className="text-sm text-slate-500">
+                  Review the details below. You can edit anything that's wrong.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              {formData.scamType && (
+                <ExtractedField
+                  label="Scam Type"
+                  value={formData.scamType}
+                  icon={scamTypes.find((s) => s.label === formData.scamType)?.icon || "❓"}
+                />
+              )}
+              {formData.platforms.length > 0 && (
+                <ExtractedField
+                  label="Platforms"
+                  value={formData.platforms.join(", ")}
+                  icon="📱"
+                />
+              )}
+              {formData.sentMoney && (
+                <ExtractedField
+                  label="Money Sent"
+                  value={formData.sentMoney}
+                  icon={formData.sentMoney === "Yes" ? "💸" : "🚫"}
+                />
+              )}
+              {formData.amount && (
+                <ExtractedField
+                  label="Amount Lost"
+                  value={`$${Number(formData.amount).toLocaleString()}`}
+                  icon="💰"
+                />
+              )}
+              {formData.paymentMethods.length > 0 && (
+                <ExtractedField
+                  label="Payment Methods"
+                  value={formData.paymentMethods.join(", ")}
+                  icon="💳"
+                />
+              )}
+              {(formData.startDate || formData.paymentDate || formData.realizedDate) && (
+                <ExtractedField
+                  label="Timeline"
+                  value={[
+                    formData.startDate && `Started: ${formData.startDate}`,
+                    formData.paymentDate && `Paid: ${formData.paymentDate}`,
+                    formData.realizedDate && `Realized: ${formData.realizedDate}`,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                  icon="📅"
+                />
+              )}
+              {(formData.suspectName ||
+                formData.suspectEmail ||
+                formData.suspectPhone ||
+                formData.suspectUsername ||
+                formData.suspectWallet ||
+                formData.suspectWebsite) && (
+                <ExtractedField
+                  label="Scammer Details"
+                  value={[
+                    formData.suspectName,
+                    formData.suspectEmail,
+                    formData.suspectPhone,
+                    formData.suspectUsername,
+                    formData.suspectWallet &&
+                      `${formData.suspectWallet.slice(0, 12)}...`,
+                    formData.suspectWebsite,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                  icon="🔍"
+                />
+              )}
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-between">
+              <button
+                onClick={() => transitionTo(PHASE.SCAM_TYPE)}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-5 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                Edit Details
+              </button>
+              <button
+                onClick={() => transitionTo(PHASE.REVIEW)}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 font-medium text-white hover:bg-emerald-700 transition-colors"
+              >
+                Looks Good — Review & Submit
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </button>
+            </div>
+          </PhaseCard>
+        )}
+
+        {/* ── SCAM TYPE ── */}
+        {phase === PHASE.SCAM_TYPE && (
+          <PhaseCard>
+            <QuestionBubble>What type of scam was this?</QuestionBubble>
+            <p className="mt-1 text-sm text-slate-500">
+              Pick the closest match.
+            </p>
+            <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               {scamTypes.map((item) => (
                 <OptionCard
                   key={item.label}
@@ -453,14 +860,22 @@ export default function CaseBuilder() {
                 />
               ))}
             </div>
-          </div>
+            <NavButtons
+              onBack={() => transitionTo(PHASE.STORY)}
+              onNext={() => goNext(PHASE.SCAM_TYPE)}
+              nextDisabled={!formData.scamType}
+            />
+          </PhaseCard>
         )}
 
-        {/* ─── Step 2: Contact Platforms ─── */}
-        {step === 2 && (
-          <div>
-            <StepHeader title="How did the scammer contact you?" desc="Select all that apply." />
-            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {/* ── PLATFORMS ── */}
+        {phase === PHASE.PLATFORMS && (
+          <PhaseCard>
+            <QuestionBubble>How did the scammer reach you?</QuestionBubble>
+            <p className="mt-1 text-sm text-slate-500">
+              Select all that apply.
+            </p>
+            <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               {contactPlatforms.map((item) => (
                 <OptionCard
                   key={item.label}
@@ -472,73 +887,89 @@ export default function CaseBuilder() {
                 />
               ))}
             </div>
-          </div>
+            <NavButtons
+              onBack={() => transitionTo(PHASE.SCAM_TYPE)}
+              onNext={() => goNext(PHASE.PLATFORMS)}
+            />
+          </PhaseCard>
         )}
 
-        {/* ─── Step 3: What Was Shared ─── */}
-        {step === 3 && (
-          <div>
-            <StepHeader title="Did you send money or personal information?" desc="This helps us understand the impact." />
+        {/* ── MONEY SENT ── */}
+        {phase === PHASE.MONEY_SENT && (
+          <PhaseCard>
+            <QuestionBubble>
+              Did you send money or personal information?
+            </QuestionBubble>
+            <p className="mt-1 text-sm text-slate-500">
+              This helps us understand the impact.
+            </p>
 
-            <div className="mt-6 space-y-6">
+            <div className="mt-6 space-y-5">
               <div>
-                <label className="mb-3 block text-sm font-medium text-slate-700">
+                <label className="mb-2 block text-sm font-medium text-slate-700">
                   Did you send money?
                 </label>
                 <div className="flex gap-3">
-                  {["Yes", "No"].map((value) => (
+                  {["Yes", "No"].map((v) => (
                     <button
-                      key={value}
+                      key={v}
                       type="button"
-                      onClick={() => updateField("sentMoney", value)}
+                      onClick={() => updateField("sentMoney", v)}
                       className={`flex-1 rounded-xl border-2 px-5 py-3.5 text-center font-medium transition-all ${
-                        formData.sentMoney === value
+                        formData.sentMoney === v
                           ? "border-red-500 bg-red-50 text-red-700"
                           : "border-slate-200 text-slate-600 hover:border-slate-300"
                       }`}
                     >
-                      {value}
+                      {v}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="mb-3 block text-sm font-medium text-slate-700">
-                  Did you send personal information?
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Did you share personal information?
                 </label>
                 <div className="flex gap-3">
-                  {["Yes", "No"].map((value) => (
+                  {["Yes", "No"].map((v) => (
                     <button
-                      key={value}
+                      key={v}
                       type="button"
-                      onClick={() => updateField("sentPersonalInfo", value)}
+                      onClick={() => updateField("sentPersonalInfo", v)}
                       className={`flex-1 rounded-xl border-2 px-5 py-3.5 text-center font-medium transition-all ${
-                        formData.sentPersonalInfo === value
+                        formData.sentPersonalInfo === v
                           ? "border-red-500 bg-red-50 text-red-700"
                           : "border-slate-200 text-slate-600 hover:border-slate-300"
                       }`}
                     >
-                      {value}
+                      {v}
                     </button>
                   ))}
                 </div>
               </div>
             </div>
-          </div>
+
+            <NavButtons
+              onBack={() => transitionTo(PHASE.PLATFORMS)}
+              onNext={() => goNext(PHASE.MONEY_SENT)}
+            />
+          </PhaseCard>
         )}
 
-        {/* ─── Step 4: Payment Details ─── */}
-        {step === 4 && (
-          <div>
-            <StepHeader title="Payment details" desc="How much was lost and how was it sent?" />
+        {/* ── PAYMENT DETAILS ── */}
+        {phase === PHASE.PAYMENT_DETAILS && (
+          <PhaseCard>
+            <QuestionBubble>How much did you lose, and how was it sent?</QuestionBubble>
 
             <div className="mt-5">
               <label className="mb-2 block text-sm font-medium text-slate-700">
                 Estimated amount lost
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
+                  $
+                </span>
                 <input
                   type="number"
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 py-4 pl-8 pr-4 text-lg outline-none focus:border-red-300 focus:bg-white focus:ring-2 focus:ring-red-100 transition-colors"
@@ -550,10 +981,10 @@ export default function CaseBuilder() {
             </div>
 
             <div className="mt-6">
-              <label className="mb-3 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-700">
                 Payment methods used
               </label>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                 {paymentMethods.map((item) => (
                   <OptionCard
                     key={item.label}
@@ -566,17 +997,25 @@ export default function CaseBuilder() {
                 ))}
               </div>
             </div>
-          </div>
+
+            <NavButtons
+              onBack={() => transitionTo(PHASE.MONEY_SENT)}
+              onNext={() => goNext(PHASE.PAYMENT_DETAILS)}
+            />
+          </PhaseCard>
         )}
 
-        {/* ─── Step 5: Timeline ─── */}
-        {step === 5 && (
-          <div>
-            <StepHeader title="Build the timeline" desc="Approximate dates are fine. This helps investigators." />
+        {/* ── TIMELINE ── */}
+        {phase === PHASE.TIMELINE && (
+          <PhaseCard>
+            <QuestionBubble>When did this happen?</QuestionBubble>
+            <p className="mt-1 text-sm text-slate-500">
+              Approximate dates are fine. This helps investigators.
+            </p>
 
             <div className="mt-5 space-y-5">
               <DateField
-                label="When did the scam first begin?"
+                label="When did the scam start?"
                 value={formData.startDate}
                 onChange={(v) => updateField("startDate", v)}
               />
@@ -591,143 +1030,368 @@ export default function CaseBuilder() {
                 onChange={(v) => updateField("realizedDate", v)}
               />
             </div>
-          </div>
-        )}
 
-        {/* ─── Step 6: Scammer Info ─── */}
-        {step === 6 && (
-          <div>
-            <StepHeader title="Scammer details" desc="Add anything you have. Leave blank if unknown — you can always come back." />
-
-            <div className="mt-5 space-y-4">
-              <TextField icon="👤" placeholder="Name or alias" value={formData.suspectName} onChange={(v) => updateField("suspectName", v)} />
-              <TextField icon="📧" placeholder="Email address" type="email" value={formData.suspectEmail} onChange={(v) => updateField("suspectEmail", v)} />
-              <TextField icon="📞" placeholder="Phone number" value={formData.suspectPhone} onChange={(v) => updateField("suspectPhone", v)} />
-              <TextField icon="@" placeholder="Username or handle" value={formData.suspectUsername} onChange={(v) => updateField("suspectUsername", v)} />
-              <TextField icon="🪙" placeholder="Crypto wallet address" value={formData.suspectWallet} onChange={(v) => updateField("suspectWallet", v)} />
-              <TextField icon="🌐" placeholder="Website or URL" value={formData.suspectWebsite} onChange={(v) => updateField("suspectWebsite", v)} />
-            </div>
-          </div>
-        )}
-
-        {/* ─── Step 7: Review ─── */}
-        {step === 7 && (
-          <div>
-            <StepHeader
-              title="Review your report"
-              desc="Make sure everything looks right. You can go back to edit any section."
+            <NavButtons
+              onBack={() =>
+                formData.sentMoney === "No"
+                  ? transitionTo(PHASE.MONEY_SENT)
+                  : transitionTo(PHASE.PAYMENT_DETAILS)
+              }
+              onNext={() => goNext(PHASE.TIMELINE)}
             />
+          </PhaseCard>
+        )}
 
-            <div className="mt-6 space-y-4">
+        {/* ── SCAMMER INFO ── */}
+        {phase === PHASE.SCAMMER_INFO && (
+          <PhaseCard>
+            <QuestionBubble>
+              Do you have any details about the scammer?
+            </QuestionBubble>
+            <p className="mt-1 text-sm text-slate-500">
+              Add anything you have. Leave blank if unknown — every bit helps.
+            </p>
+
+            <div className="mt-5 space-y-3">
+              <TextField
+                icon="👤"
+                placeholder="Name or alias"
+                value={formData.suspectName}
+                onChange={(v) => updateField("suspectName", v)}
+              />
+              <TextField
+                icon="📧"
+                placeholder="Email address"
+                type="email"
+                value={formData.suspectEmail}
+                onChange={(v) => updateField("suspectEmail", v)}
+              />
+              <TextField
+                icon="📞"
+                placeholder="Phone number"
+                value={formData.suspectPhone}
+                onChange={(v) => updateField("suspectPhone", v)}
+              />
+              <TextField
+                icon="@"
+                placeholder="Username or handle"
+                value={formData.suspectUsername}
+                onChange={(v) => updateField("suspectUsername", v)}
+              />
+              <TextField
+                icon="🪙"
+                placeholder="Crypto wallet address"
+                value={formData.suspectWallet}
+                onChange={(v) => updateField("suspectWallet", v)}
+              />
+              <TextField
+                icon="🌐"
+                placeholder="Website or URL"
+                value={formData.suspectWebsite}
+                onChange={(v) => updateField("suspectWebsite", v)}
+              />
+            </div>
+
+            <NavButtons
+              onBack={() => transitionTo(PHASE.TIMELINE)}
+              onNext={() => goNext(PHASE.SCAMMER_INFO)}
+              nextLabel="Review Report"
+            />
+          </PhaseCard>
+        )}
+
+        {/* ── REVIEW ── */}
+        {phase === PHASE.REVIEW && (
+          <PhaseCard>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100">
+                <svg
+                  className="h-5 w-5 text-slate-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900">
+                  Review your report
+                </h2>
+                <p className="text-sm text-slate-500">
+                  Make sure everything looks right before submitting.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 space-y-3">
               <ReviewCard
                 label="Your Story"
-                stepIdx={0}
-                onEdit={() => setStep(0)}
                 content={formData.story || "—"}
+                onEdit={() => transitionTo(PHASE.STORY)}
                 isLong
               />
               <ReviewCard
                 label="Scam Type"
-                stepIdx={1}
-                onEdit={() => setStep(1)}
                 content={formData.scamType || "—"}
+                onEdit={() => transitionTo(PHASE.SCAM_TYPE)}
               />
               <ReviewCard
                 label="Contact Platforms"
-                stepIdx={2}
-                onEdit={() => setStep(2)}
-                content={formData.platforms.length ? formData.platforms.join(", ") : "—"}
+                content={
+                  formData.platforms.length
+                    ? formData.platforms.join(", ")
+                    : "—"
+                }
+                onEdit={() => transitionTo(PHASE.PLATFORMS)}
               />
               <ReviewCard
-                label="Money Sent"
-                stepIdx={3}
-                onEdit={() => setStep(3)}
+                label="Money & Info"
                 content={`Money: ${formData.sentMoney || "—"} · Personal info: ${formData.sentPersonalInfo || "—"}`}
+                onEdit={() => transitionTo(PHASE.MONEY_SENT)}
               />
-              <ReviewCard
-                label="Payment Details"
-                stepIdx={4}
-                onEdit={() => setStep(4)}
-                content={`${formData.amount ? `$${Number(formData.amount).toLocaleString()}` : "—"} · ${formData.paymentMethods.length ? formData.paymentMethods.join(", ") : "—"}`}
-              />
+              {formData.sentMoney !== "No" && (
+                <ReviewCard
+                  label="Payment Details"
+                  content={`${formData.amount ? `$${Number(formData.amount).toLocaleString()}` : "—"} · ${formData.paymentMethods.length ? formData.paymentMethods.join(", ") : "—"}`}
+                  onEdit={() => transitionTo(PHASE.PAYMENT_DETAILS)}
+                />
+              )}
               <ReviewCard
                 label="Timeline"
-                stepIdx={5}
-                onEdit={() => setStep(5)}
                 content={`Started: ${formData.startDate || "—"} · Paid: ${formData.paymentDate || "—"} · Realized: ${formData.realizedDate || "—"}`}
+                onEdit={() => transitionTo(PHASE.TIMELINE)}
               />
               <ReviewCard
                 label="Scammer Details"
-                stepIdx={6}
-                onEdit={() => setStep(6)}
-                content={[
-                  formData.suspectName && `Name: ${formData.suspectName}`,
-                  formData.suspectEmail && `Email: ${formData.suspectEmail}`,
-                  formData.suspectPhone && `Phone: ${formData.suspectPhone}`,
-                  formData.suspectUsername && `Username: ${formData.suspectUsername}`,
-                  formData.suspectWallet && `Wallet: ${formData.suspectWallet}`,
-                  formData.suspectWebsite && `Website: ${formData.suspectWebsite}`,
-                ].filter(Boolean).join(" · ") || "—"}
+                content={
+                  [
+                    formData.suspectName && `Name: ${formData.suspectName}`,
+                    formData.suspectEmail && `Email: ${formData.suspectEmail}`,
+                    formData.suspectPhone && `Phone: ${formData.suspectPhone}`,
+                    formData.suspectUsername && `@${formData.suspectUsername}`,
+                    formData.suspectWallet &&
+                      `Wallet: ${formData.suspectWallet}`,
+                    formData.suspectWebsite &&
+                      `Web: ${formData.suspectWebsite}`,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ") || "—"
+                }
+                onEdit={() => transitionTo(PHASE.SCAMMER_INFO)}
               />
+            </div>
+
+            <div className="mt-6 flex items-center justify-between">
+              <button
+                onClick={() => {
+                  // Go back to the previous logical step
+                  if (extractedData) {
+                    transitionTo(PHASE.CONFIRM_EXTRACTION);
+                  } else {
+                    transitionTo(PHASE.SCAMMER_INFO);
+                  }
+                }}
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-5 py-3 font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M11 17l-5-5m0 0l5-5m-5 5h12"
+                  />
+                </svg>
+                Back
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-6 py-3 font-semibold text-white shadow-lg shadow-red-600/20 hover:bg-red-700 transition-all"
+              >
+                Submit Report
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </button>
+            </div>
+          </PhaseCard>
+        )}
+
+        {/* ── SUBMITTING ── */}
+        {phase === PHASE.SUBMITTING && (
+          <PhaseCard>
+            <div className="py-12 text-center">
+              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50">
+                <svg
+                  className="h-8 w-8 text-red-600 animate-spin"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-slate-900">
+                Submitting your report...
+              </h2>
+              <p className="mt-2 text-slate-500">
+                Encrypting and saving your data securely.
+              </p>
+            </div>
+          </PhaseCard>
+        )}
+
+        {/* ── SUCCESS ── */}
+        {phase === PHASE.SUCCESS && (
+          <div className="py-12 text-center">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
+              <svg
+                className="h-10 w-10 text-emerald-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+
+            <h1 className="text-3xl font-bold text-slate-900">
+              Report Submitted
+            </h1>
+            <p className="mt-3 text-lg text-slate-600 max-w-md mx-auto">
+              Thank you for speaking up. Your report helps protect others
+              and supports investigations.
+            </p>
+
+            {intakeId && (
+              <p className="mt-4 text-sm text-slate-500">
+                Reference ID:{" "}
+                <span className="font-mono font-medium text-slate-700">
+                  {intakeId.slice(0, 8)}
+                </span>
+              </p>
+            )}
+
+            {/* What happens next */}
+            <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-left max-w-md mx-auto">
+              <h3 className="font-semibold text-slate-900 text-sm">
+                What happens next?
+              </h3>
+              <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-500 mt-0.5">✓</span>
+                  Your report is encrypted and stored securely
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-500 mt-0.5">✓</span>
+                  It helps identify scam patterns and repeat offenders
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-500 mt-0.5">✓</span>
+                  Law enforcement can use aggregated data for investigations
+                </li>
+              </ul>
+            </div>
+
+            {/* Quick recovery tips */}
+            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-left max-w-md mx-auto">
+              <h3 className="font-semibold text-amber-900 text-sm">
+                🛡️ Protect yourself now
+              </h3>
+              <ul className="mt-3 space-y-2 text-sm text-amber-800">
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5">→</span>
+                  Contact your bank or payment provider to dispute charges
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5">→</span>
+                  File a report at{" "}
+                  <a
+                    href="https://reportfraud.ftc.gov"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2"
+                  >
+                    FTC.gov
+                  </a>{" "}
+                  and{" "}
+                  <a
+                    href="https://www.ic3.gov"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2"
+                  >
+                    IC3.gov
+                  </a>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5">→</span>
+                  Change passwords on any accounts the scammer accessed
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5">→</span>
+                  Consider a credit freeze at all three bureaus
+                </li>
+              </ul>
+            </div>
+
+            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <button
+                onClick={() => {
+                  setFormData(emptyForm);
+                  setExtractedData(null);
+                  setIntakeId(null);
+                  transitionTo(PHASE.WELCOME);
+                }}
+                className="rounded-xl bg-slate-900 px-6 py-3 font-medium text-white hover:bg-slate-800 transition-colors"
+              >
+                Submit Another Report
+              </button>
+              <a
+                href="/"
+                className="rounded-xl border border-slate-300 px-6 py-3 font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                Back to Home
+              </a>
             </div>
           </div>
         )}
-
-        {/* ─── Navigation ─── */}
-        <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-6">
-          <button
-            type="button"
-            onClick={prevStep}
-            disabled={step === 0}
-            className={`flex items-center gap-2 rounded-xl px-5 py-3 font-medium transition-colors ${
-              step === 0
-                ? "cursor-not-allowed text-slate-300"
-                : "border border-slate-200 text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            Back
-          </button>
-
-          {step < steps.length - 1 ? (
-            <button
-              type="button"
-              onClick={nextStep}
-              className="flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 font-medium text-white hover:bg-slate-800 transition-colors"
-            >
-              Next
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="flex items-center gap-2 rounded-xl bg-red-600 px-6 py-3 font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
-            >
-              {submitting ? (
-                <>
-                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                  </svg>
-                  Submitting…
-                </>
-              ) : (
-                <>
-                  Submit Report
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </>
-              )}
-            </button>
-          )}
-        </div>
       </div>
     </div>
   );
@@ -735,11 +1399,43 @@ export default function CaseBuilder() {
 
 /* ─── Sub-components ─── */
 
-function StepHeader({ title, desc }) {
+function PhaseCard({ children }) {
   return (
-    <div>
-      <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
-      {desc && <p className="mt-1 text-sm text-slate-500">{desc}</p>}
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      {children}
+    </div>
+  );
+}
+
+function QuestionBubble({ children }) {
+  return (
+    <h2 className="text-xl font-semibold text-slate-900 leading-snug">
+      {children}
+    </h2>
+  );
+}
+
+function ExtractedField({ label, value, icon }) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+      <span className="text-lg shrink-0">{icon}</span>
+      <div className="min-w-0 flex-1">
+        <div className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
+          {label}
+        </div>
+        <div className="text-sm text-slate-800 truncate">{value}</div>
+      </div>
+      <svg
+        className="h-4 w-4 text-emerald-500 shrink-0"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          fillRule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+          clipRule="evenodd"
+        />
+      </svg>
     </div>
   );
 }
@@ -749,17 +1445,25 @@ function OptionCard({ icon, label, selected, onClick, multi }) {
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center gap-3 rounded-xl border-2 p-4 text-left transition-all ${
+      className={`flex items-center gap-3 rounded-xl border-2 p-3.5 text-left transition-all ${
         selected
           ? "border-red-500 bg-red-50 text-slate-900 shadow-sm"
           : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
       }`}
     >
       <span className="text-xl">{icon}</span>
-      <span className="flex-1 font-medium">{label}</span>
+      <span className="flex-1 font-medium text-sm">{label}</span>
       {selected && (
-        <svg className="h-5 w-5 text-red-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+        <svg
+          className="h-5 w-5 text-red-600 shrink-0"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fillRule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clipRule="evenodd"
+          />
         </svg>
       )}
     </button>
@@ -769,7 +1473,9 @@ function OptionCard({ icon, label, selected, onClick, multi }) {
 function DateField({ label, value, onChange }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-medium text-slate-700">{label}</label>
+      <label className="mb-2 block text-sm font-medium text-slate-700">
+        {label}
+      </label>
       <input
         type="date"
         className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 outline-none focus:border-red-300 focus:bg-white focus:ring-2 focus:ring-red-100 transition-colors"
@@ -787,7 +1493,7 @@ function TextField({ icon, placeholder, type = "text", value, onChange }) {
       <input
         type={type}
         placeholder={placeholder}
-        className="flex-1 bg-transparent py-3.5 outline-none placeholder-slate-400"
+        className="flex-1 bg-transparent py-3.5 outline-none placeholder-slate-400 text-sm"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -799,7 +1505,9 @@ function ReviewCard({ label, content, onEdit, isLong }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</span>
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          {label}
+        </span>
         <button
           type="button"
           onClick={onEdit}
@@ -808,9 +1516,59 @@ function ReviewCard({ label, content, onEdit, isLong }) {
           Edit
         </button>
       </div>
-      <div className={`mt-2 text-sm text-slate-700 ${isLong ? "whitespace-pre-wrap" : ""}`}>
+      <div
+        className={`mt-1.5 text-sm text-slate-700 ${isLong ? "whitespace-pre-wrap line-clamp-4" : ""}`}
+      >
         {content}
       </div>
+    </div>
+  );
+}
+
+function NavButtons({ onBack, onNext, nextDisabled, nextLabel = "Continue" }) {
+  return (
+    <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-5">
+      <button
+        type="button"
+        onClick={onBack}
+        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-5 py-3 font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+      >
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M11 17l-5-5m0 0l5-5m-5 5h12"
+          />
+        </svg>
+        Back
+      </button>
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={nextDisabled}
+        className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 font-medium text-white hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+      >
+        {nextLabel}
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M13 7l5 5m0 0l-5 5m5-5H6"
+          />
+        </svg>
+      </button>
     </div>
   );
 }

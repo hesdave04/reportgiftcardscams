@@ -1,14 +1,19 @@
-import XmlSidebar from '../components/XmlSidebar';
+import XmlSidebar from "../components/XmlSidebar";
 
 export const metadata = {
-  title: 'Trust & Security — ScamComplaints',
+  title: "Trust & Security — ScamComplaints",
   description:
-    'How we handle data, what we show publicly, and how verified partners can request access.',
+    "How ScamComplaints.org handles your data, what we show publicly, and how verified partners can request access.",
 };
 
 function IconShield() {
   return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg
+      className="h-5 w-5"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M12 2l7 3v6c0 5-3.4 9.7-7 11-3.6-1.3-7-6-7-11V5l7-3zm0 4.1L7 7.1V11c0 3.7 2.3 7.5 5 8.8 2.7-1.3 5-5.1 5-8.8V7.1l-5-1z" />
       <path d="M10.5 12.9l-1.7-1.7-1.4 1.4 3.1 3.1 6.1-6.1-1.4-1.4z" />
     </svg>
@@ -16,14 +21,24 @@ function IconShield() {
 }
 function IconLock() {
   return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg
+      className="h-5 w-5"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M17 8V7a5 5 0 10-10 0v1H5v14h14V8h-2zm-8 0V7a3 3 0 016 0v1H9zm3 5a2 2 0 110 4 2 2 0 010-4z" />
     </svg>
   );
 }
 function IconEye() {
   return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg
+      className="h-5 w-5"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M12 5C7 5 2.7 8 1 12c1.7 4 6 7 11 7s9.3-3 11-7c-1.7-4-6-7-11-7zm0 12a5 5 0 110-10 5 5 0 010 10z" />
       <circle cx="12" cy="12" r="2.5" />
     </svg>
@@ -31,21 +46,36 @@ function IconEye() {
 }
 function IconScale() {
   return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg
+      className="h-5 w-5"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M12 2l4 4h-3v6.3l5.7 5.7-1.4 1.4L12 14.7l-5.3 5.7-1.4-1.4L11 12.3V6H8l4-4z" />
     </svg>
   );
 }
 function IconDoc() {
   return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg
+      className="h-5 w-5"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M6 2h8l4 4v14a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2zm7 1.5V7h3.5L13 3.5z" />
     </svg>
   );
 }
 function IconKey() {
   return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg
+      className="h-5 w-5"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M14 7a5 5 0 10.8 9.943l2.829 2.828 1.414-1.414-2.829-2.828A4.98 4.98 0 0014 7zm-3 5a2 2 0 110-4 2 2 0 010 4z" />
       <path d="M21 7h-4v2h2v2h2z" />
     </svg>
@@ -66,19 +96,21 @@ export default function TrustPage() {
               Built for transparency, privacy, and responsible sharing
             </h1>
             <p className="mt-3 text-lg text-slate-600">
-              We collect gift card reports to help victims, retailers, resellers, and law enforcement investigate
-              misuse. Full numbers are never shown publicly. Access to sensitive data is limited and auditable.
+              We collect scam and fraud reports to help victims, investigators,
+              and law enforcement identify patterns and hold scammers
+              accountable. Sensitive data is encrypted. Access to personal
+              information is limited and auditable.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a
-                href="/"
-                className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900"
+                href="/case-builder"
+                className="inline-flex items-center justify-center rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transition-colors"
               >
                 Submit a report
               </a>
               <a
                 href="/#reports"
-                className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50"
+                className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50 transition-colors"
               >
                 View public stream
               </a>
@@ -93,19 +125,21 @@ export default function TrustPage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-center gap-2 text-slate-800">
               <IconLock />
-              <h3 className="font-semibold">Sensitive data encrypted</h3>
+              <h3 className="font-semibold">Data encrypted at rest</h3>
             </div>
             <p className="mt-1 text-sm text-slate-600">
-              Gift card numbers are encrypted at rest and in transit. Only vetted export paths can retrieve plaintext.
+              Sensitive information like payment details and personal identifiers
+              are encrypted using AES-256-GCM before storage.
             </p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-center gap-2 text-slate-800">
               <IconEye />
-              <h3 className="font-semibold">Public view is masked</h3>
+              <h3 className="font-semibold">Public data is anonymized</h3>
             </div>
             <p className="mt-1 text-sm text-slate-600">
-              The public stream shows only the last 4 digits with context. No raw numbers, ever.
+              Public views show only aggregated patterns and masked details. No
+              raw personal data is ever exposed publicly.
             </p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -114,7 +148,9 @@ export default function TrustPage() {
               <h3 className="font-semibold">Purpose-limited use</h3>
             </div>
             <p className="mt-1 text-sm text-slate-600">
-              We use data solely to prevent abuse and support investigations. No marketing or resale.
+              We use data solely to expose scam patterns, support
+              investigations, and protect potential victims. No marketing or
+              resale.
             </p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -123,7 +159,8 @@ export default function TrustPage() {
               <h3 className="font-semibold">Auditable exports</h3>
             </div>
             <p className="mt-1 text-sm text-slate-600">
-              Access for law enforcement and retailers is controlled by API keys with basic audit logging.
+              Access for law enforcement and verified partners is controlled by
+              API keys with audit logging.
             </p>
           </div>
         </div>
@@ -136,23 +173,29 @@ export default function TrustPage() {
           <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <div className="text-xs font-semibold text-slate-500">STEP 1</div>
-              <div className="mt-1 text-slate-900">Submit a report</div>
+              <div className="mt-1 text-slate-900">Tell your story</div>
               <p className="mt-2 text-sm text-slate-600">
-                Reporter provides retailer, masked gift card number, amount, and context.
+                Describe what happened in your own words, or use voice input. Our
+                AI extracts key details automatically.
               </p>
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <div className="text-xs font-semibold text-slate-500">STEP 2</div>
-              <div className="mt-1 text-slate-900">Encryption & hashing</div>
+              <div className="mt-1 text-slate-900">
+                Confirm & add details
+              </div>
               <p className="mt-2 text-sm text-slate-600">
-                We encrypt full numbers and store only a hash + last 4 for the public feed.
+                Review what we found in your story — scam type, platforms,
+                payment methods, scammer info. Edit anything that needs fixing.
               </p>
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <div className="text-xs font-semibold text-slate-500">STEP 3</div>
-              <div className="mt-1 text-slate-900">Controlled sharing</div>
+              <div className="mt-1 text-slate-900">Encrypted & shared</div>
               <p className="mt-2 text-sm text-slate-600">
-                Verified partners can use XML exports to aid investigations, subject to terms.
+                Your report is encrypted and stored securely. Aggregated data
+                helps identify patterns. Verified partners can access structured
+                exports for investigations.
               </p>
             </div>
           </div>
@@ -167,36 +210,56 @@ export default function TrustPage() {
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-50 text-slate-700">
                 <tr>
-                  <th className="px-4 py-2">Field</th>
-                  <th className="px-4 py-2">Public Stream</th>
-                  <th className="px-4 py-2">Export (Verified)</th>
+                  <th className="px-4 py-2">Information</th>
+                  <th className="px-4 py-2">Public View</th>
+                  <th className="px-4 py-2">Verified Export</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
                 <tr>
-                  <td className="px-4 py-2 text-slate-700">Gift card number</td>
-                  <td className="px-4 py-2"><span className="rounded-md bg-slate-100 px-2 py-1 font-mono text-xs">•••• last4</span></td>
-                  <td className="px-4 py-2 text-slate-700">Full number (decrypted)</td>
+                  <td className="px-4 py-2 text-slate-700">Your story</td>
+                  <td className="px-4 py-2 text-slate-500">Not shown</td>
+                  <td className="px-4 py-2 text-slate-700">
+                    Full text (for case building)
+                  </td>
                 </tr>
                 <tr>
-                  <td className="px-4 py-2 text-slate-700">Retailer</td>
-                  <td className="px-4 py-2 text-slate-700">Shown</td>
-                  <td className="px-4 py-2 text-slate-700">Shown</td>
+                  <td className="px-4 py-2 text-slate-700">Scam type & platform</td>
+                  <td className="px-4 py-2 text-slate-700">
+                    Aggregated stats only
+                  </td>
+                  <td className="px-4 py-2 text-slate-700">Full detail</td>
                 </tr>
                 <tr>
-                  <td className="px-4 py-2 text-slate-700">Amount</td>
-                  <td className="px-4 py-2 text-slate-700">Shown</td>
-                  <td className="px-4 py-2 text-slate-700">Shown</td>
+                  <td className="px-4 py-2 text-slate-700">
+                    Payment details & amounts
+                  </td>
+                  <td className="px-4 py-2 text-slate-700">
+                    Aggregated totals
+                  </td>
+                  <td className="px-4 py-2 text-slate-700">Full detail</td>
                 </tr>
                 <tr>
-                  <td className="px-4 py-2 text-slate-700">Reporter & recipient details</td>
-                  <td className="px-4 py-2 text-slate-700">Not shown</td>
-                  <td className="px-4 py-2 text-slate-700">Shown (for due diligence)</td>
+                  <td className="px-4 py-2 text-slate-700">
+                    Scammer identifiers
+                  </td>
+                  <td className="px-4 py-2 text-slate-500">Not shown</td>
+                  <td className="px-4 py-2 text-slate-700">
+                    Shown (for investigations)
+                  </td>
                 </tr>
                 <tr>
-                  <td className="px-4 py-2 text-slate-700">Notes / context</td>
-                  <td className="px-4 py-2 text-slate-700">Truncated</td>
-                  <td className="px-4 py-2 text-slate-700">Full text</td>
+                  <td className="px-4 py-2 text-slate-700">
+                    Gift card numbers
+                  </td>
+                  <td className="px-4 py-2">
+                    <span className="rounded-md bg-slate-100 px-2 py-1 font-mono text-xs">
+                      •••• last4
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 text-slate-700">
+                    Full number (decrypted)
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -205,19 +268,23 @@ export default function TrustPage() {
           <div className="mt-4 flex items-center gap-2 text-xs text-slate-600">
             <IconKey />
             <span>
-              Exports require a valid API key via header <code className="font-mono">x-api-key</code>.
+              Exports require a valid API key via header{" "}
+              <code className="font-mono">x-api-key</code>.
             </span>
           </div>
         </div>
       </section>
 
-      {/* XML Access (fully working, no placeholders) */}
+      {/* XML Access */}
       <section className="mx-auto max-w-5xl px-4 py-8">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-900">XML access for verified partners</h2>
+            <h2 className="text-xl font-semibold text-slate-900">
+              XML access for verified partners
+            </h2>
             <p className="mt-2 text-sm text-slate-600">
-              Use the tool to generate a real cURL command for this site. You can add optional filters.
+              Generate a cURL command to download structured report data.
+              Optional filters available.
             </p>
 
             <div className="mt-4">
@@ -226,7 +293,9 @@ export default function TrustPage() {
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-900">Endpoint & Authentication</h2>
+            <h2 className="text-xl font-semibold text-slate-900">
+              Endpoint & Authentication
+            </h2>
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex items-start gap-3">
                 <dt className="w-32 text-slate-600">Endpoint</dt>
@@ -235,20 +304,24 @@ export default function TrustPage() {
               <div className="flex items-start gap-3">
                 <dt className="w-32 text-slate-600">Auth</dt>
                 <dd className="text-slate-800">
-                  Send a header <code className="font-mono">x-api-key</code> with your issued key.
+                  Send a header <code className="font-mono">x-api-key</code>{" "}
+                  with your issued key.
                 </dd>
               </div>
               <div className="flex items-start gap-3">
                 <dt className="w-32 text-slate-600">Filters</dt>
                 <dd className="text-slate-800">
-                  <code className="font-mono text-xs">retailer</code>,{' '}
+                  <code className="font-mono text-xs">retailer</code>,{" "}
                   <code className="font-mono text-xs">since (YYYY-MM-DD)</code>.
                 </dd>
               </div>
             </dl>
 
             <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
-              <p><strong>Note:</strong> API keys are revocable. Export activity may be logged for abuse prevention.</p>
+              <p>
+                <strong>Note:</strong> API keys are revocable. Export activity
+                may be logged for abuse prevention.
+              </p>
             </div>
           </div>
         </div>
