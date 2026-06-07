@@ -387,7 +387,7 @@ export default function CaseBuilder() {
   /* ─── Render ─── */
 
   return (
-    <div ref={containerRef} className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
+    <div ref={containerRef} className="mx-auto max-w-2xl px-4 py-6 sm:py-10 min-h-[calc(100vh-160px)]">
       {/* Progress bar — hidden on welcome/success */}
       {phase !== PHASE.WELCOME &&
         phase !== PHASE.SUCCESS &&
@@ -401,7 +401,7 @@ export default function CaseBuilder() {
                 ~3 min
               </span>
             </div>
-            <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+            <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-700 ease-out"
                 style={{ width: `${Math.max(progress, 5)}%` }}
@@ -858,7 +858,7 @@ export default function CaseBuilder() {
             <p className="mt-1 text-sm text-slate-500">
               Pick the closest match.
             </p>
-            <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            <div className="mt-5 grid grid-cols-2 gap-2.5">
               {scamTypes.map((item) => (
                 <OptionCard
                   key={item.label}
@@ -1496,14 +1496,14 @@ function OptionCard({ icon, label, selected, onClick, multi }) {
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center gap-3 rounded-xl border-2 p-3.5 text-left transition-all ${
+      className={`flex items-center gap-2 sm:gap-3 rounded-xl border-2 p-2.5 sm:p-3.5 text-left transition-all ${
         selected
           ? "border-red-500 bg-red-50 text-slate-900 shadow-sm"
           : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
       }`}
     >
-      <span className="text-xl">{icon}</span>
-      <span className="flex-1 font-medium text-sm">{label}</span>
+      <span className="text-lg sm:text-xl">{icon}</span>
+      <span className="flex-1 font-medium text-xs sm:text-sm">{label}</span>
       {selected && (
         <svg
           className="h-5 w-5 text-red-600 shrink-0"
