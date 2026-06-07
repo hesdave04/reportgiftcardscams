@@ -70,7 +70,7 @@ export default function HomePage() {
           <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
             {[
               { label: "Scam Types Covered", value: "10+" },
-              { label: "Guided Steps", value: "8" },
+              { label: "Average Filing Time", value: "3 min" },
               { label: "Voice Input", value: "✓" },
               { label: "Law Enforcement Ready", value: "XML" },
             ].map((s) => (
