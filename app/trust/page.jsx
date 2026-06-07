@@ -3,7 +3,7 @@ import XmlSidebar from '../components/XmlSidebar';
 export const metadata = {
   title: 'Trust & Security — ScamComplaints',
   description:
-    'How we handle data, what we show publicly, and how verified partners can request access.',
+    'How ScamComplaints handles your data, what we show publicly, and how verified partners can request access.',
 };
 
 function IconShield() {
@@ -66,12 +66,12 @@ export default function TrustPage() {
               Built for transparency, privacy, and responsible sharing
             </h1>
             <p className="mt-3 text-lg text-slate-600">
-              We collect gift card reports to help victims, retailers, resellers, and law enforcement investigate
-              misuse. Full numbers are never shown publicly. Access to sensitive data is limited and auditable.
+              We collect scam and fraud reports to help victims, investigators, and law enforcement
+              track down scam networks. Sensitive data is encrypted. Personal information is never shown publicly.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a
-                href="/"
+                href="/case-builder"
                 className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900"
               >
                 Submit a report
@@ -96,7 +96,7 @@ export default function TrustPage() {
               <h3 className="font-semibold">Sensitive data encrypted</h3>
             </div>
             <p className="mt-1 text-sm text-slate-600">
-              Gift card numbers are encrypted at rest and in transit. Only vetted export paths can retrieve plaintext.
+              Account numbers, personal details, and evidence are encrypted at rest and in transit using AES-256-GCM. Only vetted export paths can retrieve plaintext.
             </p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -105,7 +105,7 @@ export default function TrustPage() {
               <h3 className="font-semibold">Public view is masked</h3>
             </div>
             <p className="mt-1 text-sm text-slate-600">
-              The public stream shows only the last 4 digits with context. No raw numbers, ever.
+              The public stream only shows scam type, platform, and masked details. No personal information, full account numbers, or contact details are ever displayed.
             </p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -114,7 +114,7 @@ export default function TrustPage() {
               <h3 className="font-semibold">Purpose-limited use</h3>
             </div>
             <p className="mt-1 text-sm text-slate-600">
-              We use data solely to prevent abuse and support investigations. No marketing or resale.
+              We use data solely to prevent fraud and support investigations. No marketing, no resale, no advertising. Ever.
             </p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -123,7 +123,7 @@ export default function TrustPage() {
               <h3 className="font-semibold">Auditable exports</h3>
             </div>
             <p className="mt-1 text-sm text-slate-600">
-              Access for law enforcement and retailers is controlled by API keys with basic audit logging.
+              Access for law enforcement and verified partners is controlled by API keys with audit logging.
             </p>
           </div>
         </div>
@@ -138,21 +138,21 @@ export default function TrustPage() {
               <div className="text-xs font-semibold text-slate-500">STEP 1</div>
               <div className="mt-1 text-slate-900">Submit a report</div>
               <p className="mt-2 text-sm text-slate-600">
-                Reporter provides retailer, masked gift card number, amount, and context.
+                Tell us what happened — the scam type, how you were contacted, any money lost, and details about the scammer.
               </p>
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <div className="text-xs font-semibold text-slate-500">STEP 2</div>
-              <div className="mt-1 text-slate-900">Encryption & hashing</div>
+              <div className="mt-1 text-slate-900">Encryption & processing</div>
               <p className="mt-2 text-sm text-slate-600">
-                We encrypt full numbers and store only a hash + last 4 for the public feed.
+                Sensitive data is encrypted. Reports are structured, deduplicated, and analyzed for scam network patterns.
               </p>
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <div className="text-xs font-semibold text-slate-500">STEP 3</div>
               <div className="mt-1 text-slate-900">Controlled sharing</div>
               <p className="mt-2 text-sm text-slate-600">
-                Verified partners can use XML exports to aid investigations, subject to terms.
+                Verified law enforcement and research partners can access exports via API to support active investigations.
               </p>
             </div>
           </div>
@@ -168,35 +168,40 @@ export default function TrustPage() {
               <thead className="bg-slate-50 text-slate-700">
                 <tr>
                   <th className="px-4 py-2">Field</th>
-                  <th className="px-4 py-2">Public Stream</th>
-                  <th className="px-4 py-2">Export (Verified)</th>
+                  <th className="px-4 py-2">Public View</th>
+                  <th className="px-4 py-2">Verified Export</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
                 <tr>
-                  <td className="px-4 py-2 text-slate-700">Gift card number</td>
-                  <td className="px-4 py-2"><span className="rounded-md bg-slate-100 px-2 py-1 font-mono text-xs">•••• last4</span></td>
-                  <td className="px-4 py-2 text-slate-700">Full number (decrypted)</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2 text-slate-700">Retailer</td>
-                  <td className="px-4 py-2 text-slate-700">Shown</td>
-                  <td className="px-4 py-2 text-slate-700">Shown</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2 text-slate-700">Amount</td>
-                  <td className="px-4 py-2 text-slate-700">Shown</td>
-                  <td className="px-4 py-2 text-slate-700">Shown</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2 text-slate-700">Reporter & recipient details</td>
-                  <td className="px-4 py-2 text-slate-700">Not shown</td>
-                  <td className="px-4 py-2 text-slate-700">Shown (for due diligence)</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2 text-slate-700">Notes / context</td>
-                  <td className="px-4 py-2 text-slate-700">Truncated</td>
+                  <td className="px-4 py-2 text-slate-700">Your story</td>
+                  <td className="px-4 py-2 text-slate-500">Summarized / truncated</td>
                   <td className="px-4 py-2 text-slate-700">Full text</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 text-slate-700">Scam type & platform</td>
+                  <td className="px-4 py-2 text-slate-700">Shown</td>
+                  <td className="px-4 py-2 text-slate-700">Shown</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 text-slate-700">Amount lost</td>
+                  <td className="px-4 py-2 text-slate-700">Shown</td>
+                  <td className="px-4 py-2 text-slate-700">Shown</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 text-slate-700">Account numbers / card numbers</td>
+                  <td className="px-4 py-2"><span className="rounded-md bg-slate-100 px-2 py-1 font-mono text-xs">•••• last4</span></td>
+                  <td className="px-4 py-2 text-slate-700">Full (decrypted)</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 text-slate-700">Scammer details</td>
+                  <td className="px-4 py-2 text-slate-500">Partially shown</td>
+                  <td className="px-4 py-2 text-slate-700">Full details</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 text-slate-700">Your personal information</td>
+                  <td className="px-4 py-2 text-slate-700">Never shown</td>
+                  <td className="px-4 py-2 text-slate-700">For investigations only</td>
                 </tr>
               </tbody>
             </table>
@@ -211,13 +216,13 @@ export default function TrustPage() {
         </div>
       </section>
 
-      {/* XML Access (fully working, no placeholders) */}
+      {/* XML Access */}
       <section className="mx-auto max-w-5xl px-4 py-8">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-900">XML access for verified partners</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Data access for verified partners</h2>
             <p className="mt-2 text-sm text-slate-600">
-              Use the tool to generate a real cURL command for this site. You can add optional filters.
+              Law enforcement, researchers, and verified organizations can access structured data exports via XML API.
             </p>
 
             <div className="mt-4">
@@ -248,7 +253,7 @@ export default function TrustPage() {
             </dl>
 
             <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
-              <p><strong>Note:</strong> API keys are revocable. Export activity may be logged for abuse prevention.</p>
+              <p><strong>Note:</strong> API keys are revocable. Export activity is logged for abuse prevention.</p>
             </div>
           </div>
         </div>
