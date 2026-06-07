@@ -1,54 +1,99 @@
-// Server Component (no client JS needed)
+"use client";
+
+import { useState } from "react";
+
 export default function Nav() {
+  const [open, setOpen] = useState(false);
+
+  const links = [
+    { href: "/", label: "Home" },
+    { href: "/case-builder", label: "Build Report", primary: true },
+    { href: "/wall-of-shame", label: "Wall of Shame" },
+    { href: "/trust", label: "Trust" },
+    { href: "/xml", label: "XML" },
+  ];
+
   return (
     <nav className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <a href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 font-bold text-white">
-            GC
+        <a href="/" className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-600 text-lg font-bold text-white">
+            !
           </div>
-          <span className="text-sm font-semibold text-slate-900">
-            Scam Reporter
+          <span className="text-base font-bold text-slate-900">
+            ScamComplaints
           </span>
         </a>
 
-        <div className="flex flex-wrap items-center justify-end gap-2 text-sm">
-          <a
-            href="/"
-            className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
-          >
-            Home
-          </a>
-
-          <a
-            href="/case-builder"
-            className="rounded-lg bg-slate-900 px-3 py-2 font-medium text-white hover:bg-slate-800"
-          >
-            Build Report
-          </a>
-
-          <a
-            href="/trust"
-            className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
-          >
-            Trust
-          </a>
-
-          <a
-            href="/wall-of-shame"
-            className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
-          >
-            Wall of Shame
-          </a>
-
-          <a
-            href="/xml"
-            className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
-          >
-            XML
-          </a>
+        {/* Desktop links */}
+        <div className="hidden items-center gap-1 text-sm md:flex">
+          {links.map((l) =>
+            l.primary ? (
+              <a
+                key={l.href}
+                href={l.href}
+                className="rounded-lg bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-700 transition-colors"
+              >
+                {l.label}
+              </a>
+            ) : (
+              <a
+                key={l.href}
+                href={l.href}
+                className="rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+              >
+                {l.label}
+              </a>
+            )
+          )}
         </div>
+
+        {/* Mobile hamburger */}
+        <button
+          onClick={() => setOpen(!open)}
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 md:hidden"
+          aria-label="Toggle menu"
+        >
+          {open ? (
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
+        </button>
       </div>
+
+      {/* Mobile menu */}
+      {open && (
+        <div className="border-t border-slate-200 bg-white px-4 pb-4 md:hidden">
+          <div className="flex flex-col gap-1 pt-2">
+            {links.map((l) =>
+              l.primary ? (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg bg-red-600 px-4 py-3 text-center font-medium text-white hover:bg-red-700"
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-4 py-3 text-slate-700 hover:bg-slate-100"
+                >
+                  {l.label}
+                </a>
+              )
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

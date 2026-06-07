@@ -65,7 +65,7 @@ export default function ReportForm() {
           Gift Card Number
         </label>
         <input
-          name="card_number_plain"
+          name="cardNumber"
           inputMode="numeric"
           placeholder="Digits only"
           className="w-full rounded-lg border border-slate-300 px-3 py-2"
