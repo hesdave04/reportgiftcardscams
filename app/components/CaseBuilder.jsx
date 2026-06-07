@@ -63,6 +63,7 @@ const emptyForm = {
   suspectUsername: "",
   suspectWallet: "",
   suspectWebsite: "",
+  evidence: [], // { name, url, path, type, size }
 };
 
 /* ─── Flow phases ─── */
@@ -77,6 +78,7 @@ const PHASE = {
   PAYMENT_DETAILS: "payment_details",
   TIMELINE: "timeline",
   SCAMMER_INFO: "scammer_info",
+  EVIDENCE: "evidence",
   REVIEW: "review",
   SUBMITTING: "submitting",
   SUCCESS: "success",
@@ -297,7 +299,7 @@ export default function CaseBuilder() {
   function getNextPhase(currentPhase) {
     switch (currentPhase) {
       case PHASE.CONFIRM_EXTRACTION:
-        return PHASE.REVIEW;
+        return PHASE.EVIDENCE;
       case PHASE.SCAM_TYPE:
         return PHASE.PLATFORMS;
       case PHASE.PLATFORMS:
@@ -311,6 +313,8 @@ export default function CaseBuilder() {
       case PHASE.TIMELINE:
         return PHASE.SCAMMER_INFO;
       case PHASE.SCAMMER_INFO:
+        return PHASE.EVIDENCE;
+      case PHASE.EVIDENCE:
         return PHASE.REVIEW;
       default:
         return PHASE.REVIEW;
@@ -338,7 +342,11 @@ export default function CaseBuilder() {
       const response = await fetch("/api/intake", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, recaptchaToken }),
+        body: JSON.stringify({
+          ...formData,
+          evidenceUrls: (formData.evidence || []).map((f) => f.url),
+          recaptchaToken,
+        }),
       });
       const result = await response.json();
       if (!response.ok)
@@ -366,6 +374,7 @@ export default function CaseBuilder() {
     PHASE.PAYMENT_DETAILS,
     PHASE.TIMELINE,
     PHASE.SCAMMER_INFO,
+    PHASE.EVIDENCE,
     PHASE.REVIEW,
   ];
 
@@ -1100,6 +1109,39 @@ export default function CaseBuilder() {
           </PhaseCard>
         )}
 
+        {/* ── EVIDENCE ── */}
+        {phase === PHASE.EVIDENCE && (
+          <PhaseCard>
+            <QuestionBubble>
+              Do you have any screenshots, receipts, or photos?
+            </QuestionBubble>
+            <p className="mt-1 text-sm text-slate-500">
+              Upload evidence like transaction receipts, gift card photos, chat
+              screenshots, or bank statements. This is optional but strengthens
+              your report.
+            </p>
+
+            <EvidenceUploader
+              evidence={formData.evidence}
+              onChange={(evidence) => updateField("evidence", evidence)}
+            />
+
+            <NavButtons
+              onBack={() =>
+                extractedData
+                  ? transitionTo(PHASE.CONFIRM_EXTRACTION)
+                  : transitionTo(PHASE.SCAMMER_INFO)
+              }
+              onNext={() => goNext(PHASE.EVIDENCE)}
+              nextLabel={
+                formData.evidence.length > 0
+                  ? "Review Report"
+                  : "Skip — Review Report"
+              }
+            />
+          </PhaseCard>
+        )}
+
         {/* ── REVIEW ── */}
         {phase === PHASE.REVIEW && (
           <PhaseCard>
@@ -1184,6 +1226,15 @@ export default function CaseBuilder() {
                     .join(" · ") || "—"
                 }
                 onEdit={() => transitionTo(PHASE.SCAMMER_INFO)}
+              />
+              <ReviewCard
+                label="Evidence"
+                content={
+                  formData.evidence.length > 0
+                    ? `${formData.evidence.length} file${formData.evidence.length > 1 ? "s" : ""} attached`
+                    : "No files attached"
+                }
+                onEdit={() => transitionTo(PHASE.EVIDENCE)}
               />
             </div>
 
@@ -1521,6 +1572,243 @@ function ReviewCard({ label, content, onEdit, isLong }) {
       >
         {content}
       </div>
+    </div>
+  );
+}
+
+function EvidenceUploader({ evidence, onChange }) {
+  const [uploading, setUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const [ocrResults, setOcrResults] = useState({});
+  const [ocrLoading, setOcrLoading] = useState({});
+  const fileInputRef = useRef(null);
+
+  async function handleFiles(files) {
+    if (!files || files.length === 0) return;
+    const remaining = 10 - evidence.length;
+    const toUpload = Array.from(files).slice(0, remaining);
+    if (toUpload.length === 0) return;
+
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      toUpload.forEach((f) => fd.append("files", f));
+
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const result = await res.json();
+
+      if (result.uploaded?.length > 0) {
+        onChange([...evidence, ...result.uploaded]);
+      }
+      if (result.errors?.length > 0) {
+        alert(
+          `Some files failed:\n${result.errors.map((e) => `${e.name}: ${e.error}`).join("\n")}`
+        );
+      }
+    } catch {
+      alert("Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function removeFile(idx) {
+    const next = [...evidence];
+    next.splice(idx, 1);
+    onChange(next);
+  }
+
+  async function runOcr(file, idx) {
+    setOcrLoading((prev) => ({ ...prev, [idx]: true }));
+    try {
+      const res = await fetch("/api/ocr", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: file.url }),
+      });
+      const result = await res.json();
+      if (result.extracted) {
+        setOcrResults((prev) => ({ ...prev, [idx]: result.extracted }));
+      }
+    } catch {
+      // silent fail
+    } finally {
+      setOcrLoading((prev) => ({ ...prev, [idx]: false }));
+    }
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    setDragActive(false);
+    handleFiles(e.dataTransfer.files);
+  }
+
+  const isImage = (type) => type?.startsWith("image/");
+
+  return (
+    <div className="mt-5 space-y-4">
+      {/* Drop zone */}
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragActive(true);
+        }}
+        onDragLeave={() => setDragActive(false)}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
+        className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center cursor-pointer transition-all ${
+          dragActive
+            ? "border-red-400 bg-red-50"
+            : "border-slate-300 bg-slate-50 hover:border-slate-400 hover:bg-white"
+        } ${uploading ? "pointer-events-none opacity-60" : ""}`}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="image/jpeg,image/png,image/webp,image/gif,application/pdf"
+          className="hidden"
+          onChange={(e) => handleFiles(e.target.files)}
+        />
+        {uploading ? (
+          <>
+            <svg
+              className="h-8 w-8 text-slate-400 animate-spin mb-3"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              />
+            </svg>
+            <p className="text-sm text-slate-500">Uploading...</p>
+          </>
+        ) : (
+          <>
+            <svg
+              className="h-10 w-10 text-slate-400 mb-3"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+              />
+            </svg>
+            <p className="text-sm font-medium text-slate-700">
+              Drop files here or click to browse
+            </p>
+            <p className="mt-1 text-xs text-slate-400">
+              JPG, PNG, WebP, GIF, or PDF · Max 10MB each · Up to 10 files
+            </p>
+          </>
+        )}
+      </div>
+
+      {/* File previews */}
+      {evidence.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {evidence.map((file, idx) => (
+            <div
+              key={file.path || idx}
+              className="group relative rounded-xl border border-slate-200 bg-white overflow-hidden"
+            >
+              {/* Preview */}
+              {isImage(file.type) ? (
+                <img
+                  src={file.url}
+                  alt={file.name}
+                  className="h-32 w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-32 items-center justify-center bg-slate-50">
+                  <svg
+                    className="h-10 w-10 text-slate-300"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+                    />
+                  </svg>
+                </div>
+              )}
+
+              {/* File name */}
+              <div className="px-2 py-1.5">
+                <p className="text-[11px] text-slate-500 truncate">
+                  {file.name}
+                </p>
+              </div>
+
+              {/* Remove button */}
+              <button
+                type="button"
+                onClick={() => removeFile(idx)}
+                className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                title="Remove"
+              >
+                ×
+              </button>
+
+              {/* OCR button — only for images */}
+              {isImage(file.type) && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    runOcr(file, idx);
+                  }}
+                  disabled={ocrLoading[idx]}
+                  className="absolute top-1 left-1 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                  title="Extract text from this image"
+                >
+                  {ocrLoading[idx] ? "..." : "🔍 OCR"}
+                </button>
+              )}
+
+              {/* OCR result */}
+              {ocrResults[idx] && (
+                <div className="border-t border-slate-100 bg-emerald-50 px-2 py-1.5">
+                  <p className="text-[10px] font-medium text-emerald-700">
+                    Extracted:
+                  </p>
+                  <p className="text-[10px] text-emerald-600 line-clamp-2">
+                    {ocrResults[idx].rawText
+                      ? ocrResults[idx].rawText.slice(0, 120)
+                      : "No text found"}
+                    {ocrResults[idx].amount &&
+                      ` · $${ocrResults[idx].amount}`}
+                  </p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {evidence.length > 0 && (
+        <p className="text-xs text-slate-400 text-right">
+          {evidence.length}/10 files
+        </p>
+      )}
     </div>
   );
 }
