@@ -387,7 +387,7 @@ export default function CaseBuilder() {
   /* ─── Render ─── */
 
   return (
-    <div ref={containerRef} className="mx-auto max-w-2xl px-4 py-6 sm:py-10 min-h-[calc(100vh-160px)]">
+    <div ref={containerRef} className="mx-auto max-w-2xl px-4 py-6 pb-16 sm:py-10 min-h-[calc(100dvh-64px)]">
       {/* Progress bar — hidden on welcome/success */}
       {phase !== PHASE.WELCOME &&
         phase !== PHASE.SUCCESS &&
