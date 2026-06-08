@@ -50,64 +50,27 @@ export default function RecentReports() {
       {rows.length > 0 && (
         <ul className="divide-y divide-slate-100">
           {rows.map((r, i) => {
-            if (r.type === 'investigation') {
-              return (
-                <li key={r.id ?? i} className="flex items-center justify-between py-3">
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-medium text-slate-900">
-                      <span className="inline-flex items-center rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800 mr-2">
-                        Investigation
-                      </span>
-                      {r.suspect_name || 'Unknown Suspect'}
-                      {r.identity_verified && (
-                        <span className="ml-2 text-slate-400 text-xs">
-                          {r.identity_verified}
-                        </span>
-                      )}
-                    </div>
-                    <div className="truncate text-xs text-slate-500">
-                      {r.suspect_email || r.suspect_phone || r.suspect_username
-                        ? (r.suspect_email || r.suspect_phone || '').slice(0, 40)
-                        : 'No contact info'}
-                      {r.amount ? ` · $${Number(r.amount).toLocaleString()}` : ''}
-                      {r.created_at ? ` · ${new Date(r.created_at).toLocaleDateString()}` : ''}
-                    </div>
-                  </div>
-                </li>
-              );
-            }
-
-            // Gift card report (original rendering)
-            const brand =
-              r.gift_card_brand || r.brand || r.card_brand || 'Unknown Brand';
-            const retailer = r.retailer || r.seller || 'Unknown Retailer';
-            const last4 =
-              r.card_number_last4 ||
-              r.last4 ||
-              r.card_last4 ||
-              (typeof r.card_number === 'string'
-                ? r.card_number.slice(-4)
-                : undefined);
-            const amount = r.amount ?? r.value ?? null;
-            const dt =
-              r.purchase_date ||
-              r.created_at ||
-              r.createdAt ||
-              r.date ||
-              null;
+            // Unified rendering for all report types
+            const title = r.suspect_name || r.gift_card_brand || r.scam_type || 'Scam Report';
+            const subtitle = r.suspect_email || r.suspect_phone || r.retailer || '';
+            const amount = r.amount;
+            const dt = r.created_at || r.purchase_date || null;
+            const last4 = r.card_last4;
 
             return (
               <li key={r.id ?? i} className="flex items-center justify-between py-3">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium text-slate-900">
-                    {brand}{' '}
-                    <span className="text-slate-400">
-                      · {retailer}
-                    </span>
+                    {title}
+                    {r.scam_type && !r.gift_card_brand && (
+                      <span className="ml-2 text-xs text-slate-400">
+                        {r.scam_type}
+                      </span>
+                    )}
                   </div>
                   <div className="truncate text-xs text-slate-500">
-                    {last4 ? `•••• ${last4}` : 'Card ••••'}
-                    {amount ? ` · $${Number(amount).toFixed(2)}` : ''}
+                    {last4 ? `•••• ${last4}` : subtitle ? subtitle.slice(0, 40) : 'Report submitted'}
+                    {amount ? ` · $${Number(amount).toLocaleString()}` : ''}
                     {dt ? ` · ${new Date(dt).toLocaleDateString()}` : ''}
                   </div>
                 </div>
