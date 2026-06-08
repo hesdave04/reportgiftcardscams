@@ -15,15 +15,10 @@ export default function Nav() {
   ];
 
   return (
-    <nav className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <nav className="sticky top-0 z-40 w-full border-b border-navy-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <a href="/" className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-600 text-lg font-bold text-white">
-            !
-          </div>
-          <span className="text-base font-bold text-slate-900">
-            ScamComplaints
-          </span>
+          <img src="/logo.png" alt="ScamComplaints.org" className="h-10 w-auto" />
         </a>
 
         {/* Desktop links */}
@@ -33,7 +28,7 @@ export default function Nav() {
               <a
                 key={l.href}
                 href={l.href}
-                className="rounded-lg bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-700 transition-colors"
+                className="rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand-light transition-colors"
               >
                 {l.label}
               </a>
@@ -77,7 +72,7 @@ export default function Nav() {
                   key={l.href}
                   href={l.href}
                   onClick={() => setOpen(false)}
-                  className="rounded-lg bg-red-600 px-4 py-3 text-center font-medium text-white hover:bg-red-700"
+                  className="rounded-lg bg-brand px-4 py-3 text-center font-medium text-white hover:bg-brand-light"
                 >
                   {l.label}
                 </a>

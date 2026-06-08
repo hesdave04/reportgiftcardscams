@@ -19,18 +19,18 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-800">
+      <section className="relative overflow-hidden bg-gradient-to-b from-brand to-brand-dark">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L2c+PC9zdmc+')] opacity-40" />
         <div className="relative mx-auto max-w-6xl px-4 py-16 sm:py-24">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-300 backdrop-blur">
-              <span className="inline-block h-2 w-2 rounded-full bg-red-500" />
+              <span className="inline-block h-2 w-2 rounded-full bg-brand-accent" />
               Free public service by SocialCatfish.com
             </div>
             <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
               Report a scam.
               <br />
-              <span className="text-red-400">Protect someone else.</span>
+              <span className="text-brand-accent">Protect someone else.</span>
             </h1>
             <p className="mt-4 text-lg text-slate-300 leading-relaxed sm:text-xl">
               ScamComplaints.org helps you document fraud clearly and completely.
@@ -40,7 +40,7 @@ export default function HomePage() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
                 href="/case-builder"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-red-600/25 hover:bg-red-700 transition-colors"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-accent px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-accent/25 hover:bg-brand-accent-hover transition-colors"
               >
                 <svg
                   className="h-5 w-5"
@@ -97,7 +97,7 @@ export default function HomePage() {
           <p className="mt-2 text-slate-600">
             Already know the gift card details? Use this quick form.
             For a more thorough report,{" "}
-            <a href="/case-builder" className="font-medium text-red-600 hover:text-red-700 underline underline-offset-2">
+            <a href="/case-builder" className="font-medium text-brand-accent hover:text-brand-accent-hover underline underline-offset-2">
               use the guided Case Builder
             </a>.
           </p>

@@ -8,7 +8,7 @@ export default function SiteHeader() {
   return (
     <>
       {/* Top banner */}
-      <div className="w-full bg-slate-900 py-2 text-center text-xs text-white">
+      <div className="w-full bg-brand py-2 text-center text-xs text-white">
         Made by{' '}
         <a
           href="https://www.socialcatfish.com"
@@ -25,8 +25,8 @@ export default function SiteHeader() {
       <header className="flex items-center justify-between border-b bg-white px-4 py-3">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/logo.svg"
-            alt="ReportGiftCardScams"
+            src="/logo.png"
+            alt="ScamComplaints.org"
             width={190}
             height={44}
             priority

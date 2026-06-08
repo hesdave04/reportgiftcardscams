@@ -75,11 +75,11 @@ export default function WallOfShamePage() {
               <span className="text-slate-500">reports</span>
             </div>
             {data.totalAmountLost > 0 && (
-              <div className="rounded-lg bg-red-50 px-3 py-1.5 text-sm">
-                <span className="font-semibold text-red-700">
+              <div className="rounded-lg bg-navy-50 px-3 py-1.5 text-sm">
+                <span className="font-semibold text-brand">
                   ${data.totalAmountLost.toLocaleString()}
                 </span>{" "}
-                <span className="text-red-500">total reported lost</span>
+                <span className="text-brand-accent">total reported lost</span>
               </div>
             )}
           </div>
@@ -155,7 +155,7 @@ export default function WallOfShamePage() {
         </p>
         <a
           href="/case-builder"
-          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-red-600 px-6 py-3 font-semibold text-white shadow-lg shadow-red-600/20 hover:bg-red-700 transition-all"
+          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-brand-accent px-6 py-3 font-semibold text-white shadow-lg shadow-brand-accent/20 hover:bg-brand-accent-hover transition-all"
         >
           Build Your Report
           <svg
@@ -181,9 +181,9 @@ export default function WallOfShamePage() {
 
 const colorMap = {
   red: {
-    bg: "bg-red-50",
-    badge: "bg-red-100 text-red-800",
-    bar: "bg-red-500",
+    bg: "bg-navy-50",
+    badge: "bg-navy-100 text-brand",
+    bar: "bg-brand-accent",
   },
   blue: {
     bg: "bg-blue-50",

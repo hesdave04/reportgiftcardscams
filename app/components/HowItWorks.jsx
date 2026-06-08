@@ -36,7 +36,7 @@ export default function HowItWorks() {
             key={s.title}
             className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
           >
-            <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-xl">
+            <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-navy-50 text-xl">
               <span aria-hidden>{s.icon}</span>
             </div>
             <h3 className="text-base font-semibold text-slate-900">{s.title}</h3>

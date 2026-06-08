@@ -191,7 +191,7 @@ export default function PrivacyPage() {
               href="https://policies.google.com/privacy"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-red-600 underline decoration-red-200 underline-offset-2 hover:text-red-700"
+              className="font-medium text-brand-accent underline decoration-brand-accent/30 underline-offset-2 hover:text-brand-accent-hover"
             >
               Google&apos;s Privacy Policy
             </a>
@@ -234,7 +234,7 @@ export default function PrivacyPage() {
             your rights, contact us at:{" "}
             <a
               href="mailto:info@socialcatfish.com"
-              className="font-medium text-red-600 underline decoration-red-200 underline-offset-2 hover:text-red-700"
+              className="font-medium text-brand-accent underline decoration-brand-accent/30 underline-offset-2 hover:text-brand-accent-hover"
             >
               info@socialcatfish.com
             </a>

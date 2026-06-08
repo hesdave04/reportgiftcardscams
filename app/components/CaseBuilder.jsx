@@ -403,7 +403,7 @@ export default function CaseBuilder() {
             </div>
             <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-700 ease-out"
+                className="h-full rounded-full bg-gradient-to-r from-brand-accent to-brand transition-all duration-700 ease-out"
                 style={{ width: `${Math.max(progress, 5)}%` }}
               />
             </div>
@@ -419,9 +419,9 @@ export default function CaseBuilder() {
         {/* ── WELCOME ── */}
         {phase === PHASE.WELCOME && (
           <div className="text-center py-8">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-navy-50">
               <svg
-                className="h-8 w-8 text-red-600"
+                className="h-8 w-8 text-brand"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -449,7 +449,7 @@ export default function CaseBuilder() {
             <div className="mt-8 flex flex-col items-center gap-3">
               <button
                 onClick={() => transitionTo(PHASE.STORY)}
-                className="inline-flex items-center gap-2 rounded-2xl bg-red-600 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-red-600/20 hover:bg-red-700 hover:shadow-red-600/30 transition-all"
+                className="inline-flex items-center gap-2 rounded-2xl bg-brand-accent px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-brand-accent/20 hover:bg-brand-accent-hover hover:shadow-brand-accent/30 transition-all"
               >
                 Start Your Report
                 <svg
@@ -520,7 +520,7 @@ export default function CaseBuilder() {
             </p>
 
             <textarea
-              className="mt-5 min-h-[180px] w-full rounded-2xl border border-slate-200 bg-slate-50 p-5 text-base leading-relaxed outline-none focus:border-red-300 focus:bg-white focus:ring-2 focus:ring-red-100 transition-colors resize-none"
+              className="mt-5 min-h-[180px] w-full rounded-2xl border border-slate-200 bg-slate-50 p-5 text-base leading-relaxed outline-none focus:border-brand-accent/50 focus:bg-white focus:ring-2 focus:ring-brand-accent/20 transition-colors resize-none"
               placeholder="Example: Someone messaged me on Instagram pretending to be a crypto investor. They got me to send $3,000 in Bitcoin to a wallet address..."
               value={formData.story}
               onChange={(e) => updateField("story", e.target.value)}
@@ -533,7 +533,7 @@ export default function CaseBuilder() {
                 <button
                   type="button"
                   onClick={stopVoiceInput}
-                  className="flex items-center gap-2 rounded-xl bg-red-600 px-5 py-3 font-medium text-white hover:bg-red-700 transition-colors"
+                  className="flex items-center gap-2 rounded-xl bg-brand px-5 py-3 font-medium text-white hover:bg-brand-light transition-colors"
                 >
                   <span className="relative flex h-3 w-3">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
@@ -926,7 +926,7 @@ export default function CaseBuilder() {
                       onClick={() => updateField("sentMoney", v)}
                       className={`flex-1 rounded-xl border-2 px-5 py-3.5 text-center font-medium transition-all ${
                         formData.sentMoney === v
-                          ? "border-red-500 bg-red-50 text-red-700"
+                          ? "border-brand-accent bg-gold-50 text-brand"
                           : "border-slate-200 text-slate-600 hover:border-slate-300"
                       }`}
                     >
@@ -948,7 +948,7 @@ export default function CaseBuilder() {
                       onClick={() => updateField("sentPersonalInfo", v)}
                       className={`flex-1 rounded-xl border-2 px-5 py-3.5 text-center font-medium transition-all ${
                         formData.sentPersonalInfo === v
-                          ? "border-red-500 bg-red-50 text-red-700"
+                          ? "border-brand-accent bg-gold-50 text-brand"
                           : "border-slate-200 text-slate-600 hover:border-slate-300"
                       }`}
                     >
@@ -981,7 +981,7 @@ export default function CaseBuilder() {
                 </span>
                 <input
                   type="number"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-4 pl-8 pr-4 text-lg outline-none focus:border-red-300 focus:bg-white focus:ring-2 focus:ring-red-100 transition-colors"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-4 pl-8 pr-4 text-lg outline-none focus:border-brand-accent/50 focus:bg-white focus:ring-2 focus:ring-brand-accent/20 transition-colors"
                   placeholder="0.00"
                   value={formData.amount}
                   onChange={(e) => updateField("amount", e.target.value)}
@@ -1267,7 +1267,7 @@ export default function CaseBuilder() {
               </button>
               <button
                 onClick={handleSubmit}
-                className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-6 py-3 font-semibold text-white shadow-lg shadow-red-600/20 hover:bg-red-700 transition-all"
+                className="inline-flex items-center gap-2 rounded-xl bg-brand-accent px-6 py-3 font-semibold text-white shadow-lg shadow-brand-accent/20 hover:bg-brand-accent-hover transition-all"
               >
                 Submit Report
                 <svg
@@ -1292,9 +1292,9 @@ export default function CaseBuilder() {
         {phase === PHASE.SUBMITTING && (
           <PhaseCard>
             <div className="py-12 text-center">
-              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50">
+              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-navy-50">
                 <svg
-                  className="h-8 w-8 text-red-600 animate-spin"
+                  className="h-8 w-8 text-brand animate-spin"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -1498,7 +1498,7 @@ function OptionCard({ icon, label, selected, onClick, multi }) {
       onClick={onClick}
       className={`flex items-center gap-2 sm:gap-3 rounded-xl border-2 p-2.5 sm:p-3.5 text-left transition-all ${
         selected
-          ? "border-red-500 bg-red-50 text-slate-900 shadow-sm"
+          ? "border-brand-accent bg-gold-50 text-slate-900 shadow-sm"
           : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
       }`}
     >
@@ -1506,7 +1506,7 @@ function OptionCard({ icon, label, selected, onClick, multi }) {
       <span className="flex-1 font-medium text-xs sm:text-sm">{label}</span>
       {selected && (
         <svg
-          className="h-5 w-5 text-red-600 shrink-0"
+          className="h-5 w-5 text-brand-accent shrink-0"
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -1529,7 +1529,7 @@ function DateField({ label, value, onChange }) {
       </label>
       <input
         type="date"
-        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 outline-none focus:border-red-300 focus:bg-white focus:ring-2 focus:ring-red-100 transition-colors"
+        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 outline-none focus:border-brand-accent/50 focus:bg-white focus:ring-2 focus:ring-brand-accent/20 transition-colors"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -1539,7 +1539,7 @@ function DateField({ label, value, onChange }) {
 
 function TextField({ icon, placeholder, type = "text", value, onChange }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-0 focus-within:border-red-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-red-100 transition-colors">
+    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-0 focus-within:border-brand-accent/50 focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-accent/20 transition-colors">
       <span className="text-lg shrink-0">{icon}</span>
       <input
         type={type}
@@ -1562,7 +1562,7 @@ function ReviewCard({ label, content, onEdit, isLong }) {
         <button
           type="button"
           onClick={onEdit}
-          className="text-xs font-medium text-red-600 hover:text-red-700"
+          className="text-xs font-medium text-brand-accent hover:text-brand-accent-hover"
         >
           Edit
         </button>
@@ -1658,7 +1658,7 @@ function EvidenceUploader({ evidence, onChange }) {
         onClick={() => fileInputRef.current?.click()}
         className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center cursor-pointer transition-all ${
           dragActive
-            ? "border-red-400 bg-red-50"
+            ? "border-brand-accent bg-gold-50"
             : "border-slate-300 bg-slate-50 hover:border-slate-400 hover:bg-white"
         } ${uploading ? "pointer-events-none opacity-60" : ""}`}
       >
