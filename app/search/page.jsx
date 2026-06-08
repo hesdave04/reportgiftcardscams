@@ -1,3 +1,4 @@
+// app/search/page.jsx
 "use client";
 
 import { useState, useCallback } from "react";
@@ -8,15 +9,16 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
+  const [source, setSource] = useState("all");
   const pageSize = 20;
 
   const doSearch = useCallback(
-    async (q, p = 1) => {
+    async (q, p = 1, src = source) => {
       if (!q.trim()) return;
       setLoading(true);
       setError("");
       try {
-        const params = new URLSearchParams({ q: q.trim(), page: p, pageSize });
+        const params = new URLSearchParams({ q: q.trim(), page: p, pageSize, source: src });
         const res = await fetch(`/api/search?${params}`);
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
@@ -32,12 +34,19 @@ export default function SearchPage() {
         setLoading(false);
       }
     },
-    []
+    [source]
   );
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    doSearch(query, 1);
+    doSearch(query, 1, source);
+  };
+
+  const handleSourceChange = (newSource) => {
+    setSource(newSource);
+    if (query.trim()) {
+      doSearch(query, 1, newSource);
+    }
   };
 
   const totalPages = results ? Math.ceil(results.total / pageSize) : 0;
@@ -53,13 +62,13 @@ export default function SearchPage() {
           Search Scam Reports
         </h1>
         <p className="mt-3 text-slate-600 max-w-2xl">
-          Search reports by gift card brand, retailer, card number (last 4 digits), or keywords. 
-          All personal information is anonymized.
+          Search scam reports and investigation case files by name, email, phone number,
+          username, gift card brand, or keywords.
         </p>
       </div>
 
       {/* Search form */}
-      <form onSubmit={handleSubmit} className="mb-8">
+      <form onSubmit={handleSubmit} className="mb-6">
         <div className="flex gap-3">
           <div className="relative flex-1">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
@@ -71,7 +80,7 @@ export default function SearchPage() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder='Try "Apple", "Walmart", "1234", or a keyword…'
+              placeholder='Search by name, email, phone, keyword…'
               className="w-full rounded-xl border-2 border-slate-200 bg-white py-3.5 pl-11 pr-4 text-base text-slate-900 placeholder:text-slate-400 outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 transition-colors"
             />
           </div>
@@ -95,6 +104,37 @@ export default function SearchPage() {
         </div>
       </form>
 
+      {/* Source filter tabs */}
+      <div className="mb-6 flex gap-2">
+        {[
+          { key: "all", label: "All" },
+          { key: "reports", label: "Scam Reports" },
+          { key: "investigations", label: "Investigation Cases" },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => handleSourceChange(tab.key)}
+            className={`rounded-lg px-3.5 py-2 text-sm font-medium transition-colors ${
+              source === tab.key
+                ? "bg-brand text-white"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+          >
+            {tab.label}
+            {results?.counts && tab.key !== "all" && (
+              <span className="ml-1.5 text-xs opacity-75">
+                ({results.counts[tab.key === "reports" ? "giftcard" : "investigation"] || 0})
+              </span>
+            )}
+            {results?.counts && tab.key === "all" && (
+              <span className="ml-1.5 text-xs opacity-75">
+                ({results.total || 0})
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
       {/* Error */}
       {error && (
         <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -109,7 +149,7 @@ export default function SearchPage() {
             <p className="text-sm text-slate-500">
               {results.total === 0
                 ? "No reports found"
-                : `${results.total} report${results.total === 1 ? "" : "s"} found`}
+                : `${results.total} result${results.total === 1 ? "" : "s"} found`}
             </p>
             {totalPages > 1 && (
               <p className="text-sm text-slate-500">
@@ -120,49 +160,13 @@ export default function SearchPage() {
 
           {results.items.length > 0 ? (
             <div className="space-y-3">
-              {results.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="rounded-xl border border-slate-200 bg-white p-5 hover:border-slate-300 transition-colors"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
-                    <div className="flex flex-wrap gap-2">
-                      {item.gift_card_brand && (
-                        <span className="inline-flex items-center rounded-lg bg-navy-50 px-2.5 py-1 text-xs font-medium text-brand">
-                          🎁 {item.gift_card_brand}
-                        </span>
-                      )}
-                      {item.retailer && (
-                        <span className="inline-flex items-center rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-                          🏪 {item.retailer}
-                        </span>
-                      )}
-                      {item.amount && (
-                        <span className="inline-flex items-center rounded-lg bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
-                          💰 ${Number(item.amount).toLocaleString()}
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-xs text-slate-400 shrink-0">
-                      {new Date(item.created_at).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </span>
-                  </div>
-                  {item.card_last4 && (
-                    <p className="text-sm text-slate-600 mb-2">
-                      Card ending in <span className="font-mono font-medium text-slate-900">••••{item.card_last4}</span>
-                    </p>
-                  )}
-                  {item.notes && (
-                    <p className="text-sm text-slate-600 leading-relaxed">
-                      {item.notes}
-                    </p>
-                  )}
-                </div>
-              ))}
+              {results.items.map((item) =>
+                item.type === "investigation" ? (
+                  <InvestigationCard key={item.id} item={item} />
+                ) : (
+                  <GiftCardCard key={item.id} item={item} />
+                )
+              )}
             </div>
           ) : (
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-12 text-center">
@@ -181,7 +185,7 @@ export default function SearchPage() {
           {totalPages > 1 && (
             <div className="mt-6 flex items-center justify-center gap-3">
               <button
-                onClick={() => doSearch(query, page - 1)}
+                onClick={() => doSearch(query, page - 1, source)}
                 disabled={page <= 1 || loading}
                 className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
@@ -191,7 +195,7 @@ export default function SearchPage() {
                 {page} / {totalPages}
               </span>
               <button
-                onClick={() => doSearch(query, page + 1)}
+                onClick={() => doSearch(query, page + 1, source)}
                 disabled={page >= totalPages || loading}
                 className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
@@ -210,10 +214,10 @@ export default function SearchPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <p className="text-lg font-medium text-slate-600">Search scam reports</p>
+          <p className="text-lg font-medium text-slate-600">Search scam reports & investigations</p>
           <p className="mt-2 text-sm text-slate-500 max-w-md mx-auto">
-            Enter a gift card brand (Apple, Google Play), retailer (Walmart, CVS), 
-            last 4 digits of a card number, or a keyword to search reported scams.
+            Search by suspect name, email, phone number, username, gift card brand,
+            retailer, or keyword to find matching scam reports and investigation case files.
           </p>
         </div>
       )}
@@ -231,6 +235,126 @@ export default function SearchPage() {
           Build Your Report →
         </a>
       </div>
+    </div>
+  );
+}
+
+/* ── Gift Card Report Card ── */
+function GiftCardCard({ item }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-5 hover:border-slate-300 transition-colors">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+        <div className="flex flex-wrap gap-2">
+          <span className="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+            🎁 Gift Card Report
+          </span>
+          {item.gift_card_brand && (
+            <span className="inline-flex items-center rounded-lg bg-navy-50 px-2.5 py-1 text-xs font-medium text-brand">
+              {item.gift_card_brand}
+            </span>
+          )}
+          {item.retailer && (
+            <span className="inline-flex items-center rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+              🏪 {item.retailer}
+            </span>
+          )}
+          {item.amount && (
+            <span className="inline-flex items-center rounded-lg bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
+              💰 ${Number(item.amount).toLocaleString()}
+            </span>
+          )}
+        </div>
+        <span className="text-xs text-slate-400 shrink-0">
+          {new Date(item.created_at).toLocaleDateString("en-US", {
+            year: "numeric", month: "short", day: "numeric",
+          })}
+        </span>
+      </div>
+      {item.card_last4 && (
+        <p className="text-sm text-slate-600 mb-2">
+          Card ending in <span className="font-mono font-medium text-slate-900">••••{item.card_last4}</span>
+        </p>
+      )}
+      {item.notes && (
+        <p className="text-sm text-slate-600 leading-relaxed">{item.notes}</p>
+      )}
+    </div>
+  );
+}
+
+/* ── Investigation Case Card ── */
+function InvestigationCard({ item }) {
+  return (
+    <div className="rounded-xl border border-amber-200 bg-amber-50/30 p-5 hover:border-amber-300 transition-colors">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+        <div className="flex flex-wrap gap-2">
+          <span className="inline-flex items-center rounded-lg bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-800">
+            🔍 Investigation Case
+          </span>
+          {item.identity_verified && (
+            <span className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-medium ${
+              item.identity_verified.includes('✅') || item.identity_verified.toLowerCase().includes('verified')
+                ? 'bg-green-50 text-green-700'
+                : 'bg-red-50 text-red-700'
+            }`}>
+              {item.identity_verified}
+            </span>
+          )}
+          {item.amount && (
+            <span className="inline-flex items-center rounded-lg bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700">
+              💰 ${Number(item.amount).toLocaleString()} lost
+            </span>
+          )}
+        </div>
+        <span className="text-xs text-slate-400 shrink-0">
+          {new Date(item.created_at).toLocaleDateString("en-US", {
+            year: "numeric", month: "short", day: "numeric",
+          })}
+        </span>
+      </div>
+
+      {/* Suspect info */}
+      {(item.suspect_name || item.suspect_email || item.suspect_phone || item.suspect_username) && (
+        <div className="mb-3 rounded-lg bg-white/80 border border-amber-100 p-3">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Suspect Info</p>
+          <div className="space-y-1">
+            {item.suspect_name && (
+              <p className="text-sm text-slate-800">
+                <span className="text-slate-500">Name:</span>{" "}
+                <span className="font-medium">{item.suspect_name}</span>
+              </p>
+            )}
+            {item.suspect_email && (
+              <p className="text-sm text-slate-800">
+                <span className="text-slate-500">Email:</span>{" "}
+                <span className="font-mono text-xs">{item.suspect_email}</span>
+              </p>
+            )}
+            {item.suspect_phone && (
+              <p className="text-sm text-slate-800">
+                <span className="text-slate-500">Phone:</span>{" "}
+                <span className="font-mono text-xs">{item.suspect_phone}</span>
+              </p>
+            )}
+            {item.suspect_username && (
+              <p className="text-sm text-slate-800">
+                <span className="text-slate-500">Profiles:</span>{" "}
+                <span className="text-xs break-all">{item.suspect_username.length > 120 ? item.suspect_username.slice(0, 120) + '…' : item.suspect_username}</span>
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Story / Summary */}
+      {item.story && (
+        <p className="text-sm text-slate-700 leading-relaxed mb-2">{item.story}</p>
+      )}
+
+      {/* Conclusions */}
+      {item.conclusions && !item.story && (
+        <p className="text-sm text-slate-600 leading-relaxed">{item.conclusions}</p>
+      )}
     </div>
   );
 }
