@@ -54,13 +54,13 @@ export default function HomePage() {
                     d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                Build Your Report
+                Submit Your Case (5–10 min)
               </a>
               <a
                 href="#report-form"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-base font-semibold text-white backdrop-blur hover:bg-white/10 transition-colors"
               >
-                Quick Report
+                Quick Report (under 2 min)
               </a>
             </div>
           </div>

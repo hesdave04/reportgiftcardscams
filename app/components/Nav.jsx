@@ -18,7 +18,7 @@ export default function Nav() {
     <nav className="sticky top-0 z-40 w-full border-b border-navy-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <a href="/" className="flex items-center gap-2.5">
-          <img src="/logo.png" alt="ScamComplaints.org" className="h-12 md:h-14 w-auto" />
+          <img src="/logo.png" alt="ScamComplaints.org" className="h-12 sm:h-14 md:h-16 w-auto" />
         </a>
 
         {/* Desktop links */}
