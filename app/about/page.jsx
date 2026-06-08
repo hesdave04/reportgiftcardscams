@@ -82,7 +82,7 @@ export default function AboutPage() {
             href="https://socialcatfish.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-red-600 underline decoration-red-200 underline-offset-2 hover:text-red-700 hover:decoration-red-400"
+            className="font-medium text-brand-accent underline decoration-brand-accent/30 underline-offset-2 hover:text-brand-accent-hover hover:decoration-brand-accent/60"
           >
             Social Catfish
           </a>
@@ -95,7 +95,7 @@ export default function AboutPage() {
             href="https://youtube.com/@Catfished"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-red-600 underline decoration-red-200 underline-offset-2 hover:text-red-700 hover:decoration-red-400"
+            className="font-medium text-brand-accent underline decoration-brand-accent/30 underline-offset-2 hover:text-brand-accent-hover hover:decoration-brand-accent/60"
           >
             Catfished YouTube channel
           </a>{" "}
@@ -116,7 +116,7 @@ export default function AboutPage() {
         </p>
         <a
           href="/case-builder"
-          className="mt-6 inline-block rounded-lg bg-red-600 px-6 py-3 font-medium text-white hover:bg-red-700 transition-colors"
+          className="mt-6 inline-block rounded-lg bg-brand-accent px-6 py-3 font-medium text-white hover:bg-brand-accent-hover transition-colors"
         >
           Start Your Report
         </a>
@@ -130,7 +130,7 @@ export default function AboutPage() {
           inquiries, email us at{" "}
           <a
             href="mailto:info@socialcatfish.com"
-            className="font-medium text-red-600 underline decoration-red-200 underline-offset-2 hover:text-red-700 hover:decoration-red-400"
+            className="font-medium text-brand-accent underline decoration-brand-accent/30 underline-offset-2 hover:text-brand-accent-hover hover:decoration-brand-accent/60"
           >
             info@socialcatfish.com
           </a>

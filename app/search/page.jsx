@@ -72,13 +72,13 @@ export default function SearchPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder='Try "Apple", "Walmart", "1234", or a keyword…'
-              className="w-full rounded-xl border-2 border-slate-200 bg-white py-3.5 pl-11 pr-4 text-base text-slate-900 placeholder:text-slate-400 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition-colors"
+              className="w-full rounded-xl border-2 border-slate-200 bg-white py-3.5 pl-11 pr-4 text-base text-slate-900 placeholder:text-slate-400 outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 transition-colors"
             />
           </div>
           <button
             type="submit"
             disabled={loading || !query.trim()}
-            className="rounded-xl bg-red-600 px-6 py-3.5 font-medium text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+            className="rounded-xl bg-brand px-6 py-3.5 font-medium text-white hover:bg-brand-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
           >
             {loading ? (
               <span className="flex items-center gap-2">
@@ -128,7 +128,7 @@ export default function SearchPage() {
                   <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
                     <div className="flex flex-wrap gap-2">
                       {item.gift_card_brand && (
-                        <span className="inline-flex items-center rounded-lg bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700">
+                        <span className="inline-flex items-center rounded-lg bg-navy-50 px-2.5 py-1 text-xs font-medium text-brand">
                           🎁 {item.gift_card_brand}
                         </span>
                       )}
@@ -169,7 +169,7 @@ export default function SearchPage() {
               <p className="text-lg font-medium text-slate-600">No matching reports</p>
               <p className="mt-2 text-sm text-slate-500">
                 Try a different search term, or{" "}
-                <a href="/case-builder" className="text-red-600 hover:text-red-700 underline">
+                <a href="/case-builder" className="text-brand-accent hover:text-brand-accent-hover underline">
                   submit a report
                 </a>{" "}
                 to help others.
@@ -226,7 +226,7 @@ export default function SearchPage() {
         </p>
         <a
           href="/case-builder"
-          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-red-600 px-6 py-3 font-medium text-white hover:bg-red-700 transition-colors"
+          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-brand-accent px-6 py-3 font-medium text-white hover:bg-brand-accent-hover transition-colors"
         >
           Build Your Report →
         </a>

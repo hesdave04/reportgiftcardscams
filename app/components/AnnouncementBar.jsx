@@ -2,7 +2,7 @@
 
 export default function AnnouncementBar() {
   return (
-    <div className="w-full bg-slate-900 text-white">
+    <div className="w-full bg-brand text-white">
       <div className="mx-auto max-w-6xl px-4 py-2 text-center text-sm">
         Made by{' '}
         <a
