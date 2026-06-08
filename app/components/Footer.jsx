@@ -7,7 +7,16 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5">
-              <img src="/logo.png" alt="ScamComplaints.org" className="h-12 sm:h-14 w-auto" />
+              <img src="/shield.png" alt="" className="h-10 sm:h-12 w-auto" />
+              <div className="flex flex-col leading-none">
+                <span className="text-base sm:text-lg font-extrabold tracking-tight text-brand">
+                  <span className="font-black">S</span>CAM
+                  <span className="font-black"> C</span>OMPLAINTS<span className="text-brand-accent font-black">.ORG</span>
+                </span>
+                <span className="mt-0.5 text-[7px] sm:text-[8px] font-semibold uppercase tracking-[0.15em] text-slate-400">
+                  Report Scams. Protect Others. Create Change.
+                </span>
+              </div>
             </div>
             <p className="mt-3 text-sm text-slate-500 leading-relaxed">
               A free public service helping victims report scams, expose fraud, and support investigations.
