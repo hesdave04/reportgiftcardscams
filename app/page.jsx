@@ -5,8 +5,7 @@ export const revalidate = 0;
 import { Suspense } from "react";
 import dynamicImport from "next/dynamic";
 import HowItWorks from "./components/HowItWorks";
-import ReportForm from "./components/ReportForm";
-import QuickBatch from "./components/QuickBatch";
+import QuickReport from "./components/QuickReport";
 
 const RecentReports = dynamicImport(() => import("./components/RecentReports"), {
   ssr: false,
@@ -61,7 +60,7 @@ export default function HomePage() {
                 href="#report-form"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-base font-semibold text-white backdrop-blur hover:bg-white/10 transition-colors"
               >
-                Quick Gift Card Report
+                Quick Report
               </a>
             </div>
           </div>
@@ -91,29 +90,18 @@ export default function HomePage() {
         {/* How It Works */}
         <HowItWorks />
 
-        {/* Quick Gift Card Report Form */}
+        {/* Quick Report Form */}
         <section id="report-form" className="mt-16">
-          <h2 className="text-2xl font-bold text-slate-900">Quick Gift Card Report</h2>
+          <h2 className="text-2xl font-bold text-slate-900">Quick Report</h2>
           <p className="mt-2 text-slate-600">
-            Already know the gift card details? Use this quick form.
+            Report any type of scam in under 2 minutes. Just the essentials — every detail helps investigators.
             For a more thorough report,{" "}
             <a href="/case-builder" className="font-medium text-brand-accent hover:text-brand-accent-hover underline underline-offset-2">
               use the guided Case Builder
             </a>.
           </p>
           <div className="mt-6">
-            <ReportForm />
-          </div>
-        </section>
-
-        {/* Batch Upload */}
-        <section className="mt-16">
-          <h2 className="text-2xl font-bold text-slate-900">Batch Upload</h2>
-          <p className="mt-2 text-slate-600">
-            Have multiple cards to report? Paste them all at once.
-          </p>
-          <div className="mt-6">
-            <QuickBatch />
+            <QuickReport />
           </div>
         </section>
 
