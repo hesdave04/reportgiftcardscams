@@ -19,12 +19,12 @@ export default function Nav() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <a href="/" className="flex items-center gap-3">
           <img src="/shield.png" alt="" className="h-11 sm:h-12 md:h-14 w-auto" />
-          <div className="flex flex-col leading-none">
-            <span className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight text-brand">
-              <span className="font-black">S</span>CAM
-              <span className="font-black"> C</span>OMPLAINTS<span className="text-brand-accent font-black">.ORG</span>
+          <div className="flex flex-col leading-none" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <span className="text-lg sm:text-xl md:text-2xl font-black tracking-tight text-brand">
+              <span className="text-[1.15em]">S</span>CAM{" "}
+              <span className="text-[1.15em]">C</span>OMPLAINTS<span className="text-brand-accent">.ORG</span>
             </span>
-            <span className="mt-0.5 text-[8px] sm:text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400">
+            <span className="mt-0.5 text-[8px] sm:text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400" style={{ fontFamily: "system-ui, sans-serif" }}>
               Report Scams. Protect Others. Create Change.
             </span>
           </div>
