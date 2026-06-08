@@ -46,7 +46,7 @@ export default function WallOfShamePage() {
         <p className="text-slate-600 mt-2">
           A transparent look at the most common scam types, platforms scammers
           use, and payment methods they exploit — based on real reports from
-          victims.
+          victims and professional investigations.
         </p>
       </div>
 
@@ -63,6 +63,7 @@ export default function WallOfShamePage() {
             <option value={90}>Last 90 days</option>
             <option value={180}>Last 180 days</option>
             <option value={365}>Last 365 days</option>
+            <option value={9999}>All time</option>
           </select>
         </div>
 
@@ -74,6 +75,14 @@ export default function WallOfShamePage() {
               </span>{" "}
               <span className="text-slate-500">reports</span>
             </div>
+            {data.investigationCount > 0 && (
+              <div className="rounded-lg bg-amber-50 px-3 py-1.5 text-sm">
+                <span className="font-semibold text-amber-800">
+                  {data.investigationCount.toLocaleString()}
+                </span>{" "}
+                <span className="text-amber-600">investigations</span>
+              </div>
+            )}
             {data.totalAmountLost > 0 && (
               <div className="rounded-lg bg-navy-50 px-3 py-1.5 text-sm">
                 <span className="font-semibold text-brand">
@@ -89,6 +98,50 @@ export default function WallOfShamePage() {
       {err && (
         <div className="mt-4 rounded-lg border border-red-300 bg-red-50 p-4 text-red-700">
           <strong>Error:</strong> {err}
+        </div>
+      )}
+
+      {/* Investigation Cases Section */}
+      {data?.topSuspects?.length > 0 && (
+        <div className="mt-8">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xl">🔍</span>
+            <h2 className="text-lg font-semibold text-slate-900">From Professional Investigations</h2>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {data.topSuspects.slice(0, 6).map((s, i) => (
+              <div key={i} className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
+                <div className="flex items-start justify-between">
+                  <div className="min-w-0">
+                    <p className="font-medium text-slate-900 truncate">{s.name}</p>
+                    {s.email && (
+                      <p className="text-xs text-slate-500 font-mono truncate mt-0.5">{s.email}</p>
+                    )}
+                  </div>
+                  <span className={`shrink-0 ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                    s.verified
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-slate-100 text-slate-600'
+                  }`}>
+                    {s.verified ? 'Unverified ID' : 'Under Review'}
+                  </span>
+                </div>
+                {s.story && (
+                  <p className="mt-2 text-xs text-slate-600 line-clamp-2">{s.story}</p>
+                )}
+              </div>
+            ))}
+          </div>
+          {data.investigationCount > 6 && (
+            <div className="mt-3 text-center">
+              <a
+                href="/search?source=investigations"
+                className="text-sm text-brand-accent hover:text-brand-accent-hover font-medium"
+              >
+                View all {data.investigationCount} investigation cases →
+              </a>
+            </div>
+          )}
         </div>
       )}
 
