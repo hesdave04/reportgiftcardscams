@@ -33,12 +33,12 @@ export async function GET(request) {
         .limit(50000),
       supa
         .from("case_intakes")
-        .select("scam_type, platforms, payment_methods, amount, suspect_name, suspect_email, identity_verified, story, source, created_at")
+        .select("scam_type, platforms, payment_methods, amount, created_at")
         .gte("created_at", cutoffISO)
         .limit(50000),
     ]);
 
-    // Gift card brand/seller counts (legacy)
+    // Gift card brand/seller counts
     const brandCounts = new Map();
     const sellerCounts = new Map();
 
@@ -55,25 +55,9 @@ export async function GET(request) {
     const paymentMethodCounts = new Map();
     let totalReports = (gcResult.data || []).length;
     let totalAmountLost = 0;
-    let investigationCount = 0;
-
-    // Collect top suspects from investigation cases
-    const suspects = [];
 
     for (const row of intakeResult.data || []) {
       totalReports++;
-
-      if (row.source === "investigation") {
-        investigationCount++;
-        if (row.suspect_name) {
-          suspects.push({
-            name: row.suspect_name,
-            email: row.suspect_email || null,
-            verified: row.identity_verified?.includes("❌") || row.identity_verified?.toLowerCase().includes("unverified"),
-            story: row.story ? (row.story.length > 140 ? row.story.slice(0, 140) + "…" : row.story) : null,
-          });
-        }
-      }
 
       const scamType = (row.scam_type || "").trim();
       if (scamType) {
@@ -100,10 +84,10 @@ export async function GET(request) {
     }
 
     // Add gift card reports to scam type counts
-    for (const row of gcResult.data || []) {
+    if ((gcResult.data || []).length > 0) {
       scamTypeCounts.set(
         "Gift Card Scam",
-        (scamTypeCounts.get("Gift Card Scam") || 0) + 1
+        (scamTypeCounts.get("Gift Card Scam") || 0) + (gcResult.data || []).length
       );
     }
 
@@ -116,17 +100,11 @@ export async function GET(request) {
 
     return NextResponse.json(
       {
-        // Legacy gift card data
         brands: topify(brandCounts),
         sellers: topify(sellerCounts),
-        // New breakdowns
         scamTypes: topify(scamTypeCounts),
         platforms: topify(platformCounts),
         paymentMethods: topify(paymentMethodCounts),
-        // Investigation data
-        topSuspects: suspects.slice(0, 12),
-        investigationCount,
-        // Summary stats
         totalReports,
         totalAmountLost: Math.round(totalAmountLost),
       },
