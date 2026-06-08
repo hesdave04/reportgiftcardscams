@@ -1,3 +1,4 @@
+// app/components/RecentReports.jsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -14,8 +15,7 @@ export default function RecentReports() {
       setLoading(true);
       setErr('');
       try {
-        // Works with either {items: [...]}, {results: [...]}, {data: [...]}, or a plain array.
-        const res = await fetch('/api/search?limit=10', { cache: 'no-store' });
+        const res = await fetch('/api/search?pageSize=10', { cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         const items = Array.isArray(json)
@@ -50,13 +50,41 @@ export default function RecentReports() {
       {rows.length > 0 && (
         <ul className="divide-y divide-slate-100">
           {rows.map((r, i) => {
-            // Try to normalize fields from different API shapes
+            if (r.type === 'investigation') {
+              return (
+                <li key={r.id ?? i} className="flex items-center justify-between py-3">
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium text-slate-900">
+                      <span className="inline-flex items-center rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800 mr-2">
+                        Investigation
+                      </span>
+                      {r.suspect_name || 'Unknown Suspect'}
+                      {r.identity_verified && (
+                        <span className="ml-2 text-slate-400 text-xs">
+                          {r.identity_verified}
+                        </span>
+                      )}
+                    </div>
+                    <div className="truncate text-xs text-slate-500">
+                      {r.suspect_email || r.suspect_phone || r.suspect_username
+                        ? (r.suspect_email || r.suspect_phone || '').slice(0, 40)
+                        : 'No contact info'}
+                      {r.amount ? ` · $${Number(r.amount).toLocaleString()}` : ''}
+                      {r.created_at ? ` · ${new Date(r.created_at).toLocaleDateString()}` : ''}
+                    </div>
+                  </div>
+                </li>
+              );
+            }
+
+            // Gift card report (original rendering)
             const brand =
               r.gift_card_brand || r.brand || r.card_brand || 'Unknown Brand';
             const retailer = r.retailer || r.seller || 'Unknown Retailer';
             const last4 =
               r.card_number_last4 ||
               r.last4 ||
+              r.card_last4 ||
               (typeof r.card_number === 'string'
                 ? r.card_number.slice(-4)
                 : undefined);
