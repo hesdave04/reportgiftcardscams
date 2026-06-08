@@ -1,3 +1,4 @@
+import RecaptchaProvider from "@/app/providers/RecaptchaProvider";
 import CaseBuilder from "@/app/components/CaseBuilder";
 
 export const metadata = {
@@ -6,5 +7,9 @@ export const metadata = {
 };
 
 export default function CaseBuilderPage() {
-  return <CaseBuilder />;
+  return (
+    <RecaptchaProvider>
+      <CaseBuilder />
+    </RecaptchaProvider>
+  );
 }

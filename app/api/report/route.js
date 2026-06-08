@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { encrypt, hmacHex } from '@/lib/crypto';
-import { verifyRecaptchaV2 } from '@/lib/recaptcha';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 import rateLimit from '@/utils/rate-limit';
 
 const limiter = rateLimit({ window: 60, limit: 10 });
@@ -44,7 +44,7 @@ export async function POST(request) {
       if (!recaptchaToken) {
         return NextResponse.json({ error: 'reCAPTCHA verification required' }, { status: 400 });
       }
-      const { ok: captchaOk } = await verifyRecaptchaV2(recaptchaToken, ip);
+      const { ok: captchaOk } = await verifyRecaptcha(recaptchaToken, ip);
       if (!captchaOk) {
         return NextResponse.json({ error: 'reCAPTCHA verification failed' }, { status: 403 });
       }
