@@ -1,68 +1,114 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function Nav() {
-  const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef(null);
 
-  const links = [
-    { href: "/", label: "Home" },
-    { href: "/case-builder", label: "Submit a Report", primary: true },
+  /* Close "More" dropdown on outside click */
+  useEffect(() => {
+    function handleClick(e) {
+      if (moreRef.current && !moreRef.current.contains(e.target)) {
+        setMoreOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const mainLinks = [
     { href: "/wall-of-shame", label: "Wall of Shame" },
     { href: "/leaderboard", label: "Leaderboard" },
     { href: "/search", label: "Search" },
     { href: "/about", label: "About" },
-    { href: "/trust", label: "Trust" },
+  ];
+
+  const moreLinks = [
+    { href: "/trust", label: "Trust & Security" },
     { href: "/xml", label: "Data Access" },
-    { href: "/api-docs", label: "API" },
+    { href: "/api-docs", label: "Partner API" },
   ];
 
   return (
-    <nav className="sticky top-0 z-40 w-full border-b border-navy-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <nav className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <a href="/" className="flex items-center gap-3">
-          <img src="/shield.png" alt="" className="h-11 sm:h-12 md:h-14 w-auto" />
-          <div className="flex flex-col leading-none" style={{ fontFamily: "'Playfair Display', serif" }}>
-            <span className="text-lg sm:text-xl md:text-2xl font-black tracking-tight text-brand">
-              <span className="text-[1.15em]">S</span>CAM{" "}
-              <span className="text-[1.15em]">C</span>OMPLAINTS<span className="text-brand-accent">.ORG</span>
+        {/* ── Logo ── */}
+        <a href="/" className="flex items-center gap-2.5 group">
+          <img src="/shield.png" alt="" className="h-9 sm:h-10 w-auto" />
+          <div className="flex flex-col leading-none">
+            <span className="text-[15px] sm:text-lg font-extrabold tracking-tight text-slate-900">
+              Scam<span className="text-sky-600">Complaints</span>
+              <span className="text-slate-400 font-semibold">.org</span>
             </span>
-            <span className="mt-0.5 text-[8px] sm:text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400" style={{ fontFamily: "system-ui, sans-serif" }}>
-              Report Scams. Protect Others. Create Change.
+            <span className="text-[8px] sm:text-[9px] font-medium uppercase tracking-[0.12em] text-slate-400">
+              Report Scams · Protect Others
             </span>
           </div>
         </a>
 
-        {/* Desktop links */}
+        {/* ── Desktop links ── */}
         <div className="hidden items-center gap-1 text-sm lg:flex">
-          {links.map((l) =>
-            l.primary ? (
-              <a
-                key={l.href}
-                href={l.href}
-                className="rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand-light transition-colors"
+          {mainLinks.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+            >
+              {l.label}
+            </a>
+          ))}
+
+          {/* More dropdown */}
+          <div ref={moreRef} className="relative">
+            <button
+              onClick={() => setMoreOpen(!moreOpen)}
+              className="flex items-center gap-1 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+            >
+              More
+              <svg
+                className={`h-3.5 w-3.5 transition-transform ${moreOpen ? "rotate-180" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
               >
-                {l.label}
-              </a>
-            ) : (
-              <a
-                key={l.href}
-                href={l.href}
-                className="rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
-              >
-                {l.label}
-              </a>
-            )
-          )}
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {moreOpen && (
+              <div className="absolute right-0 top-full mt-1 w-48 rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+                {moreLinks.map((l) => (
+                  <a
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => setMoreOpen(false)}
+                    className="block px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                  >
+                    {l.label}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* CTA */}
+          <a
+            href="/case-builder"
+            className="ml-2 rounded-lg bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-800 transition-colors"
+          >
+            Submit a Report
+          </a>
         </div>
 
-        {/* Mobile hamburger */}
+        {/* ── Mobile hamburger ── */}
         <button
-          onClick={() => setOpen(!open)}
+          onClick={() => setMobileOpen(!mobileOpen)}
           className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 lg:hidden"
           aria-label="Toggle menu"
         >
-          {open ? (
+          {mobileOpen ? (
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -74,31 +120,39 @@ export default function Nav() {
         </button>
       </div>
 
-      {/* Mobile menu */}
-      {open && (
+      {/* ── Mobile menu ── */}
+      {mobileOpen && (
         <div className="border-t border-slate-200 bg-white px-4 pb-4 lg:hidden">
           <div className="flex flex-col gap-1 pt-2">
-            {links.map((l) =>
-              l.primary ? (
+            <a
+              href="/case-builder"
+              onClick={() => setMobileOpen(false)}
+              className="rounded-lg bg-slate-900 px-4 py-3 text-center font-medium text-white hover:bg-slate-800"
+            >
+              Submit a Report
+            </a>
+            {mainLinks.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={() => setMobileOpen(false)}
+                className="rounded-lg px-4 py-3 text-slate-700 hover:bg-slate-100"
+              >
+                {l.label}
+              </a>
+            ))}
+            <div className="mt-1 border-t border-slate-100 pt-1">
+              {moreLinks.map((l) => (
                 <a
                   key={l.href}
                   href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg bg-brand px-4 py-3 text-center font-medium text-white hover:bg-brand-light"
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-lg px-4 py-3 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
                 >
                   {l.label}
                 </a>
-              ) : (
-                <a
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg px-4 py-3 text-slate-700 hover:bg-slate-100"
-                >
-                  {l.label}
-                </a>
-              )
-            )}
+              ))}
+            </div>
           </div>
         </div>
       )}

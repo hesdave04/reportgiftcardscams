@@ -7,14 +7,14 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5">
-              <img src="/shield.png" alt="" className="h-10 sm:h-12 w-auto" />
-              <div className="flex flex-col leading-none" style={{ fontFamily: "'Playfair Display', serif" }}>
-                <span className="text-base sm:text-lg font-black tracking-tight text-brand">
-                  <span className="text-[1.15em]">S</span>CAM{" "}
-                  <span className="text-[1.15em]">C</span>OMPLAINTS<span className="text-brand-accent">.ORG</span>
+              <img src="/shield.png" alt="" className="h-9 sm:h-10 w-auto" />
+              <div className="flex flex-col leading-none">
+                <span className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
+                  Scam<span className="text-sky-600">Complaints</span>
+                  <span className="text-slate-400 font-semibold">.org</span>
                 </span>
-                <span className="mt-0.5 text-[7px] sm:text-[8px] font-semibold uppercase tracking-[0.15em] text-slate-400" style={{ fontFamily: "system-ui, sans-serif" }}>
-                  Report Scams. Protect Others. Create Change.
+                <span className="mt-0.5 text-[8px] sm:text-[9px] font-medium uppercase tracking-[0.12em] text-slate-400">
+                  Report Scams · Protect Others
                 </span>
               </div>
             </div>
