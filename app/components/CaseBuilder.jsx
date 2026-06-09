@@ -59,6 +59,27 @@ const paymentMethods = [
   { label: "Other", icon: "❓" },
 ];
 
+const US_STATES = [
+  { abbr: "AL", name: "Alabama" }, { abbr: "AK", name: "Alaska" }, { abbr: "AZ", name: "Arizona" },
+  { abbr: "AR", name: "Arkansas" }, { abbr: "CA", name: "California" }, { abbr: "CO", name: "Colorado" },
+  { abbr: "CT", name: "Connecticut" }, { abbr: "DE", name: "Delaware" }, { abbr: "DC", name: "Washington D.C." },
+  { abbr: "FL", name: "Florida" }, { abbr: "GA", name: "Georgia" }, { abbr: "HI", name: "Hawaii" },
+  { abbr: "ID", name: "Idaho" }, { abbr: "IL", name: "Illinois" }, { abbr: "IN", name: "Indiana" },
+  { abbr: "IA", name: "Iowa" }, { abbr: "KS", name: "Kansas" }, { abbr: "KY", name: "Kentucky" },
+  { abbr: "LA", name: "Louisiana" }, { abbr: "ME", name: "Maine" }, { abbr: "MD", name: "Maryland" },
+  { abbr: "MA", name: "Massachusetts" }, { abbr: "MI", name: "Michigan" }, { abbr: "MN", name: "Minnesota" },
+  { abbr: "MS", name: "Mississippi" }, { abbr: "MO", name: "Missouri" }, { abbr: "MT", name: "Montana" },
+  { abbr: "NE", name: "Nebraska" }, { abbr: "NV", name: "Nevada" }, { abbr: "NH", name: "New Hampshire" },
+  { abbr: "NJ", name: "New Jersey" }, { abbr: "NM", name: "New Mexico" }, { abbr: "NY", name: "New York" },
+  { abbr: "NC", name: "North Carolina" }, { abbr: "ND", name: "North Dakota" }, { abbr: "OH", name: "Ohio" },
+  { abbr: "OK", name: "Oklahoma" }, { abbr: "OR", name: "Oregon" }, { abbr: "PA", name: "Pennsylvania" },
+  { abbr: "PR", name: "Puerto Rico" }, { abbr: "RI", name: "Rhode Island" }, { abbr: "SC", name: "South Carolina" },
+  { abbr: "SD", name: "South Dakota" }, { abbr: "TN", name: "Tennessee" }, { abbr: "TX", name: "Texas" },
+  { abbr: "UT", name: "Utah" }, { abbr: "VT", name: "Vermont" }, { abbr: "VA", name: "Virginia" },
+  { abbr: "WA", name: "Washington" }, { abbr: "WV", name: "West Virginia" }, { abbr: "WI", name: "Wisconsin" },
+  { abbr: "WY", name: "Wyoming" },
+];
+
 /* ─── recovery checklists by scam type ─── */
 
 const RECOVERY_STEPS = {
@@ -143,6 +164,7 @@ export default function CaseBuilder() {
     sentPersonalInfo: "",
     amount: "",
     paymentMethods: [],
+    state: "",
     startDate: "",
     paymentDate: "",
     realizedDate: "",
@@ -584,6 +606,21 @@ export default function CaseBuilder() {
                   ))}
                 </div>
               </div>
+
+              {/* State */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">What state are you in? <span className="font-normal text-slate-400">(optional)</span></label>
+                <select
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100 transition-colors"
+                  value={formData.state}
+                  onChange={(e) => updateField("state", e.target.value)}
+                >
+                  <option value="">Select your state…</option>
+                  {US_STATES.map(s => (
+                    <option key={s.abbr} value={s.abbr}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         )}
@@ -625,7 +662,7 @@ export default function CaseBuilder() {
               <ReviewSection label="Scam Type" stepIdx={2} onEdit={() => jumpTo(2)} content={formData.scamType || "—"} />
               <ReviewSection label="Contact Platforms" stepIdx={3} onEdit={() => jumpTo(3)} content={formData.platforms.length ? formData.platforms.join(", ") : "—"} />
               <ReviewSection label="Financial Impact" stepIdx={4} onEdit={() => jumpTo(4)}
-                content={`Money lost: ${formData.sentMoney || "—"}${formData.sentMoney === "Yes" && formData.amount ? ` ($${Number(formData.amount).toLocaleString()})` : ""}${formData.paymentMethods.length ? ` via ${formData.paymentMethods.join(", ")}` : ""} · Personal info shared: ${formData.sentPersonalInfo || "—"}`} />
+                content={`Money lost: ${formData.sentMoney || "—"}${formData.sentMoney === "Yes" && formData.amount ? ` ($${Number(formData.amount).toLocaleString()})` : ""}${formData.paymentMethods.length ? ` via ${formData.paymentMethods.join(", ")}` : ""} · Personal info shared: ${formData.sentPersonalInfo || "—"}${formData.state ? ` · State: ${formData.state}` : ""}`} />
               <ReviewSection label="Timeline" stepIdx={5} onEdit={() => jumpTo(5)}
                 content={[formData.startDate && `Started: ${formData.startDate}`, formData.paymentDate && `Paid: ${formData.paymentDate}`, formData.realizedDate && `Realized: ${formData.realizedDate}`].filter(Boolean).join(" · ") || "—"} />
               <ReviewSection label="Scammer Details" stepIdx={6} onEdit={() => jumpTo(6)}

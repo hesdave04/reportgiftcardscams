@@ -1,7 +1,10 @@
 import "./globals.css";
+import Script from "next/script";
 import Nav from "@/app/components/Nav";
 import Footer from "@/app/components/Footer";
 import RecaptchaProvider from "@/app/providers/RecaptchaProvider";
+
+const GA_ID = "G-4RDYHX774R";
 
 export const metadata = {
   metadataBase: new URL("https://scamcomplaints.org"),
@@ -60,6 +63,20 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="min-h-screen bg-white text-slate-900">
+        {/* Google Analytics */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="ga-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}');
+          `}
+        </Script>
+
         <RecaptchaProvider>
           <Nav />
           <main>{children}</main>

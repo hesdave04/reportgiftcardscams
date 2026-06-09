@@ -72,6 +72,7 @@ export async function POST(request) {
         suspect_username: truncate(x.suspect_username || x.suspectUsername, 500),
         suspect_wallet: truncate(x.suspect_wallet || x.suspectWallet, 500),
         suspect_website: truncate(x.suspect_website || x.suspectWebsite, 1000),
+        state: truncate(x.state, 10),
         evidence_urls: ensureArray(x.evidence_urls || x.evidenceUrls),
         full_payload: x,
         status: 'imported',
