@@ -56,6 +56,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
+        <meta name="google-site-verification" content="hQb_qL8w-vgTT53NxNCbyL2advT48_DIh6xvoQ8HNmE" />
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚨</text></svg>" />
         <script
           type="application/ld+json"
