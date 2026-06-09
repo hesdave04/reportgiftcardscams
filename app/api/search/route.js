@@ -27,41 +27,87 @@ export async function GET(request) {
     const page = Math.max(parseInt(url.searchParams.get('page') || '1', 10), 1);
     const pageSize = Math.min(Math.max(parseInt(url.searchParams.get('pageSize') || '20', 10), 1), 100);
 
-    let query = supabase
+    // ── Query both tables in parallel ──
+
+    // 1. Gift card reports (original table)
+    let gcQuery = supabase
       .from('giftcard_reports')
       .select('id, retailer, gift_card_brand, card_last4, amount, notes, created_at', { count: 'exact' })
       .order('created_at', { ascending: false });
 
     if (q) {
       if (/^\d{2,6}$/.test(q)) {
-        query = query.ilike('card_last4', `%${q.slice(-4)}%`);
+        gcQuery = gcQuery.ilike('card_last4', `%${q.slice(-4)}%`);
       } else {
-        query = query.or(`retailer.ilike.%${q}%,gift_card_brand.ilike.%${q}%,notes.ilike.%${q}%`);
+        gcQuery = gcQuery.or(`retailer.ilike.%${q}%,gift_card_brand.ilike.%${q}%,notes.ilike.%${q}%`);
       }
     }
 
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
+    // 2. Case intakes (main reports table)
+    let ciQuery = supabase
+      .from('case_intakes')
+      .select('id, scam_type, platforms, story, suspect_name, suspect_email, suspect_phone, suspect_username, suspect_wallet, suspect_website, amount, created_at', { count: 'exact' })
+      .order('created_at', { ascending: false });
 
-    const { data, error, count } = await query.range(from, to);
-    if (error) {
-      console.error(error);
-      return NextResponse.json({ error: 'Query failed' }, { status: 500 });
+    if (q) {
+      ciQuery = ciQuery.or(
+        `story.ilike.%${q}%,scam_type.ilike.%${q}%,suspect_name.ilike.%${q}%,suspect_email.ilike.%${q}%,suspect_phone.ilike.%${q}%,suspect_username.ilike.%${q}%,suspect_wallet.ilike.%${q}%,suspect_website.ilike.%${q}%`
+      );
     }
 
-    return NextResponse.json({
-      items: (data || []).map((r) => ({
+    // Fetch both in parallel — get enough rows to fill one page
+    const [gcResult, ciResult] = await Promise.all([
+      gcQuery.range(0, 999),
+      ciQuery.range(0, 999),
+    ]);
+
+    if (gcResult.error) console.error('giftcard_reports search error:', gcResult.error);
+    if (ciResult.error) console.error('case_intakes search error:', ciResult.error);
+
+    // ── Merge and unify results ──
+
+    const gcItems = (gcResult.data || []).map((r) => ({
+      id: r.id,
+      type: 'gift_card',
+      title: [r.gift_card_brand, r.retailer].filter(Boolean).join(' · ') || 'Gift Card Report',
+      scam_type: 'Gift Card Scam',
+      card_last4: r.card_last4,
+      amount: r.amount,
+      summary: r.notes ? (r.notes.length > 220 ? r.notes.slice(0, 220) + '…' : r.notes) : null,
+      created_at: r.created_at,
+    }));
+
+    const ciItems = (ciResult.data || []).map((r) => {
+      const identifiers = [r.suspect_name, r.suspect_email, r.suspect_phone, r.suspect_username, r.suspect_website]
+        .filter(Boolean)
+        .slice(0, 2)
+        .join(' · ');
+      return {
         id: r.id,
-        retailer: r.retailer,
-        gift_card_brand: r.gift_card_brand,
-        card_last4: r.card_last4,
+        type: 'case_intake',
+        title: identifiers || r.scam_type || 'Scam Report',
+        scam_type: r.scam_type || null,
+        platforms: Array.isArray(r.platforms) ? r.platforms : [],
         amount: r.amount,
-        notes: r.notes ? (r.notes.length > 220 ? r.notes.slice(0, 220) + '…' : r.notes) : null,
+        summary: r.story ? (r.story.length > 220 ? r.story.slice(0, 220) + '…' : r.story) : null,
         created_at: r.created_at,
-      })),
+      };
+    });
+
+    // Combine and sort by date
+    const allItems = [...gcItems, ...ciItems].sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+
+    const total = allItems.length;
+    const from = (page - 1) * pageSize;
+    const paged = allItems.slice(from, from + pageSize);
+
+    return NextResponse.json({
+      items: paged,
       page,
       pageSize,
-      total: count || 0,
+      total,
     });
   } catch (e) {
     console.error(e);

@@ -3,6 +3,29 @@
 
 import { useState, useCallback } from "react";
 
+/* ── Scam type label formatter ── */
+const SCAM_TYPE_LABELS = {
+  romance_scam: "Romance Scam",
+  crypto_scam: "Crypto / Investment Scam",
+  tech_support: "Tech Support Scam",
+  phishing: "Phishing",
+  impersonation: "Impersonation",
+  employment_scam: "Employment Scam",
+  shopping_scam: "Shopping / Marketplace Scam",
+  government_scam: "Government Impersonation",
+  lottery_scam: "Lottery / Prize Scam",
+  other: "Other",
+};
+
+function formatScamType(raw) {
+  if (!raw) return null;
+  if (SCAM_TYPE_LABELS[raw]) return SCAM_TYPE_LABELS[raw];
+  // Convert snake_case to Title Case
+  return raw
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export default function SearchClient() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -52,7 +75,7 @@ export default function SearchClient() {
           Search Scam Reports
         </h1>
         <p className="mt-3 text-lg text-slate-600">
-          Search our database by retailer, gift card brand, card number, or keywords.
+          Search 253,000+ reports by scammer name, email, phone number, crypto wallet, platform, or keywords.
         </p>
       </div>
 
@@ -69,7 +92,7 @@ export default function SearchClient() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="e.g. Target, Apple, last 4 digits..."
+            placeholder="e.g. name, email, phone, crypto wallet, platform..."
             className="flex-1 rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-100"
           />
           <button
@@ -93,7 +116,7 @@ export default function SearchClient() {
       {searched && !error && (
         <div className="mt-8">
           <p className="mb-4 text-sm text-slate-500">
-            {total} result{total !== 1 ? "s" : ""} found
+            {total.toLocaleString()} result{total !== 1 ? "s" : ""} found
           </p>
 
           {results.length === 0 ? (
@@ -108,35 +131,46 @@ export default function SearchClient() {
               <div className="space-y-3">
                 {results.map((r, i) => (
                   <div
-                    key={r.id ?? i}
+                    key={`${r.type}-${r.id ?? i}`}
                     className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold text-slate-900">
-                            {r.gift_card_brand || "Unknown Brand"}
+                            {r.title}
                           </span>
-                          <span className="text-slate-400">·</span>
-                          <span className="text-slate-600">
-                            {r.retailer || "Unknown Retailer"}
-                          </span>
+                          {r.scam_type && (
+                            <span className="inline-flex rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
+                              {formatScamType(r.scam_type)}
+                            </span>
+                          )}
+                          {r.type === "gift_card" && (
+                            <span className="inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                              Gift Card
+                            </span>
+                          )}
                         </div>
                         {r.card_last4 && (
                           <p className="mt-1 text-xs text-slate-500">
                             Card ending in •••• {r.card_last4}
                           </p>
                         )}
-                        {r.notes && (
+                        {r.platforms && r.platforms.length > 0 && (
+                          <p className="mt-1 text-xs text-slate-500">
+                            Platform: {r.platforms.join(", ")}
+                          </p>
+                        )}
+                        {r.summary && (
                           <p className="mt-2 text-sm text-slate-600 line-clamp-2">
-                            {r.notes}
+                            {r.summary}
                           </p>
                         )}
                       </div>
                       <div className="text-right shrink-0">
                         {r.amount && (
                           <span className="text-sm font-semibold text-red-600">
-                            ${Number(r.amount).toFixed(2)}
+                            ${Number(r.amount).toLocaleString()}
                           </span>
                         )}
                         {r.created_at && (
@@ -161,7 +195,7 @@ export default function SearchClient() {
                     ← Previous
                   </button>
                   <span className="px-3 text-sm text-slate-500">
-                    Page {page} of {totalPages}
+                    Page {page} of {totalPages.toLocaleString()}
                   </span>
                   <button
                     onClick={() => search(page + 1)}
