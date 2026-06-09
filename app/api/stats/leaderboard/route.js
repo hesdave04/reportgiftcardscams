@@ -105,7 +105,7 @@ export async function GET(request) {
         .limit(50000),
       supa
         .from("case_intakes")
-        .select("scam_type, platforms, payment_methods, amount, state, created_at")
+        .select("scam_type, platforms, payment_methods, amount, created_at")
         .gte("created_at", cutoffISO)
         .limit(50000),
     ]);
@@ -137,12 +137,21 @@ export async function GET(request) {
       }
     }
 
-    // ── Also add state data from case_intakes ──
-    for (const row of intakeResult.data || []) {
-      const st = normalizeState(row.state);
-      if (st) {
-        stateCounts.set(st, (stateCounts.get(st) || 0) + 1);
-        if (row.amount > 0) stateAmounts.set(st, (stateAmounts.get(st) || 0) + Number(row.amount));
+    // ── Also try state data from case_intakes (column may not exist yet) ──
+    const intakeStateResult = await supa
+      .from("case_intakes")
+      .select("state, amount")
+      .not("state", "is", null)
+      .gte("created_at", cutoffISO)
+      .limit(50000);
+
+    if (!intakeStateResult.error) {
+      for (const row of intakeStateResult.data || []) {
+        const st = normalizeState(row.state);
+        if (st) {
+          stateCounts.set(st, (stateCounts.get(st) || 0) + 1);
+          if (row.amount > 0) stateAmounts.set(st, (stateAmounts.get(st) || 0) + Number(row.amount));
+        }
       }
     }
 
