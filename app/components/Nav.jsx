@@ -15,25 +15,29 @@ export default function Nav() {
   ];
 
   return (
-    <nav className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <nav className="sticky top-0 z-40 w-full border-b border-navy-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <a href="/" className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-600 text-lg font-bold text-white">
-            !
+        <a href="/" className="flex items-center gap-3">
+          <img src="/shield.png" alt="" className="h-11 sm:h-12 md:h-14 w-auto" />
+          <div className="flex flex-col leading-none" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <span className="text-lg sm:text-xl md:text-2xl font-black tracking-tight text-brand">
+              <span className="text-[1.15em]">S</span>CAM{" "}
+              <span className="text-[1.15em]">C</span>OMPLAINTS<span className="text-brand-accent">.ORG</span>
+            </span>
+            <span className="mt-0.5 text-[8px] sm:text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400" style={{ fontFamily: "system-ui, sans-serif" }}>
+              Report Scams. Protect Others. Create Change.
+            </span>
           </div>
-          <span className="text-base font-bold text-slate-900">
-            ScamComplaints
-          </span>
         </a>
 
         {/* Desktop links */}
-        <div className="hidden items-center gap-1 text-sm md:flex">
+        <div className="hidden items-center gap-1 text-sm lg:flex">
           {links.map((l) =>
             l.primary ? (
               <a
                 key={l.href}
                 href={l.href}
-                className="rounded-lg bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-700 transition-colors"
+                className="rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand-light transition-colors"
               >
                 {l.label}
               </a>
@@ -52,7 +56,7 @@ export default function Nav() {
         {/* Mobile hamburger */}
         <button
           onClick={() => setOpen(!open)}
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 md:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 lg:hidden"
           aria-label="Toggle menu"
         >
           {open ? (
@@ -69,7 +73,7 @@ export default function Nav() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="border-t border-slate-200 bg-white px-4 pb-4 md:hidden">
+        <div className="border-t border-slate-200 bg-white px-4 pb-4 lg:hidden">
           <div className="flex flex-col gap-1 pt-2">
             {links.map((l) =>
               l.primary ? (
@@ -77,7 +81,7 @@ export default function Nav() {
                   key={l.href}
                   href={l.href}
                   onClick={() => setOpen(false)}
-                  className="rounded-lg bg-red-600 px-4 py-3 text-center font-medium text-white hover:bg-red-700"
+                  className="rounded-lg bg-brand px-4 py-3 text-center font-medium text-white hover:bg-brand-light"
                 >
                   {l.label}
                 </a>
