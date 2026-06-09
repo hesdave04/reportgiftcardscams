@@ -55,13 +55,13 @@ export default function HomePage() {
                     d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                Build Your Report
+                Submit a Report · ~3 min
               </a>
               <a
                 href="#report-form"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-base font-semibold text-white backdrop-blur hover:bg-white/10 transition-colors"
               >
-                Quick Gift Card Report
+                ⚡ Quick Report · ~1 min
               </a>
             </div>
           </div>
@@ -69,10 +69,10 @@ export default function HomePage() {
           {/* Stats */}
           <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
             {[
-              { label: "Scam Types Covered", value: "10+" },
-              { label: "Average Filing Time", value: "3 min" },
-              { label: "Voice Input", value: "✓" },
-              { label: "Law Enforcement Ready", value: "XML" },
+              { label: "Reports Filed", value: "253K+" },
+              { label: "Average Filing Time", value: "~3 min" },
+              { label: "Free & Confidential", value: "100%" },
+              { label: "Shared with Law Enforcement", value: "🔒" },
             ].map((s) => (
               <div
                 key={s.label}
@@ -93,12 +93,12 @@ export default function HomePage() {
 
         {/* Quick Gift Card Report Form */}
         <section id="report-form" className="mt-16">
-          <h2 className="text-2xl font-bold text-slate-900">Quick Gift Card Report</h2>
+          <h2 className="text-2xl font-bold text-slate-900">Quick Report</h2>
           <p className="mt-2 text-slate-600">
-            Already know the gift card details? Use this quick form.
-            For a more thorough report,{" "}
+            Have gift card details to report? Use this quick form (~1 min).
+            For a more complete report covering any scam type,{" "}
             <a href="/case-builder" className="font-medium text-red-600 hover:text-red-700 underline underline-offset-2">
-              use the guided Case Builder
+              use the full report form
             </a>.
           </p>
           <div className="mt-6">
