@@ -2,6 +2,7 @@ export const metadata = {
   title: "About — ScamComplaints",
   description:
     "Learn about ScamComplaints.org, our mission to fight fraud, and the team behind the platform.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {
