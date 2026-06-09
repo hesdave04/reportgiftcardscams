@@ -9,6 +9,7 @@ export default function sitemap() {
     { path: "/case-builder", priority: 0.9, changeFrequency: "weekly" },
     { path: "/wall-of-shame", priority: 0.8, changeFrequency: "daily" },
     { path: "/search", priority: 0.8, changeFrequency: "daily" },
+    { path: "/leaderboard", priority: 0.8, changeFrequency: "daily" },
     { path: "/about", priority: 0.5, changeFrequency: "monthly" },
     { path: "/trust", priority: 0.5, changeFrequency: "monthly" },
     { path: "/privacy", priority: 0.3, changeFrequency: "yearly" },

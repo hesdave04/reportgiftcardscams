@@ -31,6 +31,7 @@ export default function Footer() {
             <ul className="mt-3 space-y-2 text-sm">
               <li><a href="/case-builder" className="text-slate-600 hover:text-slate-900">Report a Scam</a></li>
               <li><a href="/wall-of-shame" className="text-slate-600 hover:text-slate-900">Wall of Shame</a></li>
+              <li><a href="/leaderboard" className="text-slate-600 hover:text-slate-900">Leaderboard</a></li>
               <li><a href="/search" className="text-slate-600 hover:text-slate-900">Search Reports</a></li>
               <li><a href="/trust" className="text-slate-600 hover:text-slate-900">Trust & Security</a></li>
               <li><a href="/about" className="text-slate-600 hover:text-slate-900">About</a></li>

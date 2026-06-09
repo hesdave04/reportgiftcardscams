@@ -9,6 +9,7 @@ export default function Nav() {
     { href: "/", label: "Home" },
     { href: "/case-builder", label: "Build Report", primary: true },
     { href: "/wall-of-shame", label: "Wall of Shame" },
+    { href: "/leaderboard", label: "Leaderboard" },
     { href: "/search", label: "Search" },
     { href: "/about", label: "About" },
     { href: "/trust", label: "Trust" },
