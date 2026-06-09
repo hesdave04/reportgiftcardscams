@@ -22,10 +22,12 @@ export default function Nav() {
     { href: "/wall-of-shame", label: "Wall of Shame" },
     { href: "/leaderboard", label: "Leaderboard" },
     { href: "/search", label: "Search" },
+    { href: "/scams", label: "Resources" },
     { href: "/about", label: "About" },
   ];
 
   const moreLinks = [
+    { href: "/scam-websites", label: "Scam Websites List" },
     { href: "/trust", label: "Trust & Security" },
     { href: "/xml", label: "Data Access" },
     { href: "/api-docs", label: "Partner API" },
