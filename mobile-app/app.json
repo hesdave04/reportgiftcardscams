@@ -56,8 +56,8 @@
       "eas": {
         "projectId": "YOUR_EAS_PROJECT_ID"
       },
-      "supabaseUrl": "https://YOUR_SUPABASE_URL.supabase.co",
-      "supabaseAnonKey": "YOUR_SUPABASE_ANON_KEY",
+      "supabaseUrl": "https://xvgunhmbjbzuckjlvamc.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2Z3VuaG1iamJ6dWNramx2YW1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3ODMzNDMsImV4cCI6MjA3NTM1OTM0M30.8gWDp3ip_lCTDh4RzIqJjrLqxsgkC3sXi4lIgQr7Anc",
       "apiBaseUrl": "https://scamcomplaints.org"
     }
   }
