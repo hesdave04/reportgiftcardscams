@@ -62,6 +62,7 @@ export async function POST(request) {
       state: body.state || null,
       full_payload: body,
       status: "new",
+      source: "user_submitted",
     };
 
     const { data, error } = await client
