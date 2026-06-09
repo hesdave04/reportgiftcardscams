@@ -14,6 +14,7 @@ export default function Nav() {
     { href: "/about", label: "About" },
     { href: "/trust", label: "Trust" },
     { href: "/xml", label: "Data Access" },
+    { href: "/api-docs", label: "API" },
   ];
 
   return (

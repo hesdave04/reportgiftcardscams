@@ -17,6 +17,7 @@ export default function sitemap() {
     { path: "/report-crypto-wallet", priority: 0.7, changeFrequency: "weekly" },
     { path: "/report-fake-social-media", priority: 0.7, changeFrequency: "weekly" },
     { path: "/report-fraudulent-website", priority: 0.7, changeFrequency: "weekly" },
+    { path: "/api-docs", priority: 0.6, changeFrequency: "monthly" },
   ];
 
   return pages.map((p) => ({

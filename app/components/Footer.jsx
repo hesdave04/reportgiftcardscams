@@ -37,6 +37,7 @@ export default function Footer() {
               <li><a href="/about" className="text-slate-600 hover:text-slate-900">About</a></li>
               <li><a href="/privacy" className="text-slate-600 hover:text-slate-900">Privacy Policy</a></li>
               <li><a href="/xml" className="text-slate-600 hover:text-slate-900">XML Data Access</a></li>
+              <li><a href="/api-docs" className="text-slate-600 hover:text-slate-900">Partner API</a></li>
             </ul>
           </div>
 
