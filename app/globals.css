@@ -50,3 +50,8 @@ html, body {
 .animate-pulse-ring {
   animation: pulse-ring 1.4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
 }
+
+/* Hide reCAPTCHA v3 badge — required attribution text is included in the form footer */
+.grecaptcha-badge {
+  visibility: hidden !important;
+}
