@@ -136,8 +136,31 @@ const RECOVERY_STEPS = {
   ],
 };
 
-function getRecoverySteps(scamType) {
-  return RECOVERY_STEPS[scamType] || RECOVERY_STEPS.default;
+function getRecoverySteps(scamTypes) {
+  // Merge recovery steps from all selected scam types, deduplicating
+  const types = Array.isArray(scamTypes) ? scamTypes : [scamTypes];
+  if (types.length === 0) return RECOVERY_STEPS.default;
+  if (types.length === 1) return RECOVERY_STEPS[types[0]] || RECOVERY_STEPS.default;
+
+  const seen = new Set();
+  const merged = [];
+  for (const t of types) {
+    const steps = RECOVERY_STEPS[t] || [];
+    for (const s of steps) {
+      if (!seen.has(s.action)) {
+        seen.add(s.action);
+        merged.push(s);
+      }
+    }
+  }
+  // Always include default steps that aren't already covered
+  for (const s of RECOVERY_STEPS.default) {
+    if (!seen.has(s.action)) {
+      seen.add(s.action);
+      merged.push(s);
+    }
+  }
+  return merged;
 }
 
 /* ─── main component ─── */
@@ -150,6 +173,10 @@ export default function CaseBuilder() {
   const [intakeId, setIntakeId] = useState(null);
   const [showResume, setShowResume] = useState(false);
 
+  /* AI extraction */
+  const [extracting, setExtracting] = useState(false);
+  const [prefilled, setPrefilled] = useState(false);
+
   /* voice */
   const [isListening, setIsListening] = useState(false);
   const [voiceDraft, setVoiceDraft] = useState("");
@@ -158,7 +185,7 @@ export default function CaseBuilder() {
 
   const [formData, setFormData] = useState({
     story: "",
-    scamType: "",
+    scamTypes: [],          // ← array (was scamType string)
     platforms: [],
     sentMoney: "",
     sentPersonalInfo: "",
@@ -177,8 +204,6 @@ export default function CaseBuilder() {
   });
 
   const phase = PHASES[currentPhase];
-  const totalSteps = PHASES.length - 2; // exclude welcome & review from count
-  const stepNumber = currentPhase; // welcome=0 (hidden), story=1, ..., scammer=6, review=7
   const progress = currentPhase === 0 ? 0 : Math.min(100, Math.round((currentPhase / (PHASES.length - 1)) * 100));
 
   /* ─── localStorage persistence ─── */
@@ -207,7 +232,14 @@ export default function CaseBuilder() {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
       if (saved?.formData) {
-        setFormData(prev => ({ ...prev, ...saved.formData }));
+        // Migrate old scamType string → scamTypes array
+        const restored = { ...saved.formData };
+        if (restored.scamType && !restored.scamTypes) {
+          restored.scamTypes = [restored.scamType];
+          delete restored.scamType;
+        }
+        if (!restored.scamTypes) restored.scamTypes = [];
+        setFormData(prev => ({ ...prev, ...restored }));
         setCurrentPhase(saved.step || 1);
       }
     } catch {}
@@ -232,10 +264,6 @@ export default function CaseBuilder() {
     });
   }
 
-  function goForward() {
-    if (currentPhase < PHASES.length - 1) setCurrentPhase(prev => prev + 1);
-  }
-
   function goBack() {
     if (currentPhase > 0) setCurrentPhase(prev => prev - 1);
   }
@@ -246,6 +274,79 @@ export default function CaseBuilder() {
 
   const wordCount = useMemo(() => formData.story.trim().split(/\s+/).filter(Boolean).length, [formData.story]);
   const canProceedFromStory = wordCount >= 5;
+
+  /* ─── AI extraction on story submit ─── */
+
+  async function extractAndAdvance() {
+    // If story is too short or already extracting, just advance
+    if (wordCount < 15) {
+      setCurrentPhase(prev => prev + 1);
+      return;
+    }
+
+    setExtracting(true);
+    try {
+      const res = await fetch("/api/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ story: formData.story }),
+      });
+      const data = await res.json();
+
+      if (data.available && data.extracted) {
+        const e = data.extracted;
+        setFormData(prev => {
+          const updated = { ...prev };
+
+          // Scam types (array)
+          if (Array.isArray(e.scamTypes) && e.scamTypes.length > 0) {
+            updated.scamTypes = e.scamTypes.filter(t => scamTypes.some(st => st.label === t));
+          }
+          // Platforms
+          if (Array.isArray(e.platforms) && e.platforms.length > 0) {
+            updated.platforms = e.platforms.filter(p => contactPlatforms.some(cp => cp.label === p));
+          }
+          // Impact
+          if (e.sentMoney) updated.sentMoney = e.sentMoney;
+          if (e.sentPersonalInfo) updated.sentPersonalInfo = e.sentPersonalInfo;
+          if (e.amount) updated.amount = String(e.amount);
+          if (Array.isArray(e.paymentMethods) && e.paymentMethods.length > 0) {
+            updated.paymentMethods = e.paymentMethods.filter(m => paymentMethods.some(pm => pm.label === m));
+          }
+          if (e.state) updated.state = e.state;
+          // Dates
+          if (e.startDate) updated.startDate = e.startDate;
+          if (e.paymentDate) updated.paymentDate = e.paymentDate;
+          if (e.realizedDate) updated.realizedDate = e.realizedDate;
+          // Suspect
+          if (e.suspectName) updated.suspectName = e.suspectName;
+          if (e.suspectEmail) updated.suspectEmail = e.suspectEmail;
+          if (e.suspectPhone) updated.suspectPhone = e.suspectPhone;
+          if (e.suspectUsername) updated.suspectUsername = e.suspectUsername;
+          if (e.suspectWallet) updated.suspectWallet = e.suspectWallet;
+          if (e.suspectWebsite) updated.suspectWebsite = e.suspectWebsite;
+
+          return updated;
+        });
+        setPrefilled(true);
+      }
+    } catch (err) {
+      console.error("Extraction failed:", err);
+      // Silently continue — extraction is a nice-to-have
+    } finally {
+      setExtracting(false);
+      setCurrentPhase(prev => prev + 1);
+    }
+  }
+
+  function goForward() {
+    // On story step, run extraction first
+    if (phase === "story") {
+      extractAndAdvance();
+      return;
+    }
+    if (currentPhase < PHASES.length - 1) setCurrentPhase(prev => prev + 1);
+  }
 
   /* ─── voice input ─── */
 
@@ -312,7 +413,7 @@ export default function CaseBuilder() {
   /* ─── success screen ─── */
 
   if (submitted) {
-    const steps = getRecoverySteps(formData.scamType);
+    const steps = getRecoverySteps(formData.scamTypes);
     return (
       <div className="mx-auto max-w-2xl px-4 py-12">
         <div key="success" className="animate-fadeSlideIn">
@@ -337,7 +438,7 @@ export default function CaseBuilder() {
             <h2 className="flex items-center gap-2 text-lg font-bold text-emerald-900">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
               Your Recovery Checklist
-              {formData.scamType && <span className="ml-2 text-sm font-normal text-emerald-700">({formData.scamType})</span>}
+              {formData.scamTypes.length > 0 && <span className="ml-2 text-sm font-normal text-emerald-700">({formData.scamTypes.join(", ")})</span>}
             </h2>
             <p className="mt-1 text-sm text-emerald-700">Based on your report, here are the specific steps you should take:</p>
             <ol className="mt-4 space-y-3">
@@ -384,10 +485,34 @@ export default function CaseBuilder() {
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
               Print / Save as PDF
             </button>
-            <a href="/case-builder" onClick={() => { setSubmitted(false); setCurrentPhase(0); setFormData({ story: "", scamType: "", platforms: [], sentMoney: "", sentPersonalInfo: "", amount: "", paymentMethods: [], startDate: "", paymentDate: "", realizedDate: "", suspectName: "", suspectEmail: "", suspectPhone: "", suspectUsername: "", suspectWallet: "", suspectWebsite: "" }); }}
+            <a href="/case-builder" onClick={() => { setSubmitted(false); setCurrentPhase(0); setPrefilled(false); setFormData({ story: "", scamTypes: [], platforms: [], sentMoney: "", sentPersonalInfo: "", amount: "", paymentMethods: [], startDate: "", paymentDate: "", realizedDate: "", suspectName: "", suspectEmail: "", suspectPhone: "", suspectUsername: "", suspectWallet: "", suspectWebsite: "", state: "" }); }}
               className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 font-medium text-white hover:bg-slate-800 transition-colors">
               Submit Another Report
             </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── extracting screen ─── */
+
+  if (extracting) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16">
+        <div className="text-center animate-fadeSlideIn">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-sky-100">
+            <svg className="h-8 w-8 text-sky-600 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+            </svg>
+          </div>
+          <h2 className="mt-6 text-2xl font-bold text-slate-900">Analyzing your report...</h2>
+          <p className="mt-2 text-slate-500">We're reading your story to pre-fill the details. This saves you time.</p>
+          <div className="mt-6 mx-auto max-w-xs">
+            <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+              <div className="h-1.5 rounded-full bg-sky-500 animate-pulse" style={{ width: "60%" }} />
+            </div>
           </div>
         </div>
       </div>
@@ -436,7 +561,7 @@ export default function CaseBuilder() {
               <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
                 We're here to help.
               </h1>
-              <p className="mt-4 text-lg text-slate-600 leading-relaxed">
+              <p className="mt-4 text-lg text-slate-600 leading-relaxed sm:text-xl">
                 Filing a scam report takes about <strong className="text-slate-900">3 minutes</strong>.
                 You don't need account numbers, police reports, or legal knowledge — just tell us what happened in your own words.
               </p>
@@ -466,7 +591,7 @@ export default function CaseBuilder() {
               title="What happened?"
               desc="Tell us your story in your own words. Include dates, dollar amounts, names, and websites if you remember them."
             />
-            <p className="mt-1 text-xs text-slate-400">Don't worry about getting everything perfect — you can add more details in the next steps.</p>
+            <p className="mt-1 text-xs text-slate-400">The more detail you include, the more we can help fill out the rest of the form for you automatically.</p>
 
             <textarea
               className="mt-5 min-h-[180px] w-full rounded-xl border border-slate-200 bg-white p-4 text-base leading-relaxed outline-none placeholder-slate-400 focus:border-red-300 focus:ring-2 focus:ring-red-100 transition-colors resize-y"
@@ -524,15 +649,18 @@ export default function CaseBuilder() {
           </div>
         )}
 
-        {/* ─── Scam Type ─── */}
+        {/* ─── Scam Type (multi-select) ─── */}
         {phase === "type" && (
           <div>
-            <StepHeader title="What type of scam was this?" desc="Pick the closest match. If you're not sure, choose 'Other' — that's OK." />
+            <StepHeader title="What type of scam was this?" desc="Select all that apply. Many scams involve more than one type." />
+            {prefilled && formData.scamTypes.length > 0 && (
+              <PrefilledBanner count={formData.scamTypes.length} label="scam type" plural="scam types" />
+            )}
             <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               {scamTypes.map(item => (
                 <OptionCard key={item.label} icon={item.icon} label={item.label}
-                  selected={formData.scamType === item.label}
-                  onClick={() => updateField("scamType", item.label)} />
+                  selected={formData.scamTypes.includes(item.label)}
+                  onClick={() => toggleArray("scamTypes", item.label)} multi />
               ))}
             </div>
           </div>
@@ -542,6 +670,9 @@ export default function CaseBuilder() {
         {phase === "platforms" && (
           <div>
             <StepHeader title="How did the scammer contact you?" desc="Select all that apply." />
+            {prefilled && formData.platforms.length > 0 && (
+              <PrefilledBanner count={formData.platforms.length} label="platform" plural="platforms" />
+            )}
             <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               {contactPlatforms.map(item => (
                 <OptionCard key={item.label} icon={item.icon} label={item.label}
@@ -556,6 +687,9 @@ export default function CaseBuilder() {
         {phase === "impact" && (
           <div>
             <StepHeader title="What was the impact?" desc="This helps investigators understand the severity and prioritize cases." />
+            {prefilled && (formData.sentMoney || formData.amount) && (
+              <PrefilledBanner />
+            )}
             <div className="mt-6 space-y-6">
               {/* Money */}
               <div>
@@ -629,6 +763,9 @@ export default function CaseBuilder() {
         {phase === "timeline" && (
           <div>
             <StepHeader title="When did this happen?" desc="Approximate dates are fine. If you don't remember, skip to the next step." />
+            {prefilled && (formData.startDate || formData.paymentDate || formData.realizedDate) && (
+              <PrefilledBanner />
+            )}
             <div className="mt-5 space-y-5">
               <DateField label="When did the scam begin?" value={formData.startDate} onChange={v => updateField("startDate", v)} />
               <DateField label="When did you send money or information?" value={formData.paymentDate} onChange={v => updateField("paymentDate", v)} />
@@ -641,6 +778,9 @@ export default function CaseBuilder() {
         {phase === "scammer" && (
           <div>
             <StepHeader title="What do you know about the scammer?" desc="Every detail helps — names, emails, phone numbers, websites. Leave blank anything you don't know." />
+            {prefilled && (formData.suspectName || formData.suspectEmail || formData.suspectPhone || formData.suspectUsername || formData.suspectWallet || formData.suspectWebsite) && (
+              <PrefilledBanner />
+            )}
             <div className="mt-5 space-y-3">
               <TextField icon="👤" placeholder="Name or alias" value={formData.suspectName} onChange={v => updateField("suspectName", v)} />
               <TextField icon="📧" placeholder="Email address" type="email" value={formData.suspectEmail} onChange={v => updateField("suspectEmail", v)} />
@@ -659,7 +799,7 @@ export default function CaseBuilder() {
 
             <div className="mt-6 space-y-3">
               <ReviewSection label="Your Story" stepIdx={1} onEdit={() => jumpTo(1)} content={formData.story || "—"} isLong />
-              <ReviewSection label="Scam Type" stepIdx={2} onEdit={() => jumpTo(2)} content={formData.scamType || "—"} />
+              <ReviewSection label="Scam Type" stepIdx={2} onEdit={() => jumpTo(2)} content={formData.scamTypes.length ? formData.scamTypes.join(", ") : "—"} />
               <ReviewSection label="Contact Platforms" stepIdx={3} onEdit={() => jumpTo(3)} content={formData.platforms.length ? formData.platforms.join(", ") : "—"} />
               <ReviewSection label="Financial Impact" stepIdx={4} onEdit={() => jumpTo(4)}
                 content={`Money lost: ${formData.sentMoney || "—"}${formData.sentMoney === "Yes" && formData.amount ? ` ($${Number(formData.amount).toLocaleString()})` : ""}${formData.paymentMethods.length ? ` via ${formData.paymentMethods.join(", ")}` : ""} · Personal info shared: ${formData.sentPersonalInfo || "—"}${formData.state ? ` · State: ${formData.state}` : ""}`} />
@@ -732,6 +872,19 @@ function StepHeader({ title, desc }) {
     <div>
       <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h2>
       {desc && <p className="mt-2 text-slate-500 leading-relaxed">{desc}</p>}
+    </div>
+  );
+}
+
+function PrefilledBanner({ count, label, plural }) {
+  return (
+    <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-sky-200 bg-sky-50 p-3">
+      <span className="mt-0.5 text-sky-600">✨</span>
+      <p className="text-sm text-sky-800">
+        <strong>Pre-filled from your story</strong>
+        {count ? ` — we detected ${count} ${count === 1 ? label : plural}` : ""}
+        . Please verify and adjust if needed.
+      </p>
     </div>
   );
 }
