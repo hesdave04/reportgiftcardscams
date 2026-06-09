@@ -2,6 +2,7 @@ export const metadata = {
   title: "Privacy Policy — ScamComplaints",
   description:
     "How ScamComplaints.org collects, uses, and protects your data when you submit a scam report.",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {

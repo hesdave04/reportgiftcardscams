@@ -15,6 +15,7 @@ export const metadata = {
     siteName: "ScamComplaints",
     type: "website",
   },
+  alternates: { canonical: '/report-crypto-wallet' },
 };
 
 export default function Page() {

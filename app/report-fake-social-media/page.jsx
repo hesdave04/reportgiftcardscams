@@ -15,6 +15,7 @@ export const metadata = {
     siteName: "ScamComplaints",
     type: "website",
   },
+  alternates: { canonical: '/report-fake-social-media' },
 };
 
 export default function Page() {
