@@ -1,5 +1,5 @@
 import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
-import { verifyRecaptchaV2 } from "@/lib/recaptcha";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 import rateLimit from "@/utils/rate-limit";
 
 const limiter = rateLimit({ window: 60, limit: 10 });
@@ -19,22 +19,20 @@ export async function POST(request) {
 
     const body = await request.json();
 
-    // Verify reCAPTCHA if configured
+    // Verify reCAPTCHA (non-blocking for legit users)
+    let captchaStatus = "skipped";
     const secretKey = process.env.RECAPTCHA_SECRET_KEY;
     if (secretKey) {
       const token = body.recaptchaToken;
-      if (!token) {
-        return Response.json(
-          { success: false, error: "reCAPTCHA verification required" },
-          { status: 400 }
-        );
-      }
-      const { ok: captchaOk } = await verifyRecaptchaV2(token, ip);
-      if (!captchaOk) {
-        return Response.json(
-          { success: false, error: "reCAPTCHA verification failed" },
-          { status: 403 }
-        );
+      if (token) {
+        const result = await verifyRecaptcha(token, ip, {
+          scoreThreshold: 0.3,
+          expectedAction: "submit_case",
+        });
+        captchaStatus = result.ok ? "passed" : `failed:${(result.errorCodes || []).join(",")}`;
+        if (result.score !== undefined) captchaStatus += `:score=${result.score}`;
+      } else {
+        captchaStatus = "no-token";
       }
     }
 
@@ -64,7 +62,7 @@ export async function POST(request) {
       suspect_wallet: body.suspectWallet || null,
       suspect_website: body.suspectWebsite || null,
       state: body.state || null,
-      full_payload: body,
+      full_payload: { ...body, _captchaStatus: captchaStatus },
       status: "new",
       source: "user_submitted",
     };
