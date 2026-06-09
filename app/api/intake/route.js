@@ -40,9 +40,13 @@ export async function POST(request) {
 
     const client = getSupabaseAdmin();
 
+    // Support both scamTypes (array, new) and scamType (string, legacy)
+    const scamTypes = Array.isArray(body.scamTypes) ? body.scamTypes : [];
+    const primaryScamType = scamTypes[0] || body.scamType || null;
+
     const payload = {
       story: body.story || null,
-      scam_type: body.scamType || null,
+      scam_type: primaryScamType,
       platforms: Array.isArray(body.platforms) ? body.platforms : [],
       sent_money: body.sentMoney || null,
       sent_personal_info: body.sentPersonalInfo || null,
