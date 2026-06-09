@@ -97,7 +97,7 @@ export async function GET(request) {
     const cutoffISO = cutoff.toISOString();
 
     // Pull from both tables in parallel
-    const [gcResult, intakeResult] = await Promise.all([
+    const [gcResult, intakeResult, dataPointsResult] = await Promise.all([
       supa
         .from("giftcard_reports")
         .select("gift_card_brand, retailer, purchase_state, amount, purchase_date, created_at")
@@ -106,6 +106,12 @@ export async function GET(request) {
       supa
         .from("case_intakes")
         .select("scam_type, platforms, payment_methods, amount, created_at")
+        .gte("created_at", cutoffISO)
+        .limit(50000),
+      // Data-type counting: pull identifying fields + source
+      supa
+        .from("case_intakes")
+        .select("suspect_name, suspect_email, suspect_phone, suspect_wallet, suspect_username, suspect_website, source, payment_methods")
         .gte("created_at", cutoffISO)
         .limit(50000),
     ]);
@@ -185,6 +191,93 @@ export async function GET(request) {
       if (gcAmtTotal > 0) instAmounts.set("Gift Card", (instAmounts.get("Gift Card") || 0) + gcAmtTotal);
     }
 
+    // ── Data-point metrics by source ──
+    const dataMetrics = { total: {}, bySource: {} };
+
+    function countField(value) {
+      // Count semicolon-separated values (e.g. "email1; email2" = 2)
+      if (!value || !value.trim()) return 0;
+      return value.split(/;\s*/).filter(Boolean).length;
+    }
+
+    const DATA_FIELDS = [
+      { field: "suspect_name", label: "Suspect Names", icon: "👤" },
+      { field: "suspect_email", label: "Email Addresses", icon: "📧" },
+      { field: "suspect_phone", label: "Phone Numbers", icon: "📱" },
+      { field: "suspect_wallet", label: "Crypto Wallets", icon: "🪙" },
+      { field: "suspect_username", label: "Usernames / Social Profiles", icon: "🌐" },
+      { field: "suspect_website", label: "Websites / URLs", icon: "🔗" },
+    ];
+
+    const SOURCE_LABELS = {
+      scf_verified: "SCF Verified",
+      user_submitted: "User Submitted",
+      "3p_chainabuse": "ChainAbuse",
+      "3p_cryptolegal": "CryptoLegal",
+      "bulk-import": "Imported",
+    };
+
+    // Initialise totals
+    for (const { field } of DATA_FIELDS) {
+      dataMetrics.total[field] = 0;
+    }
+
+    if (!dataPointsResult.error) {
+      for (const row of dataPointsResult.data || []) {
+        const src = row.source || "unknown";
+        if (!dataMetrics.bySource[src]) {
+          dataMetrics.bySource[src] = {};
+          for (const { field } of DATA_FIELDS) dataMetrics.bySource[src][field] = 0;
+          dataMetrics.bySource[src]._reports = 0;
+        }
+        dataMetrics.bySource[src]._reports += 1;
+
+        for (const { field } of DATA_FIELDS) {
+          const n = countField(row[field]);
+          dataMetrics.total[field] += n;
+          dataMetrics.bySource[src][field] += n;
+        }
+      }
+    }
+
+    // Also count gift card reports data points
+    const gcReportCount = (gcResult.data || []).length;
+    if (gcReportCount > 0) {
+      const src = "3p_giftcard";
+      dataMetrics.bySource[src] = { _reports: gcReportCount };
+      for (const { field } of DATA_FIELDS) {
+        dataMetrics.bySource[src][field] = 0;
+      }
+      // Gift card reports contribute brand names as data points
+      let brandCount = 0;
+      let retailerCount = 0;
+      for (const row of gcResult.data || []) {
+        if (row.gift_card_brand?.trim()) brandCount++;
+        if (row.retailer?.trim()) retailerCount++;
+      }
+      dataMetrics.bySource[src]._giftCardBrands = brandCount;
+      dataMetrics.bySource[src]._retailers = retailerCount;
+    }
+
+    // Build ordered summary for the frontend
+    const dataTypeSummary = DATA_FIELDS.map(({ field, label, icon }) => ({
+      key: field,
+      label,
+      icon,
+      total: dataMetrics.total[field],
+    })).filter((d) => d.total > 0);
+
+    const sourceSummary = Object.entries(dataMetrics.bySource)
+      .sort((a, b) => b[1]._reports - a[1]._reports)
+      .map(([src, counts]) => ({
+        source: src,
+        label: SOURCE_LABELS[src] || src.replace(/^3p_/, "").replace(/_/g, " "),
+        reports: counts._reports,
+        ...Object.fromEntries(
+          DATA_FIELDS.map(({ field }) => [field, counts[field]])
+        ),
+      }));
+
     const toLeaderboard = (countMap, amountMap, limit = 50) =>
       Array.from(countMap.entries())
         .sort((a, b) => b[1] - a[1])
@@ -207,6 +300,8 @@ export async function GET(request) {
         states,
         giftCardBrands: toLeaderboard(brandCounts, brandAmounts),
         financialInstitutions: toLeaderboard(instCounts, instAmounts),
+        dataTypes: dataTypeSummary,
+        sources: sourceSummary,
         meta: {
           days,
           totalGiftCardReports: (gcResult.data || []).length,
