@@ -55,7 +55,7 @@ export default function NotFound() {
         </h2>
         <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
           <a href="/case-builder" className="text-red-600 hover:text-red-700 font-medium">
-            Build Your Report
+            Submit a Report
           </a>
           <a href="/wall-of-shame" className="text-red-600 hover:text-red-700 font-medium">
             Wall of Shame

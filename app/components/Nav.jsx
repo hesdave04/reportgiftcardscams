@@ -7,7 +7,7 @@ export default function Nav() {
 
   const links = [
     { href: "/", label: "Home" },
-    { href: "/case-builder", label: "Build Report", primary: true },
+    { href: "/case-builder", label: "Submit a Report", primary: true },
     { href: "/wall-of-shame", label: "Wall of Shame" },
     { href: "/leaderboard", label: "Leaderboard" },
     { href: "/search", label: "Search" },
