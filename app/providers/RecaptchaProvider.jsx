@@ -2,12 +2,12 @@
 
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 
-const RECAPTCHA_SITE_KEY = '6LcxxBItAAAAAK3KFFEmOJCtWhjOD6YCT4DQlKDR';
-
 export default function RecaptchaProvider({ children }) {
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+  // action and script props can be tuned as needed
   return (
     <GoogleReCaptchaProvider
-      reCaptchaKey={RECAPTCHA_SITE_KEY}
+      reCaptchaKey={siteKey}
       scriptProps={{
         async: true,
         defer: true,

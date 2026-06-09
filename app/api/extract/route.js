@@ -1,70 +1,55 @@
-// app/api/extract/route.js
-// AI-powered story extraction - parses a victim's story into structured case data
+/**
+ * POST /api/extract
+ * AI-powered story extraction — parses a victim's narrative and returns
+ * structured scam details (type, platforms, payment methods, amounts, dates, suspect info).
+ *
+ * Requires OPENAI_API_KEY env var. Returns { available: false } if not configured.
+ */
+
 import rateLimit from "@/utils/rate-limit";
 
 const limiter = rateLimit({ window: 60, limit: 20 });
 
-const SYSTEM_PROMPT = `You are an AI assistant for ScamComplaints.org, a scam reporting platform. Your role is to extract structured fraud case data from a victim's story.
+const SYSTEM_PROMPT = `You are an assistant that extracts structured scam report details from a victim's story.
+Given the victim's narrative, extract the following fields. Only include fields you are confident about.
+Return a JSON object with these keys (all optional):
+- scamType: one of "Romance Scam", "Gift Card Scam", "Crypto / Investment Scam", "Impersonation Scam", "Tech Support Scam", "Online Shopping Scam", "Employment Scam", "Banking / Phishing Scam", "Government Impersonation", "Other"
+- platforms: array of contact methods from: "Facebook", "Instagram", "WhatsApp", "Telegram", "Text / SMS", "Email", "Phone Call", "Dating App", "TikTok", "Website", "In Person", "Other"
+- sentMoney: "Yes" or "No"
+- amount: number (total USD lost, no currency symbol)
+- paymentMethods: array from: "Gift Card", "Bank / Wire Transfer", "Cryptocurrency", "Cash App", "Venmo", "PayPal", "Zelle", "Cash", "Check", "Other"
+- startDate: ISO date string (YYYY-MM-DD) if mentioned
+- paymentDate: ISO date string if mentioned
+- realizedDate: ISO date string if mentioned
+- suspectName: string
+- suspectEmail: string
+- suspectPhone: string
+- suspectUsername: string
+- suspectWallet: string (crypto wallet address)
+- suspectWebsite: string
 
-Given a victim's description of what happened, extract the following fields. Only include fields you are confident about from the text. Do NOT guess or hallucinate — if a field isn't mentioned, set it to null.
-
-Return a JSON object with these fields:
-{
-  "scamType": string | null — one of: "Romance Scam", "Gift Card Scam", "Crypto Scam", "Impersonation Scam", "Tech Support Scam", "Marketplace Scam", "Investment Scam", "Employment Scam", "Banking Scam", "Other",
-  "platforms": string[] — platforms mentioned (e.g., "Facebook", "Instagram", "WhatsApp", "Telegram", "Text Message", "Email", "Phone Call", "Dating App", "TikTok", "Other"),
-  "sentMoney": "Yes" | "No" | null,
-  "sentPersonalInfo": "Yes" | "No" | null,
-  "amount": number | null — total dollar amount lost,
-  "paymentMethods": string[] — methods used (e.g., "Gift Card", "Bank Transfer", "Wire Transfer", "Crypto", "Cash App", "Venmo", "PayPal", "Zelle", "Cash", "Other"),
-  "startDate": string | null — ISO date (YYYY-MM-DD) when scam began,
-  "paymentDate": string | null — ISO date when money/info was sent,
-  "realizedDate": string | null — ISO date when victim realized it was a scam,
-  "suspectName": string | null,
-  "suspectEmail": string | null,
-  "suspectPhone": string | null,
-  "suspectUsername": string | null,
-  "suspectWallet": string | null,
-  "suspectWebsite": string | null,
-  "confidence": number — 0 to 1, your overall confidence in the extraction
-}
-
-Rules:
-- Only extract what is explicitly stated or very strongly implied.
-- For dates, convert relative references ("last month", "3 weeks ago") to approximate ISO dates based on today's date.
-- For amounts, extract the total lost even if paid in multiple installments.
-- Return ONLY valid JSON. No markdown, no explanation, no wrapping.`;
+Only include fields where you have reasonable confidence. Omit uncertain fields entirely.
+Return ONLY valid JSON, no markdown or explanation.`;
 
 export async function POST(request) {
   try {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return Response.json({ available: false, message: "AI extraction not configured" });
+    }
+
     const ip = request.headers.get("x-forwarded-for") || "0.0.0.0";
     const { ok: withinLimit } = await limiter.check(ip);
     if (!withinLimit) {
-      return Response.json(
-        { success: false, error: "Too many requests. Please try again later." },
-        { status: 429 }
-      );
+      return Response.json({ error: "Too many requests" }, { status: 429 });
     }
 
     const { story } = await request.json();
-
-    if (!story || story.trim().length < 20) {
-      return Response.json(
-        { success: false, error: "Story is too short to extract data from." },
-        { status: 400 }
-      );
+    if (!story || story.trim().length < 10) {
+      return Response.json({ error: "Story too short for extraction" }, { status: 400 });
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return Response.json(
-        { success: false, error: "AI extraction not configured." },
-        { status: 501 }
-      );
-    }
-
-    const today = new Date().toISOString().split("T")[0];
-
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -74,47 +59,31 @@ export async function POST(request) {
         model: "gpt-4o-mini",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          {
-            role: "user",
-            content: `Today's date is ${today}.\n\nVictim's story:\n\n${story.slice(0, 5000)}`,
-          },
+          { role: "user", content: story.slice(0, 4000) },
         ],
-        temperature: 0.1,
-        max_tokens: 800,
         response_format: { type: "json_object" },
+        temperature: 0.1,
+        max_tokens: 500,
       }),
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("OpenAI API error:", errText);
-      return Response.json(
-        { success: false, error: "AI extraction failed." },
-        { status: 502 }
-      );
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("OpenAI API error:", res.status, text);
+      return Response.json({ available: false, error: "AI service unavailable" }, { status: 502 });
     }
 
-    const result = await response.json();
-    const content = result.choices?.[0]?.message?.content;
+    const data = await res.json();
+    const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
-      return Response.json(
-        { success: false, error: "No extraction result." },
-        { status: 502 }
-      );
+      return Response.json({ available: false, error: "No extraction result" });
     }
 
     const extracted = JSON.parse(content);
-
-    return Response.json({
-      success: true,
-      extracted,
-    });
+    return Response.json({ available: true, extracted });
   } catch (error) {
     console.error("Extract route error:", error);
-    return Response.json(
-      { success: false, error: "Failed to process extraction." },
-      { status: 500 }
-    );
+    return Response.json({ available: false, error: "Extraction failed" }, { status: 500 });
   }
 }

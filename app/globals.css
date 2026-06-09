@@ -13,15 +13,15 @@ html, body {
 }
 .form-input {
   @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm
-         placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent;
+         placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand/80 focus:border-brand;
 }
 .form-textarea {
   @apply form-input min-h-[120px] resize-y;
 }
 .btn-primary {
   @apply inline-flex items-center justify-center rounded-lg bg-brand px-4 py-2 text-white
-         font-medium shadow-sm hover:bg-brand-light focus:outline-none focus:ring-2
-         focus:ring-offset-2 focus:ring-brand-accent disabled:opacity-50 disabled:cursor-not-allowed;
+         font-medium shadow-sm hover:bg-slate-800 focus:outline-none focus:ring-2
+         focus:ring-offset-2 focus:ring-brand disabled:opacity-50 disabled:cursor-not-allowed;
 }
 .card {
   @apply rounded-2xl bg-white shadow-card ring-1 ring-slate-200;
@@ -34,3 +34,24 @@ html, body {
 }
 .badge-success { @apply bg-green-50 text-green-700 ring-green-600/20; }
 .badge-error   { @apply bg-rose-50  text-rose-700  ring-rose-600/20; }
+
+/* Case builder transitions */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeSlideIn {
+  animation: fadeSlideIn 0.35s ease-out;
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.animate-pulse-ring {
+  animation: pulse-ring 1.4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+/* Hide reCAPTCHA v3 badge — required attribution text is included in the form footer */
+.grecaptcha-badge {
+  visibility: hidden !important;
+}

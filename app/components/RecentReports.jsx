@@ -1,4 +1,3 @@
-// app/components/RecentReports.jsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -15,7 +14,8 @@ export default function RecentReports() {
       setLoading(true);
       setErr('');
       try {
-        const res = await fetch('/api/search?pageSize=10', { cache: 'no-store' });
+        // Works with either {items: [...]}, {results: [...]}, {data: [...]}, or a plain array.
+        const res = await fetch('/api/search?limit=10', { cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         const items = Array.isArray(json)
@@ -50,27 +50,36 @@ export default function RecentReports() {
       {rows.length > 0 && (
         <ul className="divide-y divide-slate-100">
           {rows.map((r, i) => {
-            // Unified rendering for all report types
-            const title = r.suspect_name || r.gift_card_brand || r.scam_type || 'Scam Report';
-            const subtitle = r.suspect_email || r.suspect_phone || r.retailer || '';
-            const amount = r.amount;
-            const dt = r.created_at || r.purchase_date || null;
-            const last4 = r.card_last4;
+            // Try to normalize fields from different API shapes
+            const brand =
+              r.gift_card_brand || r.brand || r.card_brand || 'Unknown Brand';
+            const retailer = r.retailer || r.seller || 'Unknown Retailer';
+            const last4 =
+              r.card_number_last4 ||
+              r.last4 ||
+              (typeof r.card_number === 'string'
+                ? r.card_number.slice(-4)
+                : undefined);
+            const amount = r.amount ?? r.value ?? null;
+            const dt =
+              r.purchase_date ||
+              r.created_at ||
+              r.createdAt ||
+              r.date ||
+              null;
 
             return (
               <li key={r.id ?? i} className="flex items-center justify-between py-3">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium text-slate-900">
-                    {title}
-                    {r.scam_type && !r.gift_card_brand && (
-                      <span className="ml-2 text-xs text-slate-400">
-                        {r.scam_type}
-                      </span>
-                    )}
+                    {brand}{' '}
+                    <span className="text-slate-400">
+                      · {retailer}
+                    </span>
                   </div>
                   <div className="truncate text-xs text-slate-500">
-                    {last4 ? `•••• ${last4}` : subtitle ? subtitle.slice(0, 40) : 'Report submitted'}
-                    {amount ? ` · $${Number(amount).toLocaleString()}` : ''}
+                    {last4 ? `•••• ${last4}` : 'Card ••••'}
+                    {amount ? ` · $${Number(amount).toFixed(2)}` : ''}
                     {dt ? ` · ${new Date(dt).toLocaleDateString()}` : ''}
                   </div>
                 </div>

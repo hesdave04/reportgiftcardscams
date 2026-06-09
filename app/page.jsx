@@ -5,7 +5,8 @@ export const revalidate = 0;
 import { Suspense } from "react";
 import dynamicImport from "next/dynamic";
 import HowItWorks from "./components/HowItWorks";
-import QuickReport from "./components/QuickReport";
+import ReportForm from "./components/ReportForm";
+import QuickBatch from "./components/QuickBatch";
 
 const RecentReports = dynamicImport(() => import("./components/RecentReports"), {
   ssr: false,
@@ -18,18 +19,18 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-brand to-brand-dark">
+      <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L2c+PC9zdmc+')] opacity-40" />
         <div className="relative mx-auto max-w-6xl px-4 py-16 sm:py-24">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-300 backdrop-blur">
-              <span className="inline-block h-2 w-2 rounded-full bg-brand-accent" />
+              <span className="inline-block h-2 w-2 rounded-full bg-red-500" />
               Free public service by SocialCatfish.com
             </div>
             <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
               Report a scam.
               <br />
-              <span className="text-brand-accent">Protect someone else.</span>
+              <span className="text-red-400">Protect someone else.</span>
             </h1>
             <p className="mt-4 text-lg text-slate-300 leading-relaxed sm:text-xl">
               ScamComplaints.org helps you document fraud clearly and completely.
@@ -39,7 +40,7 @@ export default function HomePage() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
                 href="/case-builder"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-accent px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-accent/25 hover:bg-brand-accent-hover transition-colors"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-red-600/25 hover:bg-red-700 transition-colors"
               >
                 <svg
                   className="h-5 w-5"
@@ -54,13 +55,13 @@ export default function HomePage() {
                     d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                Submit Your Case (5–10 min)
+                Build Your Report
               </a>
               <a
                 href="#report-form"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-base font-semibold text-white backdrop-blur hover:bg-white/10 transition-colors"
               >
-                Quick Report (under 2 min)
+                Quick Gift Card Report
               </a>
             </div>
           </div>
@@ -69,7 +70,7 @@ export default function HomePage() {
           <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
             {[
               { label: "Scam Types Covered", value: "10+" },
-              { label: "Guided Steps", value: "8" },
+              { label: "Average Filing Time", value: "3 min" },
               { label: "Voice Input", value: "✓" },
               { label: "Law Enforcement Ready", value: "XML" },
             ].map((s) => (
@@ -90,18 +91,29 @@ export default function HomePage() {
         {/* How It Works */}
         <HowItWorks />
 
-        {/* Quick Report Form */}
+        {/* Quick Gift Card Report Form */}
         <section id="report-form" className="mt-16">
-          <h2 className="text-2xl font-bold text-slate-900">Quick Report</h2>
+          <h2 className="text-2xl font-bold text-slate-900">Quick Gift Card Report</h2>
           <p className="mt-2 text-slate-600">
-            Report any type of scam in under 2 minutes. Just the essentials — every detail helps investigators.
+            Already know the gift card details? Use this quick form.
             For a more thorough report,{" "}
-            <a href="/case-builder" className="font-medium text-brand-accent hover:text-brand-accent-hover underline underline-offset-2">
+            <a href="/case-builder" className="font-medium text-red-600 hover:text-red-700 underline underline-offset-2">
               use the guided Case Builder
             </a>.
           </p>
           <div className="mt-6">
-            <QuickReport />
+            <ReportForm />
+          </div>
+        </section>
+
+        {/* Batch Upload */}
+        <section className="mt-16">
+          <h2 className="text-2xl font-bold text-slate-900">Batch Upload</h2>
+          <p className="mt-2 text-slate-600">
+            Have multiple cards to report? Paste them all at once.
+          </p>
+          <div className="mt-6">
+            <QuickBatch />
           </div>
         </section>
 

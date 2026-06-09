@@ -1,5 +1,5 @@
 import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
-import { verifyRecaptcha } from "@/lib/recaptcha";
+import { verifyRecaptchaV2 } from "@/lib/recaptcha";
 import rateLimit from "@/utils/rate-limit";
 
 const limiter = rateLimit({ window: 60, limit: 10 });
@@ -29,7 +29,7 @@ export async function POST(request) {
           { status: 400 }
         );
       }
-      const { ok: captchaOk } = await verifyRecaptcha(token, ip);
+      const { ok: captchaOk } = await verifyRecaptchaV2(token, ip);
       if (!captchaOk) {
         return Response.json(
           { success: false, error: "reCAPTCHA verification failed" },
@@ -59,7 +59,6 @@ export async function POST(request) {
       suspect_username: body.suspectUsername || null,
       suspect_wallet: body.suspectWallet || null,
       suspect_website: body.suspectWebsite || null,
-      evidence_urls: Array.isArray(body.evidenceUrls) ? body.evidenceUrls : [],
       full_payload: body,
       status: "new",
     };
