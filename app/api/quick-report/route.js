@@ -78,6 +78,7 @@ export async function POST(request) {
       'website_report',
       'crypto_wallet_report',
       'social_media_report',
+      'scam_type_report',
     ];
     if (!validTypes.includes(reportType)) {
       return NextResponse.json(
@@ -177,6 +178,25 @@ export async function POST(request) {
       if (realPersonName) {
         payload.full_payload.real_person_name = realPersonName;
       }
+    }
+
+    if (reportType === 'scam_type_report') {
+      const { scamTypeValue, description } = body;
+      if (!description) {
+        return NextResponse.json(
+          { error: 'A description of what happened is required' },
+          { status: 400 }
+        );
+      }
+      payload.scam_type = scamTypeValue || 'other';
+      payload.story = description;
+      payload.suspect_name = body.fakeName || body.companyName || body.impersonated || null;
+      payload.suspect_website = body.websiteUrl || body.platformUrl || body.tradingPlatform || body.sellerProfile || null;
+      payload.suspect_wallet = body.walletAddress || null;
+      payload.suspect_phone = body.phoneNumber || null;
+      payload.amount = body.amountLost ? Number(body.amountLost) : null;
+      payload.platforms = body.platform ? [body.platform] : [];
+      payload.payment_methods = body.paymentMethod ? [body.paymentMethod] : [];
     }
 
     // Remove fields the API route sets
