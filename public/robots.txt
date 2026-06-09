@@ -1,0 +1,6 @@
+# ScamComplaints.org robots.txt
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://scamcomplaints.org/sitemap.xml

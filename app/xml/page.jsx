@@ -2,8 +2,9 @@
 import XmlBuilderClient from "./XmlBuilderClient";
 
 export const metadata = {
-  title: "Download XML – Scam Reports",
-  description: "Generate a filtered XML for law enforcement and issuers.",
+  title: "Data Access",
+  description: "Access scam report data in structured XML format for law enforcement, investigators, and verified partners.",
+  alternates: { canonical: "/xml" },
 };
 
 export default function XmlPage() {

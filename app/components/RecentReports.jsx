@@ -51,7 +51,9 @@ export default function RecentReports() {
         <ul className="divide-y divide-slate-100">
           {rows.map((r, i) => {
             // Unified rendering for all report types
-            const title = r.suspect_name || r.gift_card_brand || r.scam_type || 'Scam Report';
+            // Don't use scam_type as the name — show "Unknown Suspect" instead
+            const hasRealName = r.suspect_name && r.suspect_name !== r.scam_type;
+            const title = hasRealName ? r.suspect_name : r.gift_card_brand || 'Unknown Suspect';
             const subtitle = r.suspect_email || r.suspect_phone || r.retailer || '';
             const amount = r.amount;
             const dt = r.created_at || r.purchase_date || null;
@@ -62,8 +64,8 @@ export default function RecentReports() {
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium text-slate-900">
                     {title}
-                    {r.scam_type && !r.gift_card_brand && (
-                      <span className="ml-2 text-xs text-slate-400">
+                    {r.scam_type && (
+                      <span className="ml-2 inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
                         {r.scam_type}
                       </span>
                     )}

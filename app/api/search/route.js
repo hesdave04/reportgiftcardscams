@@ -73,15 +73,22 @@ export async function GET(request) {
 
     const { data: ciData, count: ciCount } = await ciQuery.range(0, 999);
 
+    // Helper: deduplicate comma-separated or array-style values
+    const dedup = (val) => {
+      if (!val) return null;
+      const items = val.split(/[,;]\s*/).map((s) => s.trim()).filter(Boolean);
+      const unique = [...new Set(items)];
+      const result = unique.join(', ');
+      return result.length > 200 ? result.slice(0, 200) + '…' : result;
+    };
+
     const ciItems = (ciData || []).map((r) => ({
       id: r.id,
       type: 'report',
       suspect_name: r.suspect_name,
-      suspect_email: r.suspect_email,
-      suspect_phone: r.suspect_phone,
-      suspect_username: r.suspect_username
-        ? (r.suspect_username.length > 200 ? r.suspect_username.slice(0, 200) + '…' : r.suspect_username)
-        : null,
+      suspect_email: dedup(r.suspect_email),
+      suspect_phone: dedup(r.suspect_phone),
+      suspect_username: dedup(r.suspect_username),
       story: r.story ? (r.story.length > 220 ? r.story.slice(0, 220) + '…' : r.story) : null,
       scam_type: r.scam_type,
       amount: r.amount,

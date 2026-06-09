@@ -49,6 +49,49 @@ export async function GET(request) {
       sellerCounts.set(seller, (sellerCounts.get(seller) || 0) + 1);
     }
 
+    // ── Normalization maps ──
+    // Payment method aliases → canonical display name
+    const PAYMENT_NORM = {
+      cashapp: "Cash App",
+      "cash app": "Cash App",
+      paypal: "PayPal",
+      bank_transfer: "Bank Transfer",
+      "bank transfer": "Bank Transfer",
+      wire: "Wire Transfer",
+      "wire transfer": "Wire Transfer",
+      crypto_btc: "Cryptocurrency",
+      cryptocurrency: "Cryptocurrency",
+      crypto: "Cryptocurrency",
+      bitcoin: "Cryptocurrency",
+      apple_gift_card: "Gift Cards",
+      "gift cards": "Gift Cards",
+      gift_cards: "Gift Cards",
+      "google play gift card": "Gift Cards",
+      "itunes gift card": "Gift Cards",
+      zelle: "Zelle",
+      venmo: "Venmo",
+    };
+
+    // Items that are payment methods, NOT platforms
+    const PAYMENT_NOT_PLATFORM = new Set([
+      "wire transfer", "wire", "bank transfer", "bank_transfer",
+      "cash app", "cashapp", "paypal", "zelle", "venmo",
+      "cryptocurrency", "crypto", "crypto_btc", "bitcoin",
+      "gift cards", "gift_cards", "apple_gift_card",
+      "google play gift card", "itunes gift card",
+      "money order", "check", "debit card", "credit card",
+    ]);
+
+    const normalizePayment = (raw) => {
+      const key = (raw || "").trim().toLowerCase();
+      return PAYMENT_NORM[key] || raw.trim();
+    };
+
+    const isPlatform = (raw) => {
+      const key = (raw || "").trim().toLowerCase();
+      return !PAYMENT_NOT_PLATFORM.has(key);
+    };
+
     // Case intake breakdowns
     const scamTypeCounts = new Map();
     const platformCounts = new Map();
@@ -67,14 +110,17 @@ export async function GET(request) {
       const platforms = Array.isArray(row.platforms) ? row.platforms : [];
       for (const p of platforms) {
         const name = (p || "").trim();
-        if (name) platformCounts.set(name, (platformCounts.get(name) || 0) + 1);
+        if (name && isPlatform(name)) {
+          platformCounts.set(name, (platformCounts.get(name) || 0) + 1);
+        }
       }
 
       const methods = Array.isArray(row.payment_methods) ? row.payment_methods : [];
       for (const m of methods) {
-        const name = (m || "").trim();
-        if (name && name !== "No Money Sent") {
-          paymentMethodCounts.set(name, (paymentMethodCounts.get(name) || 0) + 1);
+        const raw = (m || "").trim();
+        if (raw && raw !== "No Money Sent") {
+          const normalized = normalizePayment(raw);
+          paymentMethodCounts.set(normalized, (paymentMethodCounts.get(normalized) || 0) + 1);
         }
       }
 

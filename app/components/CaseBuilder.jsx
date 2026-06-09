@@ -395,10 +395,22 @@ export default function CaseBuilder() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-                Building your report
+                {phase === PHASE.STORY || phase === PHASE.EXTRACTING
+                  ? "Step 1 of 3 — Your Story"
+                  : phase === PHASE.CONFIRM_EXTRACTION ||
+                    phase === PHASE.SCAM_TYPE ||
+                    phase === PHASE.PLATFORMS ||
+                    phase === PHASE.MONEY_SENT ||
+                    phase === PHASE.PAYMENT_DETAILS ||
+                    phase === PHASE.TIMELINE ||
+                    phase === PHASE.SCAMMER_INFO
+                  ? "Step 2 of 3 — Details"
+                  : phase === PHASE.EVIDENCE || phase === PHASE.REVIEW
+                  ? "Step 3 of 3 — Review & Submit"
+                  : "Building your report"}
               </span>
               <span className="text-xs text-slate-400">
-                ~3 min
+                {progress}% complete
               </span>
             </div>
             <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden">

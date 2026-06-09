@@ -1,9 +1,10 @@
 import XmlSidebar from "../components/XmlSidebar";
 
 export const metadata = {
-  title: "Trust & Security — ScamComplaints",
+  title: "Trust & Security",
   description:
     "How ScamComplaints.org handles your data, what we show publicly, and how verified partners can request access.",
+  alternates: { canonical: "/trust" },
 };
 
 function IconShield() {
