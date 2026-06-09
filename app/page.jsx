@@ -2,18 +2,8 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-import { Suspense } from "react";
-import dynamicImport from "next/dynamic";
 import HowItWorks from "./components/HowItWorks";
 import ReportForm from "./components/ReportForm";
-import QuickBatch from "./components/QuickBatch";
-
-const RecentReports = dynamicImport(() => import("./components/RecentReports"), {
-  ssr: false,
-  loading: () => (
-    <div className="text-slate-500 text-sm">Loading stream…</div>
-  ),
-});
 
 export default function HomePage() {
   return (
@@ -91,7 +81,7 @@ export default function HomePage() {
         {/* How It Works */}
         <HowItWorks />
 
-        {/* Quick Gift Card Report Form */}
+        {/* Quick Report Form */}
         <section id="report-form" className="mt-16">
           <h2 className="text-2xl font-bold text-slate-900">Quick Report</h2>
           <p className="mt-2 text-slate-600">
@@ -103,34 +93,6 @@ export default function HomePage() {
           </p>
           <div className="mt-6">
             <ReportForm />
-          </div>
-        </section>
-
-        {/* Batch Upload */}
-        <section className="mt-16">
-          <h2 className="text-2xl font-bold text-slate-900">Batch Upload</h2>
-          <p className="mt-2 text-slate-600">
-            Have multiple cards to report? Paste them all at once.
-          </p>
-          <div className="mt-6">
-            <QuickBatch />
-          </div>
-        </section>
-
-        {/* Recent Reports */}
-        <section id="reports" className="mt-16">
-          <h2 className="text-2xl font-bold text-slate-900">Recent Reports</h2>
-          <p className="mt-2 text-slate-600">
-            Latest scam reports from the community. Card numbers are masked for safety.
-          </p>
-          <div className="mt-6">
-            <Suspense
-              fallback={
-                <div className="text-slate-500 text-sm">Loading stream…</div>
-              }
-            >
-              <RecentReports />
-            </Suspense>
           </div>
         </section>
       </div>

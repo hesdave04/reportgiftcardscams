@@ -6,6 +6,56 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const runtime = "nodejs";
 
+/* ── Normalise snake_case → human labels ── */
+const SCAM_TYPE_NORM = {
+  romance_scam: "Romance Scam",
+  crypto_scam: "Crypto / Investment Scam",
+  tech_support: "Tech Support Scam",
+  phishing: "Banking / Phishing Scam",
+  impersonation: "Impersonation Scam",
+  employment_scam: "Employment Scam",
+  shopping_scam: "Online Shopping Scam",
+  government_scam: "Government Impersonation",
+  lottery_scam: "Lottery / Prize Scam",
+  other: "Other",
+};
+
+const PLATFORM_NORM = {
+  facebook: "Facebook",
+  instagram: "Instagram",
+  whatsapp: "WhatsApp",
+  telegram: "Telegram",
+  tinder: "Tinder",
+  phone_call: "Phone Call",
+  text_sms: "Text / SMS",
+  email: "Email",
+  twitter: "Twitter / X",
+  linkedin: "LinkedIn",
+  dating_app: "Dating App",
+  snapchat: "Snapchat",
+};
+
+const PAYMENT_NORM = {
+  gift_card: "Gift Card",
+  bank_transfer: "Bank / Wire Transfer",
+  wire_transfer: "Bank / Wire Transfer",
+  cryptocurrency: "Cryptocurrency",
+  crypto_btc: "Cryptocurrency",
+  cash_app: "Cash App",
+  cashapp: "Cash App",
+  venmo: "Venmo",
+  paypal: "PayPal",
+  zelle: "Zelle",
+  cash: "Cash",
+  check: "Check",
+};
+
+function normalize(raw, normMap) {
+  if (!raw) return raw;
+  const key = raw.trim().toLowerCase();
+  return normMap[key] || raw.trim();
+}
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -59,20 +109,20 @@ export async function GET(request) {
     for (const row of intakeResult.data || []) {
       totalReports++;
 
-      const scamType = (row.scam_type || "").trim();
+      const scamType = normalize(row.scam_type || "", SCAM_TYPE_NORM);
       if (scamType) {
         scamTypeCounts.set(scamType, (scamTypeCounts.get(scamType) || 0) + 1);
       }
 
       const platforms = Array.isArray(row.platforms) ? row.platforms : [];
       for (const p of platforms) {
-        const name = (p || "").trim();
+        const name = normalize(p, PLATFORM_NORM);
         if (name) platformCounts.set(name, (platformCounts.get(name) || 0) + 1);
       }
 
       const methods = Array.isArray(row.payment_methods) ? row.payment_methods : [];
       for (const m of methods) {
-        const name = (m || "").trim();
+        const name = normalize(m, PAYMENT_NORM);
         if (name && name !== "No Money Sent") {
           paymentMethodCounts.set(name, (paymentMethodCounts.get(name) || 0) + 1);
         }
