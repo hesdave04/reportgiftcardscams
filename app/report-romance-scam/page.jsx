@@ -16,6 +16,52 @@ export const metadata = {
 export default function Page() {
   return (
     <>
+
+      {/* Schema Markup */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: `{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://scamcomplaints.org/report-romance-scam/#webpage",
+      "url": "https://scamcomplaints.org/report-romance-scam",
+      "name": "Report a Romance Scam | ScamComplaints",
+      "isPartOf": {
+        "@id": "https://scamcomplaints.org/#website"
+      },
+      "breadcrumb": {
+        "@id": "https://scamcomplaints.org/report-romance-scam/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://scamcomplaints.org/report-romance-scam/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://scamcomplaints.org"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Scam Types",
+          "item": "https://scamcomplaints.org/scams"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Report Romance Scam",
+          "item": "https://scamcomplaints.org/report-romance-scam"
+        }
+      ]
+    }
+  ]
+}` }}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="absolute inset-0 opacity-30">
@@ -235,6 +281,35 @@ export default function Page() {
               </li>
             </ul>
           </div>
+        </div>
+      </section>
+
+      {/* Related scam types */}
+      <section className="border-t border-slate-100 bg-white">
+        <div className="mx-auto max-w-4xl px-4 py-10">
+          <h2 className="text-lg font-bold text-slate-900">Related scam types</h2>
+          <p className="mt-1 text-sm text-slate-500">Scammers often combine tactics. If this looks familiar, check these too:</p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <a href="/report-sextortion-scam" className="group flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm">
+                <span className="text-sm font-medium text-slate-900 group-hover:text-red-600">Report Sextortion Scam</span>
+                <span className="ml-auto text-slate-400 group-hover:text-red-500">&rarr;</span>
+              </a>
+              <a href="/report-military-scam" className="group flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm">
+                <span className="text-sm font-medium text-slate-900 group-hover:text-red-600">Report Military Scam</span>
+                <span className="ml-auto text-slate-400 group-hover:text-red-500">&rarr;</span>
+              </a>
+              <a href="/report-sugar-daddy-scam" className="group flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm">
+                <span className="text-sm font-medium text-slate-900 group-hover:text-red-600">Report Sugar Daddy Scam</span>
+                <span className="ml-auto text-slate-400 group-hover:text-red-500">&rarr;</span>
+              </a>
+              <a href="/report-impersonation-scam" className="group flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm">
+                <span className="text-sm font-medium text-slate-900 group-hover:text-red-600">Report Impersonation Scam</span>
+                <span className="ml-auto text-slate-400 group-hover:text-red-500">&rarr;</span>
+              </a>
+          </div>
+          <p className="mt-5 text-center text-sm text-slate-500">
+            <a href="/scams" className="font-medium text-red-600 hover:text-red-700 underline decoration-red-200 underline-offset-2">View all scam types &rarr;</a>
+          </p>
         </div>
       </section>
     </>

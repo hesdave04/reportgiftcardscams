@@ -21,6 +21,52 @@ export const metadata = {
 export default function Page() {
   return (
     <>
+
+      {/* Schema Markup */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: `{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://scamcomplaints.org/report-crypto-wallet/#webpage",
+      "url": "https://scamcomplaints.org/report-crypto-wallet",
+      "name": "Report a Crypto Wallet Scam | ScamComplaints",
+      "isPartOf": {
+        "@id": "https://scamcomplaints.org/#website"
+      },
+      "breadcrumb": {
+        "@id": "https://scamcomplaints.org/report-crypto-wallet/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://scamcomplaints.org/report-crypto-wallet/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://scamcomplaints.org"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Scam Types",
+          "item": "https://scamcomplaints.org/scams"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Report Crypto Wallet Scam",
+          "item": "https://scamcomplaints.org/report-crypto-wallet"
+        }
+      ]
+    }
+  ]
+}` }}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="absolute inset-0 opacity-30">
@@ -169,7 +215,7 @@ export default function Page() {
             </p>
 
             <h3 className="pt-2 text-lg font-semibold text-slate-900">
-              What makes crypto scams so effective
+              What makes <a href="/report-crypto-scam" className="font-medium text-red-600 underline decoration-red-200 underline-offset-2 hover:text-red-700">crypto scams</a> so effective
             </h3>
             <p>
               The most common crypto fraud right now isn't some sophisticated
@@ -254,6 +300,31 @@ export default function Page() {
               </li>
             </ul>
           </div>
+        </div>
+      </section>
+
+      {/* Related scam types */}
+      <section className="border-t border-slate-100 bg-white">
+        <div className="mx-auto max-w-4xl px-4 py-10">
+          <h2 className="text-lg font-bold text-slate-900">Related scam types</h2>
+          <p className="mt-1 text-sm text-slate-500">Scammers often combine tactics. If this looks familiar, check these too:</p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <a href="/report-crypto-scam" className="group flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm">
+                <span className="text-sm font-medium text-slate-900 group-hover:text-red-600">Report Crypto Scam</span>
+                <span className="ml-auto text-slate-400 group-hover:text-red-500">&rarr;</span>
+              </a>
+              <a href="/report-investment-scam" className="group flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm">
+                <span className="text-sm font-medium text-slate-900 group-hover:text-red-600">Report Investment Scam</span>
+                <span className="ml-auto text-slate-400 group-hover:text-red-500">&rarr;</span>
+              </a>
+              <a href="/report-phishing-scam" className="group flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm">
+                <span className="text-sm font-medium text-slate-900 group-hover:text-red-600">Report Phishing Scam</span>
+                <span className="ml-auto text-slate-400 group-hover:text-red-500">&rarr;</span>
+              </a>
+          </div>
+          <p className="mt-5 text-center text-sm text-slate-500">
+            <a href="/scams" className="font-medium text-red-600 hover:text-red-700 underline decoration-red-200 underline-offset-2">View all scam types &rarr;</a>
+          </p>
         </div>
       </section>
     </>

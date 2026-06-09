@@ -344,6 +344,31 @@ function ScamCard({ s }) {
 export default function ScamsPage() {
   return (
     <>
+      {/* Schema Markup */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: `{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": "https://scamcomplaints.org/scams/#webpage",
+      "url": "https://scamcomplaints.org/scams",
+      "name": "Types of Scams — Complete Guide to Online Fraud",
+      "description": "Comprehensive guide to every major type of online scam. Learn how they work, spot the red flags, and report them.",
+      "isPartOf": {"@id": "https://scamcomplaints.org/#website"}
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://scamcomplaints.org/scams/#breadcrumb",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://scamcomplaints.org"},
+        {"@type": "ListItem", "position": 2, "name": "Scam Types", "item": "https://scamcomplaints.org/scams"}
+      ]
+    }
+  ]
+}` }}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="absolute inset-0 opacity-20">

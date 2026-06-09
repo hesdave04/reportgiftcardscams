@@ -28,6 +28,8 @@ export default function Nav() {
 
   const moreLinks = [
     { href: "/scam-websites", label: "Scam Websites List" },
+    { href: "/how-to-identify-a-scam", label: "How to Identify a Scam" },
+    { href: "/what-to-do-if-scammed", label: "What to Do If Scammed" },
     { href: "/trust", label: "Trust & Security" },
     { href: "/xml", label: "Data Access" },
     { href: "/api-docs", label: "Partner API" },

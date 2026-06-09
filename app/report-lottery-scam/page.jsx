@@ -16,6 +16,52 @@ export const metadata = {
 export default function Page() {
   return (
     <>
+
+      {/* Schema Markup */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: `{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://scamcomplaints.org/report-lottery-scam/#webpage",
+      "url": "https://scamcomplaints.org/report-lottery-scam",
+      "name": "Report a Lottery Scam | ScamComplaints",
+      "isPartOf": {
+        "@id": "https://scamcomplaints.org/#website"
+      },
+      "breadcrumb": {
+        "@id": "https://scamcomplaints.org/report-lottery-scam/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://scamcomplaints.org/report-lottery-scam/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://scamcomplaints.org"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Scam Types",
+          "item": "https://scamcomplaints.org/scams"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Report Lottery Scam",
+          "item": "https://scamcomplaints.org/report-lottery-scam"
+        }
+      ]
+    }
+  ]
+}` }}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="absolute inset-0 opacity-30">
@@ -198,10 +244,35 @@ export default function Page() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-0.5 text-yellow-500">→</span>
-                <span><strong>Your state Attorney General</strong> — many states have elder fraud units that investigate prize scams</span>
+                <span><strong>Your state Attorney General</strong> — many states have <a href="/report-elder-fraud" className="font-medium text-red-600 underline decoration-red-200 underline-offset-2 hover:text-red-700">elder fraud</a> units that investigate prize scams</span>
               </li>
             </ul>
           </div>
+        </div>
+      </section>
+
+      {/* Related scam types */}
+      <section className="border-t border-slate-100 bg-white">
+        <div className="mx-auto max-w-4xl px-4 py-10">
+          <h2 className="text-lg font-bold text-slate-900">Related scam types</h2>
+          <p className="mt-1 text-sm text-slate-500">Scammers often combine tactics. If this looks familiar, check these too:</p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <a href="/report-advance-fee-scam" className="group flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm">
+                <span className="text-sm font-medium text-slate-900 group-hover:text-red-600">Report Advance Fee Scam</span>
+                <span className="ml-auto text-slate-400 group-hover:text-red-500">&rarr;</span>
+              </a>
+              <a href="/report-gift-card-scam" className="group flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm">
+                <span className="text-sm font-medium text-slate-900 group-hover:text-red-600">Report Gift Card Scam</span>
+                <span className="ml-auto text-slate-400 group-hover:text-red-500">&rarr;</span>
+              </a>
+              <a href="/report-elder-fraud" className="group flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm">
+                <span className="text-sm font-medium text-slate-900 group-hover:text-red-600">Report Elder Fraud</span>
+                <span className="ml-auto text-slate-400 group-hover:text-red-500">&rarr;</span>
+              </a>
+          </div>
+          <p className="mt-5 text-center text-sm text-slate-500">
+            <a href="/scams" className="font-medium text-red-600 hover:text-red-700 underline decoration-red-200 underline-offset-2">View all scam types &rarr;</a>
+          </p>
         </div>
       </section>
     </>

@@ -22,6 +22,8 @@ export default function sitemap() {
   const pillar = [
     { path: "/scams", priority: 0.9, changeFrequency: "weekly" },
     { path: "/scam-websites", priority: 0.8, changeFrequency: "daily" },
+    { path: "/how-to-identify-a-scam", priority: 0.8, changeFrequency: "monthly" },
+    { path: "/what-to-do-if-scammed", priority: 0.8, changeFrequency: "monthly" },
   ];
 
   // All scam type report pages
