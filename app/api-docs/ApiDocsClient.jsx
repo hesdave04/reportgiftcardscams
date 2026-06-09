@@ -328,13 +328,13 @@ export default function ApiDocsClient() {
                   <td className="py-2 pr-4 font-medium">📊 Basic</td>
                   <td className="py-2 pr-4">100</td>
                   <td className="py-2 pr-4">5,000</td>
-                  <td className="py-2 text-gray-400">Coming soon</td>
+                  <td className="py-2"><a href="mailto:api@socialcatfish.com" className="text-red-600 hover:underline font-medium">Contact us</a></td>
                 </tr>
                 <tr>
                   <td className="py-2 pr-4 font-medium">⚡ Pro</td>
                   <td className="py-2 pr-4">500</td>
                   <td className="py-2 pr-4">50,000</td>
-                  <td className="py-2 text-gray-400">Coming soon</td>
+                  <td className="py-2"><a href="mailto:api@socialcatfish.com" className="text-red-600 hover:underline font-medium">Contact us</a></td>
                 </tr>
               </tbody>
             </table>

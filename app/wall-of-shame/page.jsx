@@ -119,13 +119,15 @@ export default function WallOfShamePage() {
         />
 
         {/* Payment Methods */}
-        <RankingCard
-          title="Most Exploited Payment Methods"
-          icon="💸"
-          items={data?.paymentMethods}
-          loading={loading}
-          color="amber"
-        />
+        {(loading || data?.paymentMethods?.length > 0) && (
+          <RankingCard
+            title="Most Exploited Payment Methods"
+            icon="💸"
+            items={data?.paymentMethods}
+            loading={loading}
+            color="amber"
+          />
+        )}
 
         {/* Gift Card Brands */}
         {data?.brands?.length > 0 && (
