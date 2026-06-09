@@ -212,8 +212,10 @@ export async function GET(request) {
     const SOURCE_LABELS = {
       scf_verified: "SCF Verified",
       user_submitted: "User Submitted",
+      submitted: "User Submitted",
       "3p_chainabuse": "ChainAbuse",
       "3p_cryptolegal": "CryptoLegal",
+      "3p_giftcard": "Gift Card Reports",
       "bulk-import": "Imported",
     };
 
