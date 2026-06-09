@@ -59,6 +59,7 @@ export async function POST(request) {
       suspect_username: body.suspectUsername || null,
       suspect_wallet: body.suspectWallet || null,
       suspect_website: body.suspectWebsite || null,
+      state: body.state || null,
       full_payload: body,
       status: "new",
     };

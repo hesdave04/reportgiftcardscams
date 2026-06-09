@@ -105,7 +105,7 @@ export async function GET(request) {
         .limit(50000),
       supa
         .from("case_intakes")
-        .select("scam_type, platforms, payment_methods, amount, created_at")
+        .select("scam_type, platforms, payment_methods, amount, state, created_at")
         .gte("created_at", cutoffISO)
         .limit(50000),
     ]);
@@ -134,6 +134,15 @@ export async function GET(request) {
       if (brand && brand.toLowerCase() !== "unknown" && brand.toLowerCase() !== "other") {
         brandCounts.set(brand, (brandCounts.get(brand) || 0) + 1);
         if (row.amount > 0) brandAmounts.set(brand, (brandAmounts.get(brand) || 0) + Number(row.amount));
+      }
+    }
+
+    // ── Also add state data from case_intakes ──
+    for (const row of intakeResult.data || []) {
+      const st = normalizeState(row.state);
+      if (st) {
+        stateCounts.set(st, (stateCounts.get(st) || 0) + 1);
+        if (row.amount > 0) stateAmounts.set(st, (stateAmounts.get(st) || 0) + Number(row.amount));
       }
     }
 
