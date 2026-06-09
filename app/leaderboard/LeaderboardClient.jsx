@@ -15,7 +15,7 @@ export default function LeaderboardClient() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
-  const [activeTab, setActiveTab] = useState("states");
+  const [activeTab, setActiveTab] = useState("giftCardBrands");
 
   useEffect(() => {
     let abort = false;

@@ -107,6 +107,24 @@ export default function AboutPage() {
         </p>
       </section>
 
+      {/* Video */}
+      <section className="mt-12">
+        <h2 className="text-xl font-semibold text-slate-900">Watch: Catfished</h2>
+        <p className="mt-3 text-slate-600 leading-relaxed">
+          Our YouTube series shares real stories of scam victims to raise
+          awareness and help others recognize the warning signs.
+        </p>
+        <div className="mt-4 aspect-video w-full overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+          <iframe
+            className="h-full w-full"
+            src="https://www.youtube.com/embed/videoseries?list=PLKNaz0b73jzEMiCa-aAi5fXcV-qcDcnPS"
+            title="Catfished — Real Scam Stories"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      </section>
+
       {/* Report CTA */}
       <section className="mt-12 rounded-2xl bg-slate-50 border border-slate-200 p-8 text-center">
         <h2 className="text-xl font-semibold text-slate-900">

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
-import { verifyRecaptchaV2 } from '@/lib/recaptcha';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 import crypto from 'crypto';
 import rateLimit from '@/utils/rate-limit';
 
@@ -53,22 +53,15 @@ export async function POST(request) {
     const body = await request.json();
     const { reportType, emailProof, recaptchaToken } = body;
 
-    // Verify reCAPTCHA
+    // Verify reCAPTCHA (non-blocking — still saves report if captcha fails)
+    let captchaStatus = "skipped";
     const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-    if (secretKey) {
-      if (!recaptchaToken) {
-        return NextResponse.json(
-          { error: 'reCAPTCHA verification required' },
-          { status: 400 }
-        );
-      }
-      const { ok: captchaOk } = await verifyRecaptchaV2(recaptchaToken, ip);
-      if (!captchaOk) {
-        return NextResponse.json(
-          { error: 'reCAPTCHA verification failed' },
-          { status: 403 }
-        );
-      }
+    if (secretKey && recaptchaToken) {
+      const result = await verifyRecaptcha(recaptchaToken, ip, { scoreThreshold: 0.3 });
+      captchaStatus = result.ok ? "passed" : `failed:${(result.errorCodes || []).join(",")}`;
+      if (result.score !== undefined) captchaStatus += `:score=${result.score}`;
+    } else if (secretKey) {
+      captchaStatus = "no-token";
     }
 
     // Verify email proof
@@ -113,6 +106,7 @@ export async function POST(request) {
         reporter_ip: ip,
         submitted_at: new Date().toISOString(),
         submission_type: 'quick_report',
+        _captchaStatus: captchaStatus,
       },
     };
 

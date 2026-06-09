@@ -170,6 +170,7 @@ export default function CaseBuilder() {
   const [currentPhase, setCurrentPhase] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [intakeId, setIntakeId] = useState(null);
   const [showResume, setShowResume] = useState(false);
 
@@ -388,10 +389,13 @@ export default function CaseBuilder() {
 
   async function handleSubmit() {
     setSubmitting(true);
+    setSubmitError("");
     try {
       let recaptchaToken = null;
       if (executeRecaptcha) {
-        try { recaptchaToken = await executeRecaptcha("submit_case"); } catch {}
+        try { recaptchaToken = await executeRecaptcha("submit_case"); } catch (e) {
+          console.warn("reCAPTCHA token generation failed:", e);
+        }
       }
       const res = await fetch("/api/intake", {
         method: "POST",
@@ -404,7 +408,7 @@ export default function CaseBuilder() {
       setSubmitted(true);
       localStorage.removeItem(STORAGE_KEY);
     } catch (err) {
-      alert(err.message || "Failed to submit. Please try again.");
+      setSubmitError(err.message || "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -821,6 +825,17 @@ export default function CaseBuilder() {
           </div>
         )}
       </div>
+
+      {/* ─── Submit error ─── */}
+      {submitError && (
+        <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-start gap-2">
+          <span className="mt-0.5 shrink-0">⚠️</span>
+          <div>
+            <p className="font-medium">{submitError}</p>
+            <p className="mt-1 text-red-600">Please try again. If this keeps happening, your report has still been saved.</p>
+          </div>
+        </div>
+      )}
 
       {/* ─── Navigation ─── */}
       {currentPhase > 0 && (

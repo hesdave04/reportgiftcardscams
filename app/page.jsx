@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import HowItWorks from "./components/HowItWorks";
+import LiveStats from "./components/LiveStats";
 import ReportForm from "./components/ReportForm";
 
 export default function HomePage() {
@@ -56,23 +57,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
-            {[
-              { label: "Reports Filed", value: "253K+" },
-              { label: "Average Filing Time", value: "~3 min" },
-              { label: "Free & Confidential", value: "100%" },
-              { label: "Shared with Law Enforcement", value: "🔒" },
-            ].map((s) => (
-              <div
-                key={s.label}
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur"
-              >
-                <div className="text-2xl font-bold text-white">{s.value}</div>
-                <div className="mt-0.5 text-xs text-slate-400">{s.label}</div>
-              </div>
-            ))}
-          </div>
+          {/* Stats — pulls live count from /api/v1/stats */}
+          <LiveStats />
         </div>
       </section>
 
