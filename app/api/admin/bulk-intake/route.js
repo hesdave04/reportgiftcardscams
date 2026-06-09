@@ -75,7 +75,8 @@ export async function POST(request) {
         state: truncate(x.state, 10),
         evidence_urls: ensureArray(x.evidence_urls || x.evidenceUrls),
         full_payload: x,
-        status: 'imported',
+        status: x.status || 'imported',
+        source: x.source || source || 'bulk-import',
       };
       return row;
     });
