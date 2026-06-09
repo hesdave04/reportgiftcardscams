@@ -233,6 +233,128 @@ export default function LeaderboardClient() {
         )}
       </div>
 
+      {/* ── Data Intelligence section ── */}
+      {!loading && !err && data?.dataTypes?.length > 0 && (
+        <div className="mt-10">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-sm">
+              📊 Data Intelligence
+            </span>
+          </div>
+          <h2 className="mt-3 text-xl font-bold text-slate-900">
+            Scammer Data Collected
+          </h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Identifying information extracted from reports — broken down by data type and source.
+          </p>
+
+          {/* Data type cards */}
+          <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {data.dataTypes.map((dt) => (
+              <div
+                key={dt.key}
+                className="rounded-xl border border-slate-200 bg-white p-4 text-center shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="text-2xl">{dt.icon}</div>
+                <div className="mt-2 text-2xl font-extrabold text-slate-900 tabular-nums">
+                  {dt.total.toLocaleString()}
+                </div>
+                <div className="mt-1 text-xs font-medium text-slate-500 leading-tight">
+                  {dt.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Source breakdown table */}
+          {data.sources?.length > 0 && (
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="border-b border-slate-100 bg-slate-50 px-4 py-3">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  By Source
+                </h3>
+              </div>
+
+              {/* Table header */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      <th className="px-4 py-3 text-left">Source</th>
+                      <th className="px-3 py-3 text-right">Reports</th>
+                      {data.dataTypes.map((dt) => (
+                        <th key={dt.key} className="px-3 py-3 text-right whitespace-nowrap">
+                          <span className="hidden sm:inline">{dt.icon} </span>
+                          {dt.label.split(" ")[0]}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.sources.map((src, idx) => (
+                      <tr
+                        key={src.source}
+                        className={`hover:bg-slate-50 transition-colors ${
+                          idx < data.sources.length - 1 ? "border-b border-slate-50" : ""
+                        }`}
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`inline-block h-2 w-2 rounded-full ${
+                                src.source === "scf_verified"
+                                  ? "bg-green-500"
+                                  : src.source === "user_submitted"
+                                  ? "bg-blue-500"
+                                  : "bg-amber-500"
+                              }`}
+                            />
+                            <span className="font-medium text-slate-700">
+                              {src.label}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-3 py-3 text-right font-semibold text-slate-900 tabular-nums">
+                          {src.reports.toLocaleString()}
+                        </td>
+                        {data.dataTypes.map((dt) => {
+                          const val = src[dt.key] || 0;
+                          return (
+                            <td
+                              key={dt.key}
+                              className={`px-3 py-3 text-right tabular-nums ${
+                                val > 0 ? "font-medium text-slate-700" : "text-slate-300"
+                              }`}
+                            >
+                              {val > 0 ? val.toLocaleString() : "—"}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+
+                  {/* Totals row */}
+                  <tfoot>
+                    <tr className="border-t-2 border-slate-200 bg-slate-50 font-bold">
+                      <td className="px-4 py-3 text-slate-900">Total</td>
+                      <td className="px-3 py-3 text-right text-slate-900 tabular-nums">
+                        {data.sources.reduce((s, r) => s + r.reports, 0).toLocaleString()}
+                      </td>
+                      {data.dataTypes.map((dt) => (
+                        <td key={dt.key} className="px-3 py-3 text-right text-slate-900 tabular-nums">
+                          {dt.total.toLocaleString()}
+                        </td>
+                      ))}
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Methodology note */}
       <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 p-4">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -244,6 +366,9 @@ export default function LeaderboardClient() {
           Financial institution data includes banks, payment apps (Venmo, PayPal, Cash App, Zelle),
           and cryptocurrency platforms mentioned in victim reports.
           Dollar amounts represent self-reported losses and may not reflect total fraud impact.
+          Data intelligence metrics count individual identifying data points (emails, phone numbers, etc.)
+          extracted from each report. Sources include SCF-verified investigations, user submissions,
+          and third-party databases.
         </p>
       </div>
 
