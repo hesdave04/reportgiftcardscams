@@ -19,6 +19,7 @@ export default function Nav() {
   }, []);
 
   const mainLinks = [
+    { href: "/check-website", label: "Website Checker" },
     { href: "/wall-of-shame", label: "Wall of Shame" },
     { href: "/leaderboard", label: "Leaderboard" },
     { href: "/search", label: "Search" },
