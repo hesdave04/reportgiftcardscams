@@ -942,8 +942,9 @@ export async function GET(request) {
       cached: false,
     };
 
-    // Cache result in Supabase
+    // Persist results in Supabase (non-fatal if tables don't exist yet)
     if (supa) {
+      // a) Cache the check result in website_checks
       try {
         await supa.from("website_checks").upsert(
           {
@@ -956,7 +957,30 @@ export async function GET(request) {
           { onConflict: "domain" }
         );
       } catch {
-        // Caching failure is non-fatal
+        // Caching failure is non-fatal — table may not exist yet
+      }
+
+      // b) Auto-add domain to case_intakes so it appears in the
+      //    scam websites directory and is searchable site-wide.
+      //    Only insert if this exact domain isn't already recorded.
+      try {
+        const { count } = await supa
+          .from("case_intakes")
+          .select("id", { count: "exact", head: true })
+          .ilike("suspect_website", `%${domain}%`);
+
+        if (!count || count === 0) {
+          await supa.from("case_intakes").insert({
+            suspect_website: domain,
+            source: "website-checker",
+            status: "checked",
+            scam_type: normalizedScore <= 40 ? "suspicious_website" : null,
+            story: `Automated website trust check — score ${normalizedScore}/100 (${risk.label}). ${allFlags.length} flag(s): ${allFlags.join("; ") || "none"}.`,
+            full_payload: response,
+          });
+        }
+      } catch {
+        // Insert failure is non-fatal
       }
     }
 
