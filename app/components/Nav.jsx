@@ -34,6 +34,7 @@ export default function Nav() {
     { href: "/check-website", label: "Website Checker" },
     { href: "/search", label: "Search Scammers" },
     { href: "/scam-websites", label: "Scam Websites List" },
+    { href: "/browser-extension", label: "Browser Extension" },
   ];
 
   const moreLinks = [

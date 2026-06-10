@@ -16,6 +16,8 @@ export default function sitemap() {
     { path: "/privacy", priority: 0.3, changeFrequency: "yearly" },
     { path: "/xml", priority: 0.3, changeFrequency: "monthly" },
     { path: "/api-docs", priority: 0.6, changeFrequency: "monthly" },
+    { path: "/check-website", priority: 0.8, changeFrequency: "daily" },
+    { path: "/browser-extension", priority: 0.7, changeFrequency: "monthly" },
   ];
 
   // Pillar pages
