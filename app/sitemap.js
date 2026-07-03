@@ -18,6 +18,7 @@ export default function sitemap() {
     { path: "/api-docs", priority: 0.6, changeFrequency: "monthly" },
     { path: "/check-website", priority: 0.8, changeFrequency: "daily" },
     { path: "/browser-extension", priority: 0.7, changeFrequency: "monthly" },
+    { path: "/state-of-scams-2026", priority: 0.9, changeFrequency: "yearly" },
   ];
 
   // Pillar pages
