@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { stateToSlug } from "@/lib/scam-data";
+
 export const metadata = {
   title: "State of Scams 2026: America's Top 25 Scams — Every State & City Ranked",
   description:
@@ -542,7 +545,9 @@ export default function StateOfScams2026() {
             {STATES_TOTAL.map((s) => (
               <tr key={s.rank} className="even:bg-slate-50 hover:bg-slate-100">
                 <td className="px-2 py-2 text-center font-bold text-red-600">{s.rank}</td>
-                <td className="px-3 py-2 font-medium text-slate-800">{s.st}</td>
+                <td className="px-3 py-2 font-medium text-slate-800">
+                  <Link href={`/state-of-scams-2026-${stateToSlug(s.st)}`} className="underline decoration-slate-300 underline-offset-2 hover:text-red-600">{s.st}</Link>
+                </td>
                 <td className="px-3 py-2 text-right font-semibold text-slate-900">{fmt(s.y25)}</td>
                 <td className="hidden px-3 py-2 text-right text-slate-600 sm:table-cell">{fmt(s.y24)}</td>
                 <td className={`px-3 py-2 text-right font-semibold ${pctColor(s.y25, s.y24)}`}>{pct(s.y25, s.y24)}</td>
@@ -579,7 +584,9 @@ export default function StateOfScams2026() {
             {STATES_PERCAP.map((s) => (
               <tr key={s.rank} className="even:bg-slate-50 hover:bg-slate-100">
                 <td className="px-2 py-2 text-center font-bold text-red-600">{s.rank}</td>
-                <td className="px-3 py-2 font-medium text-slate-800">{s.st}</td>
+                <td className="px-3 py-2 font-medium text-slate-800">
+                  <Link href={`/state-of-scams-2026-${stateToSlug(s.st)}`} className="underline decoration-slate-300 underline-offset-2 hover:text-red-600">{s.st}</Link>
+                </td>
                 <td className="px-3 py-2 text-right font-semibold text-slate-900">{fmt(s.y25)}</td>
                 <td className="hidden px-3 py-2 text-right text-slate-600 sm:table-cell">{fmt(s.y24)}</td>
                 <td className={`px-3 py-2 text-right font-semibold ${pctColor(s.y25, s.y24)}`}>{pct(s.y25, s.y24)}</td>
