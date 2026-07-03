@@ -178,7 +178,6 @@ export default function Page() {
                 <p className="text-xs text-slate-500">of marketplace scams involve non-delivery</p>
               </div>
                 </div>
-                </div>
               </div>
             </div>
           </aside>

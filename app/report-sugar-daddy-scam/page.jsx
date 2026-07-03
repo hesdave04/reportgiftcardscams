@@ -164,7 +164,6 @@ export default function Page() {
                 <p className="text-xs text-slate-500">most common platform for initial contact</p>
               </div>
                 </div>
-                </div>
               </div>
             </div>
           </aside>

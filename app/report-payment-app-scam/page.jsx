@@ -160,7 +160,6 @@ export default function Page() {
                 <p className="text-xs text-slate-500">of payment app fraud is non-recoverable</p>
               </div>
                 </div>
-                </div>
               </div>
             </div>
           </aside>

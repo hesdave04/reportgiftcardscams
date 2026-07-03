@@ -161,7 +161,6 @@ export default function Page() {
                 <p className="text-xs text-slate-500">age group most targeted via social media</p>
               </div>
                 </div>
-                </div>
               </div>
             </div>
           </aside>

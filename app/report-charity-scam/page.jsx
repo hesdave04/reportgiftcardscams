@@ -160,7 +160,6 @@ export default function Page() {
                 <p className="text-xs text-slate-500">most common during holiday & disaster seasons</p>
               </div>
                 </div>
-                </div>
               </div>
             </div>
           </aside>

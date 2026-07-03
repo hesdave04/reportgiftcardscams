@@ -160,7 +160,6 @@ export default function Page() {
                 <p className="text-xs text-slate-500">growing as deepfake technology improves</p>
               </div>
                 </div>
-                </div>
               </div>
             </div>
           </aside>

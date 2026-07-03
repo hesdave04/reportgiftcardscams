@@ -163,7 +163,6 @@ export default function Page() {
                 <p className="text-xs text-slate-500">year-over-year increase in elder losses</p>
               </div>
                 </div>
-                </div>
               </div>
             </div>
           </aside>

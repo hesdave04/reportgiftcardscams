@@ -174,7 +174,6 @@ export default function Page() {
                 <p className="text-xs text-slate-500">most-used gift card brand in scams</p>
               </div>
                 </div>
-                </div>
               </div>
             </div>
           </aside>

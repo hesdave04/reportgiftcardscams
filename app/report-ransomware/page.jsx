@@ -159,7 +159,6 @@ export default function Page() {
                 <p className="text-xs text-slate-500">seventeenth-highest loss category</p>
               </div>
                 </div>
-                </div>
               </div>
             </div>
           </aside>

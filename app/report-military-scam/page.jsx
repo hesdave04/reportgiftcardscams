@@ -164,7 +164,6 @@ export default function Page() {
                 <p className="text-xs text-slate-500">average loss when military persona is used</p>
               </div>
                 </div>
-                </div>
               </div>
             </div>
           </aside>

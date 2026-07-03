@@ -164,7 +164,6 @@ export default function Page() {
                 <p className="text-xs text-slate-500">of puppy ads online may be fraudulent</p>
               </div>
                 </div>
-                </div>
               </div>
             </div>
           </aside>

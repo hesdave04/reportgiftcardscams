@@ -160,7 +160,6 @@ export default function Page() {
                 <p className="text-xs text-slate-500">growth since 2023</p>
               </div>
                 </div>
-                </div>
               </div>
             </div>
           </aside>
