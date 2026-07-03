@@ -163,21 +163,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Employment scam statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$367M</span>
-                <p className="text-xs text-slate-500">lost to job and business opportunity scams in 2023</p>
+                <span className="text-lg font-bold text-slate-900">$363M</span>
+                <p className="text-xs text-slate-500">lost to employment scams in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">5x</span>
-                <p className="text-xs text-slate-500">increase in task scam reports since 2022</p>
+                <span className="text-lg font-bold text-slate-900">+418%</span>
+                <p className="text-xs text-slate-500">growth in losses since 2023</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$2,000</span>
-                <p className="text-xs text-slate-500">median loss per employment scam victim</p>
+                <span className="text-lg font-bold text-slate-900">37%</span>
+                <p className="text-xs text-slate-500">year-over-year increase</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">18-34</span>
-                <p className="text-xs text-slate-500">age group most targeted by fake job scams</p>
+                <span className="text-lg font-bold text-slate-900">#9</span>
+                <p className="text-xs text-slate-500">ninth-highest loss category</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

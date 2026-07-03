@@ -148,21 +148,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$653M</span>
-                <p className="text-xs text-slate-500">lost to confidence fraud/romance scams in 2023 (FBI)</p>
+                <span className="text-lg font-bold text-slate-900">$929M</span>
+                <p className="text-xs text-slate-500">total romance scam losses in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">#1</span>
-                <p className="text-xs text-slate-500">most impersonated profession in romance scams</p>
+                <span className="text-lg font-bold text-slate-900">38%</span>
+                <p className="text-xs text-slate-500">year-over-year increase in romance losses</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$10K+</span>
-                <p className="text-xs text-slate-500">average loss per military romance scam victim</p>
+                <span className="text-lg font-bold text-slate-900">25%</span>
+                <p className="text-xs text-slate-500">of romance scammers claim military identity</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">0</span>
-                <p className="text-xs text-slate-500">legitimate military costs that require a romantic partner to pay</p>
+                <span className="text-lg font-bold text-slate-900">$64K</span>
+                <p className="text-xs text-slate-500">average loss when military persona is used</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

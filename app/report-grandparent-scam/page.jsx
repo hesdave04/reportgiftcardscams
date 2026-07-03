@@ -147,21 +147,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$2,000+</span>
-                <p className="text-xs text-slate-500">average loss per grandparent scam victim</p>
+                <span className="text-lg font-bold text-slate-900">$7.75B</span>
+                <p className="text-xs text-slate-500">total elder fraud losses in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$102M</span>
-                <p className="text-xs text-slate-500">lost to emergency/impersonation phone scams (2023)</p>
+                <span className="text-lg font-bold text-slate-900">201,266</span>
+                <p className="text-xs text-slate-500">elder fraud complaints in 2025</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">71%</span>
-                <p className="text-xs text-slate-500">of victims are over 60 years old</p>
+                <span className="text-lg font-bold text-slate-900">$38,500</span>
+                <p className="text-xs text-slate-500">average loss for victims 60+</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">5 sec</span>
-                <p className="text-xs text-slate-500">of audio needed to clone someone's voice with AI</p>
+                <span className="text-lg font-bold text-slate-900">59%</span>
+                <p className="text-xs text-slate-500">year-over-year increase in elder losses</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

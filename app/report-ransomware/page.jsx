@@ -143,21 +143,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$59M+</span>
-                <p className="text-xs text-slate-500">in ransom payments reported in 2023 (FBI)</p>
+                <span className="text-lg font-bold text-slate-900">$32.3M</span>
+                <p className="text-xs text-slate-500">reported ransomware losses in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">2,825</span>
-                <p className="text-xs text-slate-500">ransomware complaints filed with FBI IC3</p>
+                <span className="text-lg font-bold text-slate-900">159%</span>
+                <p className="text-xs text-slate-500">year-over-year increase from 2024</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">75%</span>
-                <p className="text-xs text-slate-500">of ransomware attacks target small/medium businesses</p>
+                <span className="text-lg font-bold text-slate-900">4,000+</span>
+                <p className="text-xs text-slate-500">ransomware complaints in 2025</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">21 days</span>
-                <p className="text-xs text-slate-500">average downtime after a ransomware attack</p>
+                <span className="text-lg font-bold text-slate-900">#17</span>
+                <p className="text-xs text-slate-500">seventeenth-highest loss category</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

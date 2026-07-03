@@ -144,21 +144,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">#1</span>
-                <p className="text-xs text-slate-500">most reported fraud type to FTC in 2023</p>
+                <span className="text-lg font-bold text-slate-900">$798M</span>
+                <p className="text-xs text-slate-500">lost to impersonation scams in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$2.7B</span>
-                <p className="text-xs text-slate-500">lost to impersonation scams in 2023</p>
+                <span className="text-lg font-bold text-slate-900">97%</span>
+                <p className="text-xs text-slate-500">year-over-year surge in losses</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">854K</span>
-                <p className="text-xs text-slate-500">impersonation scam reports filed (FTC)</p>
+                <span className="text-lg font-bold text-slate-900">#6</span>
+                <p className="text-xs text-slate-500">sixth-highest loss scam category</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">39%</span>
-                <p className="text-xs text-slate-500">of victims were targeted using AI deepfakes</p>
+                <span className="text-lg font-bold text-slate-900">Phone</span>
+                <p className="text-xs text-slate-500">most common contact method for impersonation</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

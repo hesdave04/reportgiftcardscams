@@ -159,21 +159,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Tech support scam statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$924M</span>
-                <p className="text-xs text-slate-500">lost to tech support scams in 2023 (FBI)</p>
+                <span className="text-lg font-bold text-slate-900">$2.13B</span>
+                <p className="text-xs text-slate-500">lost to tech support scams in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">60+</span>
-                <p className="text-xs text-slate-500">age group most frequently targeted</p>
+                <span className="text-lg font-bold text-slate-900">#3</span>
+                <p className="text-xs text-slate-500">third-highest loss category nationwide</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$26K</span>
-                <p className="text-xs text-slate-500">average loss for victims over age 60</p>
+                <span className="text-lg font-bold text-slate-900">46%</span>
+                <p className="text-xs text-slate-500">year-over-year increase in losses</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">3x</span>
-                <p className="text-xs text-slate-500">increase in tech support scams since 2020</p>
+                <span className="text-lg font-bold text-slate-900">+131%</span>
+                <p className="text-xs text-slate-500">growth in losses since 2023</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

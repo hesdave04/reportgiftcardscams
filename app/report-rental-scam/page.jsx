@@ -156,21 +156,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$980</span>
-                <p className="text-xs text-slate-500">median loss per rental scam victim (FTC)</p>
+                <span className="text-lg font-bold text-slate-900">$275M</span>
+                <p className="text-xs text-slate-500">lost to real estate/rental fraud in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">43K+</span>
-                <p className="text-xs text-slate-500">rental fraud reports filed in 2023</p>
+                <span className="text-lg font-bold text-slate-900">59%</span>
+                <p className="text-xs text-slate-500">year-over-year increase</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">5.2M</span>
-                <p className="text-xs text-slate-500">U.S. renters encountered a fake listing in 2023</p>
+                <span className="text-lg font-bold text-slate-900">~$1,500</span>
+                <p className="text-xs text-slate-500">average loss per rental scam victim</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$400M+</span>
-                <p className="text-xs text-slate-500">estimated annual losses to rental fraud</p>
+                <span className="text-lg font-bold text-slate-900">+90%</span>
+                <p className="text-xs text-slate-500">growth since 2023</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

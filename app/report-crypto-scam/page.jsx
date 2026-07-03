@@ -152,21 +152,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$3.96B</span>
-                <p className="text-xs text-slate-500">lost to crypto fraud in 2023 (FBI)</p>
+                <span className="text-lg font-bold text-slate-900">$11.4B</span>
+                <p className="text-xs text-slate-500">lost via cryptocurrency in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">86.7%</span>
-                <p className="text-xs text-slate-500">of investment scam losses involved cryptocurrency</p>
+                <span className="text-lg font-bold text-slate-900">23%</span>
+                <p className="text-xs text-slate-500">year-over-year increase</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$2,000</span>
-                <p className="text-xs text-slate-500">median individual loss (FTC crypto reports)</p>
+                <span className="text-lg font-bold text-slate-900">55%</span>
+                <p className="text-xs text-slate-500">of all IC3 losses involved crypto</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">12x</span>
-                <p className="text-xs text-slate-500">growth in crypto fraud since 2020</p>
+                <span className="text-lg font-bold text-slate-900">+104%</span>
+                <p className="text-xs text-slate-500">growth since 2023</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

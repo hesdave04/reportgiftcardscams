@@ -144,21 +144,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$440M+</span>
-                <p className="text-xs text-slate-500">lost to payment app scams in 2023</p>
+                <span className="text-lg font-bold text-slate-900">$210M+</span>
+                <p className="text-xs text-slate-500">lost via payment apps in 2024 (FTC)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">86%</span>
-                <p className="text-xs text-slate-500">of Zelle fraud victims report the bank refused a refund</p>
+                <span className="text-lg font-bold text-slate-900">Zelle</span>
+                <p className="text-xs text-slate-500">most-reported payment app in fraud complaints</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">#1</span>
-                <p className="text-xs text-slate-500">preferred payment method for marketplace scams</p>
+                <span className="text-lg font-bold text-slate-900">$500</span>
+                <p className="text-xs text-slate-500">median loss per payment app scam</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">10 sec</span>
-                <p className="text-xs text-slate-500">average time for a Zelle transfer to be irreversible</p>
+                <span className="text-lg font-bold text-slate-900">85%</span>
+                <p className="text-xs text-slate-500">of payment app fraud is non-recoverable</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

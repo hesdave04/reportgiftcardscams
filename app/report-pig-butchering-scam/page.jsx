@@ -153,21 +153,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Pig butchering statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$3.96B</span>
-                <p className="text-xs text-slate-500">lost to investment fraud in 2023 (FBI IC3)</p>
-              </div>
-              <div>
-                <span className="text-lg font-bold text-slate-900">$10B+</span>
-                <p className="text-xs text-slate-500">estimated global annual losses</p>
-              </div>
-              <div>
-                <span className="text-lg font-bold text-slate-900">$177K</span>
-                <p className="text-xs text-slate-500">average individual loss (some victims lose $1M+)</p>
+                <span className="text-lg font-bold text-slate-900">$8.65B</span>
+                <p className="text-xs text-slate-500">lost to investment/pig butchering in 2025 (FBI IC3)</p>
               </div>
               <div>
                 <span className="text-lg font-bold text-slate-900">#1</span>
-                <p className="text-xs text-slate-500">costliest fraud type tracked by the FBI</p>
+                <p className="text-xs text-slate-500">highest-loss scam category in America</p>
               </div>
+              <div>
+                <span className="text-lg font-bold text-slate-900">$177K</span>
+                <p className="text-xs text-slate-500">average loss per pig butchering victim</p>
+              </div>
+              <div>
+                <span className="text-lg font-bold text-slate-900">+89%</span>
+                <p className="text-xs text-slate-500">growth in losses since 2023</p>
+              </div>
+                </div>
                 </div>
               </div>
             </div>

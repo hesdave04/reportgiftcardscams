@@ -161,21 +161,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Romance scam statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$1.14B</span>
-                <p className="text-xs text-slate-500">lost to romance scams in 2023 (FTC)</p>
+                <span className="text-lg font-bold text-slate-900">$929M</span>
+                <p className="text-xs text-slate-500">lost to romance scams in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">64,003</span>
-                <p className="text-xs text-slate-500">romance scam reports filed with the FTC</p>
+                <span className="text-lg font-bold text-slate-900">26,000+</span>
+                <p className="text-xs text-slate-500">romance scam complaints filed in 2025</p>
               </div>
               <div>
                 <span className="text-lg font-bold text-slate-900">$2,000</span>
                 <p className="text-xs text-slate-500">median individual loss per victim</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">40%</span>
-                <p className="text-xs text-slate-500">of victims were contacted on social media first</p>
+                <span className="text-lg font-bold text-slate-900">38%</span>
+                <p className="text-xs text-slate-500">year-over-year increase in losses</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>
@@ -189,10 +190,11 @@ export default function Page() {
           <h2 className="text-2xl font-bold text-slate-900">How romance scams work — and why they're so effective</h2>
           <div className="mt-6 space-y-5 text-base leading-relaxed text-slate-700">
             <p>
-              Romance scams are the most financially devastating form of consumer
-              fraud in the United States. The FTC reported over $1.14 billion in
-              losses in 2023 alone, and that number only includes victims who
-              actually filed a report — the real total is almost certainly higher.
+              Romance scams remain one of the most financially devastating forms of
+              consumer fraud in the United States. The FBI's IC3 reported $929 million
+              in losses during 2025 — a 38% jump from the prior year — and those
+              numbers only capture victims who actually filed a report. The true
+              toll is almost certainly north of $1 billion.
               Unlike a phishing email you can spot in seconds, romance scams
               operate on a timeline of weeks or months, building genuine emotional
               attachment before any money changes hands.

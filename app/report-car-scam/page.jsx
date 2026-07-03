@@ -144,21 +144,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$3K–$10K</span>
-                <p className="text-xs text-slate-500">average loss per car scam victim</p>
+                <span className="text-lg font-bold text-slate-900">$503M</span>
+                <p className="text-xs text-slate-500">lost to non-delivery scams in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">39K+</span>
-                <p className="text-xs text-slate-500">auto fraud complaints filed in 2023</p>
+                <span className="text-lg font-bold text-slate-900">$5,000</span>
+                <p className="text-xs text-slate-500">average loss per vehicle purchase scam</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$4.9B</span>
-                <p className="text-xs text-slate-500">lost to auto-related fraud annually</p>
+                <span className="text-lg font-bold text-slate-900">Facebook</span>
+                <p className="text-xs text-slate-500">most common platform for fake car listings</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">450K</span>
-                <p className="text-xs text-slate-500">vehicles per year sold with rolled-back odometers</p>
+                <span className="text-lg font-bold text-slate-900">30%</span>
+                <p className="text-xs text-slate-500">involve fake escrow or shipping services</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

@@ -162,21 +162,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Marketplace scam statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$1B+</span>
-                <p className="text-xs text-slate-500">estimated annual losses on social media marketplace scams</p>
+                <span className="text-lg font-bold text-slate-900">$503M</span>
+                <p className="text-xs text-slate-500">lost to non-delivery/non-payment in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">1 in 6</span>
-                <p className="text-xs text-slate-500">online purchase scams happen on Facebook</p>
+                <span className="text-lg font-bold text-slate-900">800M+</span>
+                <p className="text-xs text-slate-500">monthly Facebook Marketplace users worldwide</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$100</span>
-                <p className="text-xs text-slate-500">median loss per Marketplace scam (many are much higher)</p>
+                <span className="text-lg font-bold text-slate-900">$500</span>
+                <p className="text-xs text-slate-500">average loss per marketplace scam victim</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">Zelle</span>
-                <p className="text-xs text-slate-500">most common payment method demanded by Marketplace scammers</p>
+                <span className="text-lg font-bold text-slate-900">65%</span>
+                <p className="text-xs text-slate-500">of marketplace scams involve non-delivery</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

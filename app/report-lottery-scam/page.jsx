@@ -156,21 +156,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">38%+</span>
-                <p className="text-xs text-slate-500">of all fraud reports are prize/sweepstakes scams</p>
+                <span className="text-lg font-bold text-slate-900">$194M</span>
+                <p className="text-xs text-slate-500">lost to lottery/sweepstakes scams in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$301M</span>
-                <p className="text-xs text-slate-500">lost to prize scams in 2023 (FTC)</p>
+                <span className="text-lg font-bold text-slate-900">90%</span>
+                <p className="text-xs text-slate-500">year-over-year surge in losses</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$813</span>
-                <p className="text-xs text-slate-500">median loss per victim</p>
+                <span className="text-lg font-bold text-slate-900">#13</span>
+                <p className="text-xs text-slate-500">thirteenth-highest loss category</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">87%</span>
-                <p className="text-xs text-slate-500">started with a phone call (Fraud.org)</p>
+                <span className="text-lg font-bold text-slate-900">+105%</span>
+                <p className="text-xs text-slate-500">growth since 2023</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

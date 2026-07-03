@@ -149,21 +149,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$3.4B</span>
-                <p className="text-xs text-slate-500">lost by Americans over 60 in 2023 (FBI)</p>
+                <span className="text-lg font-bold text-slate-900">$7.75B</span>
+                <p className="text-xs text-slate-500">lost by Americans 60+ in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">101K</span>
-                <p className="text-xs text-slate-500">elder fraud complaints filed with FBI</p>
+                <span className="text-lg font-bold text-slate-900">201,266</span>
+                <p className="text-xs text-slate-500">elder fraud complaints filed in 2025</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$33,915</span>
-                <p className="text-xs text-slate-500">average loss per elder victim</p>
+                <span className="text-lg font-bold text-slate-900">$38,500</span>
+                <p className="text-xs text-slate-500">average loss per elder fraud victim</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">2x</span>
-                <p className="text-xs text-slate-500">elder victims more likely to lose life savings</p>
+                <span className="text-lg font-bold text-slate-900">59%</span>
+                <p className="text-xs text-slate-500">year-over-year increase in losses</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

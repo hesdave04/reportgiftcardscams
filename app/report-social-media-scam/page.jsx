@@ -145,21 +145,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$1.9B</span>
-                <p className="text-xs text-slate-500">lost to scams starting on social media (FTC, 2023)</p>
+                <span className="text-lg font-bold text-slate-900">$2.7B</span>
+                <p className="text-xs text-slate-500">lost to social media-initiated scams since 2021 (FTC)</p>
               </div>
               <div>
                 <span className="text-lg font-bold text-slate-900">#1</span>
-                <p className="text-xs text-slate-500">contact method for scams (ahead of phone, email, text)</p>
+                <p className="text-xs text-slate-500">most common contact method for fraud</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">70%</span>
-                <p className="text-xs text-slate-500">of people contacted via social media lost money</p>
+                <span className="text-lg font-bold text-slate-900">50%</span>
+                <p className="text-xs text-slate-500">of online shopping fraud starts on social media</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">25-34</span>
-                <p className="text-xs text-slate-500">age group most targeted on social media</p>
+                <span className="text-lg font-bold text-slate-900">18-39</span>
+                <p className="text-xs text-slate-500">age group most targeted via social media</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

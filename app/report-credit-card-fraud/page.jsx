@@ -144,21 +144,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$12.4B</span>
-                <p className="text-xs text-slate-500">credit card fraud losses in 2023 (Nilson Report)</p>
+                <span className="text-lg font-bold text-slate-900">$283M</span>
+                <p className="text-xs text-slate-500">lost to credit card/check fraud in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">65%</span>
-                <p className="text-xs text-slate-500">of Americans have been victims of card fraud</p>
+                <span className="text-lg font-bold text-slate-900">41%</span>
+                <p className="text-xs text-slate-500">year-over-year increase in losses</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$1.3B</span>
-                <p className="text-xs text-slate-500">check fraud losses in 2023 (FinCEN)</p>
+                <span className="text-lg font-bold text-slate-900">#10</span>
+                <p className="text-xs text-slate-500">tenth-highest loss category</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">151M</span>
-                <p className="text-xs text-slate-500">unauthorized card transactions in 2023</p>
+                <span className="text-lg font-bold text-slate-900">+63%</span>
+                <p className="text-xs text-slate-500">growth since 2023</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

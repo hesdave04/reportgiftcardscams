@@ -148,21 +148,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">18–25</span>
-                <p className="text-xs text-slate-500">primary target age for sugar scams</p>
+                <span className="text-lg font-bold text-slate-900">$929M</span>
+                <p className="text-xs text-slate-500">total romance scam losses in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$500</span>
-                <p className="text-xs text-slate-500">typical "fee" requested to get started</p>
+                <span className="text-lg font-bold text-slate-900">18-29</span>
+                <p className="text-xs text-slate-500">most targeted age group for sugar scams</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">300%</span>
-                <p className="text-xs text-slate-500">increase in sugar scam reports since 2020</p>
+                <span className="text-lg font-bold text-slate-900">$1,200</span>
+                <p className="text-xs text-slate-500">median loss per sugar daddy scam victim</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">89%</span>
-                <p className="text-xs text-slate-500">of sugar daddy DMs on Instagram are scams</p>
+                <span className="text-lg font-bold text-slate-900">Instagram</span>
+                <p className="text-xs text-slate-500">most common platform for initial contact</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

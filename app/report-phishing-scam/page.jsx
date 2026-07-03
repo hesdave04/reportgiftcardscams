@@ -153,21 +153,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Phishing statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">300K+</span>
-                <p className="text-xs text-slate-500">phishing reports to the FBI IC3 in 2023</p>
+                <span className="text-lg font-bold text-slate-900">$216M</span>
+                <p className="text-xs text-slate-500">lost to phishing/spoofing in 2025 (FBI IC3)</p>
+              </div>
+              <div>
+                <span className="text-lg font-bold text-slate-900">208%</span>
+                <p className="text-xs text-slate-500">year-over-year explosion in losses</p>
               </div>
               <div>
                 <span className="text-lg font-bold text-slate-900">#1</span>
-                <p className="text-xs text-slate-500">most common cybercrime type for 5 consecutive years</p>
+                <p className="text-xs text-slate-500">most-reported scam type by complaint volume</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">36%</span>
-                <p className="text-xs text-slate-500">of all data breaches involve phishing</p>
+                <span className="text-lg font-bold text-slate-900">+1,054%</span>
+                <p className="text-xs text-slate-500">growth in losses since 2023</p>
               </div>
-              <div>
-                <span className="text-lg font-bold text-slate-900">$52M</span>
-                <p className="text-xs text-slate-500">direct financial losses from phishing (FBI IC3)</p>
-              </div>
+                </div>
                 </div>
               </div>
             </div>

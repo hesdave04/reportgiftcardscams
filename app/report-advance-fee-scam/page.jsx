@@ -144,21 +144,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$107M</span>
-                <p className="text-xs text-slate-500">lost to advance fee scams in 2023 (FBI)</p>
+                <span className="text-lg font-bold text-slate-900">$156M</span>
+                <p className="text-xs text-slate-500">lost to advance fee fraud in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">3rd</span>
-                <p className="text-xs text-slate-500">most common email-based scam worldwide</p>
+                <span className="text-lg font-bold text-slate-900">53%</span>
+                <p className="text-xs text-slate-500">year-over-year increase in losses</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$3,000</span>
-                <p className="text-xs text-slate-500">median loss per victim</p>
+                <span className="text-lg font-bold text-slate-900">#15</span>
+                <p className="text-xs text-slate-500">fifteenth-highest loss category</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">70%+</span>
-                <p className="text-xs text-slate-500">of advance fee scams originate from West Africa</p>
+                <span className="text-lg font-bold text-slate-900">+16%</span>
+                <p className="text-xs text-slate-500">growth since 2023</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

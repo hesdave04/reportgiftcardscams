@@ -151,21 +151,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$2.95B</span>
-                <p className="text-xs text-slate-500">lost to BEC scams in 2023 (FBI)</p>
-              </div>
-              <div>
-                <span className="text-lg font-bold text-slate-900">21,489</span>
-                <p className="text-xs text-slate-500">BEC complaints filed with FBI IC3</p>
-              </div>
-              <div>
-                <span className="text-lg font-bold text-slate-900">$137K</span>
-                <p className="text-xs text-slate-500">average loss per BEC incident</p>
+                <span className="text-lg font-bold text-slate-900">$3.05B</span>
+                <p className="text-xs text-slate-500">lost to BEC in 2025 (FBI IC3)</p>
               </div>
               <div>
                 <span className="text-lg font-bold text-slate-900">#2</span>
-                <p className="text-xs text-slate-500">costliest cybercrime category in America</p>
+                <p className="text-xs text-slate-500">second-highest loss scam type</p>
               </div>
+              <div>
+                <span className="text-lg font-bold text-slate-900">$120K</span>
+                <p className="text-xs text-slate-500">average loss per BEC incident</p>
+              </div>
+              <div>
+                <span className="text-lg font-bold text-slate-900">10%</span>
+                <p className="text-xs text-slate-500">year-over-year increase in losses</p>
+              </div>
+                </div>
                 </div>
               </div>
             </div>

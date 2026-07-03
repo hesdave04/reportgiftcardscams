@@ -158,21 +158,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Online shopping scam statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$392M</span>
-                <p className="text-xs text-slate-500">lost to online shopping scams in 2023 (FTC)</p>
+                <span className="text-lg font-bold text-slate-900">$503M</span>
+                <p className="text-xs text-slate-500">lost to non-payment/non-delivery in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">#1</span>
-                <p className="text-xs text-slate-500">most commonly reported scam type by volume</p>
+                <span className="text-lg font-bold text-slate-900">50,000+</span>
+                <p className="text-xs text-slate-500">online shopping complaints in 2025</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">73%</span>
-                <p className="text-xs text-slate-500">of scam store ads appear on Facebook and Instagram</p>
+                <span className="text-lg font-bold text-slate-900">#7</span>
+                <p className="text-xs text-slate-500">seventh-highest loss category</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$100</span>
-                <p className="text-xs text-slate-500">median loss — small amounts, massive total volume</p>
+                <span className="text-lg font-bold text-slate-900">+62%</span>
+                <p className="text-xs text-slate-500">growth since 2023</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

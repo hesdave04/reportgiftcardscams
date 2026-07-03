@@ -144,21 +144,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">39%</span>
-                <p className="text-xs text-slate-500">of scam victims targeted by AI deepfakes in 2023</p>
+                <span className="text-lg font-bold text-slate-900">$893M</span>
+                <p className="text-xs text-slate-500">lost to AI-enabled scams in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">3,000%</span>
-                <p className="text-xs text-slate-500">increase in deepfake fraud attempts since 2022</p>
+                <span className="text-lg font-bold text-slate-900">2025</span>
+                <p className="text-xs text-slate-500">first year FBI tracked AI/deepfake scams</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$25B+</span>
-                <p className="text-xs text-slate-500">projected annual deepfake fraud losses by 2027</p>
+                <span className="text-lg font-bold text-slate-900">33,000+</span>
+                <p className="text-xs text-slate-500">AI-related fraud complaints</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">5 sec</span>
-                <p className="text-xs text-slate-500">of audio needed to clone someone's voice</p>
+                <span className="text-lg font-bold text-slate-900">Rising</span>
+                <p className="text-xs text-slate-500">growing as deepfake technology improves</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

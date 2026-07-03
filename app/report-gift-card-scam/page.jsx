@@ -158,21 +158,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Gift card scam statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$217M</span>
-                <p className="text-xs text-slate-500">lost to gift card scams in 2023 (FTC)</p>
+                <span className="text-lg font-bold text-slate-900">$228M</span>
+                <p className="text-xs text-slate-500">lost via gift cards as payment in 2024 (FTC)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">Target</span>
-                <p className="text-xs text-slate-500">most commonly used gift card brand in scams</p>
+                <span className="text-lg font-bold text-slate-900">56,000+</span>
+                <p className="text-xs text-slate-500">gift card fraud reports annually (FTC)</p>
               </div>
               <div>
                 <span className="text-lg font-bold text-slate-900">$500</span>
-                <p className="text-xs text-slate-500">median loss per gift card scam victim</p>
+                <p className="text-xs text-slate-500">median gift card scam loss per victim</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">1 in 4</span>
-                <p className="text-xs text-slate-500">scam payment requests involve gift cards</p>
+                <span className="text-lg font-bold text-slate-900">Target</span>
+                <p className="text-xs text-slate-500">most-used gift card brand in scams</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

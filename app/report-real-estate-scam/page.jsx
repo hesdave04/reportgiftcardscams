@@ -144,21 +144,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$145M+</span>
-                <p className="text-xs text-slate-500">lost to real estate wire fraud in 2023 (FBI)</p>
+                <span className="text-lg font-bold text-slate-900">$275M</span>
+                <p className="text-xs text-slate-500">lost to real estate fraud in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$70K</span>
-                <p className="text-xs text-slate-500">average loss per wire fraud incident</p>
+                <span className="text-lg font-bold text-slate-900">59%</span>
+                <p className="text-xs text-slate-500">year-over-year jump in losses</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$1.2B</span>
-                <p className="text-xs text-slate-500">estimated annual deed theft losses</p>
+                <span className="text-lg font-bold text-slate-900">#11</span>
+                <p className="text-xs text-slate-500">eleventh-highest loss category</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">11,727</span>
-                <p className="text-xs text-slate-500">real estate fraud complaints filed with FBI IC3</p>
+                <span className="text-lg font-bold text-slate-900">+90%</span>
+                <p className="text-xs text-slate-500">growth since 2023</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

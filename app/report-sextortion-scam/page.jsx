@@ -156,21 +156,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">10%</span>
-                <p className="text-xs text-slate-500">surge in teen/Gen-Z victims in 2023</p>
+                <span className="text-lg font-bold text-slate-900">$122M</span>
+                <p className="text-xs text-slate-500">lost to extortion/sextortion in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">12,600+</span>
-                <p className="text-xs text-slate-500">sextortion reports filed with FBI in 2023</p>
+                <span className="text-lg font-bold text-slate-900">25,000+</span>
+                <p className="text-xs text-slate-500">sextortion complaints in 2025</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">20+</span>
-                <p className="text-xs text-slate-500">teen suicides linked to sextortion since 2022</p>
+                <span className="text-lg font-bold text-slate-900">#16</span>
+                <p className="text-xs text-slate-500">sixteenth-highest loss category</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">79%</span>
-                <p className="text-xs text-slate-500">of sextortion victims are male (NCMEC)</p>
+                <span className="text-lg font-bold text-slate-900">+64%</span>
+                <p className="text-xs text-slate-500">growth since 2023</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

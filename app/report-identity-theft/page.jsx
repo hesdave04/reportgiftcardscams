@@ -151,21 +151,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">1.4M</span>
-                <p className="text-xs text-slate-500">identity theft reports filed in 2023 (FTC)</p>
+                <span className="text-lg font-bold text-slate-900">$186M</span>
+                <p className="text-xs text-slate-500">lost to identity theft in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$744M</span>
-                <p className="text-xs text-slate-500">lost to personal data breaches (FBI)</p>
+                <span className="text-lg font-bold text-slate-900">67,000+</span>
+                <p className="text-xs text-slate-500">identity theft complaints in 2025</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$500</span>
-                <p className="text-xs text-slate-500">median financial impact per victim</p>
+                <span className="text-lg font-bold text-slate-900">#14</span>
+                <p className="text-xs text-slate-500">fourteenth-highest loss category</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">300hrs</span>
-                <p className="text-xs text-slate-500">average time victims spend resolving identity theft</p>
+                <span className="text-lg font-bold text-slate-900">+47%</span>
+                <p className="text-xs text-slate-500">growth since 2023</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

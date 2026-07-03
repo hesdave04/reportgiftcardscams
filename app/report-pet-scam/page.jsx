@@ -148,21 +148,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
+                <span className="text-lg font-bold text-slate-900">$5.4M</span>
+                <p className="text-xs text-slate-500">estimated annual pet scam losses (BBB 2024)</p>
+              </div>
+              <div>
+                <span className="text-lg font-bold text-slate-900">12,000+</span>
+                <p className="text-xs text-slate-500">pet scam complaints per year (BBB)</p>
+              </div>
+              <div>
                 <span className="text-lg font-bold text-slate-900">$850</span>
-                <p className="text-xs text-slate-500">average loss per pet scam victim (BBB)</p>
+                <p className="text-xs text-slate-500">average loss per pet scam victim</p>
               </div>
               <div>
                 <span className="text-lg font-bold text-slate-900">80%</span>
-                <p className="text-xs text-slate-500">of sponsored puppy ads online are fraudulent (BBB)</p>
+                <p className="text-xs text-slate-500">of puppy ads online may be fraudulent</p>
               </div>
-              <div>
-                <span className="text-lg font-bold text-slate-900">35%</span>
-                <p className="text-xs text-slate-500">of victims paid for shipping that never happened</p>
-              </div>
-              <div>
-                <span className="text-lg font-bold text-slate-900">12K+</span>
-                <p className="text-xs text-slate-500">pet scam reports filed in 2023</p>
-              </div>
+                </div>
                 </div>
               </div>
             </div>

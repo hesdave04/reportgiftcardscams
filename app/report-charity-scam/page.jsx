@@ -144,21 +144,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Key statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$170M+</span>
-                <p className="text-xs text-slate-500">lost to charity fraud annually (FTC estimate)</p>
+                <span className="text-lg font-bold text-slate-900">$7.9M</span>
+                <p className="text-xs text-slate-500">lost to charity scams in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">36%</span>
-                <p className="text-xs text-slate-500">of charity scams happen after natural disasters</p>
+                <span className="text-lg font-bold text-slate-900">2025</span>
+                <p className="text-xs text-slate-500">first year FBI tracked charity scams separately</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">78%</span>
-                <p className="text-xs text-slate-500">of charity scam contacts come by phone</p>
+                <span className="text-lg font-bold text-slate-900">1,200+</span>
+                <p className="text-xs text-slate-500">charity fraud complaints</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">1 in 3</span>
-                <p className="text-xs text-slate-500">charity scam victims are over 65</p>
+                <span className="text-lg font-bold text-slate-900">Holidays</span>
+                <p className="text-xs text-slate-500">most common during holiday & disaster seasons</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

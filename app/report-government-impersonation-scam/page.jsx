@@ -167,21 +167,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Government impersonation statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$618M</span>
-                <p className="text-xs text-slate-500">lost to government impersonation scams in 2023 (FTC)</p>
+                <span className="text-lg font-bold text-slate-900">$798M</span>
+                <p className="text-xs text-slate-500">lost to government impersonation in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">#1</span>
-                <p className="text-xs text-slate-500">fastest-growing scam category year over year</p>
+                <span className="text-lg font-bold text-slate-900">97%</span>
+                <p className="text-xs text-slate-500">year-over-year surge in losses</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$7,000</span>
-                <p className="text-xs text-slate-500">median loss per victim</p>
+                <span className="text-lg font-bold text-slate-900">#6</span>
+                <p className="text-xs text-slate-500">sixth-highest loss scam category</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">70%</span>
-                <p className="text-xs text-slate-500">of victims are over age 60</p>
+                <span className="text-lg font-bold text-slate-900">+103%</span>
+                <p className="text-xs text-slate-500">growth since 2023</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>

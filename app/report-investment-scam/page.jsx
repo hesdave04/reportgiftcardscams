@@ -157,21 +157,22 @@ export default function Page() {
                 <h3 className="text-sm font-semibold text-slate-900">Investment scam statistics</h3>
                 <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-lg font-bold text-slate-900">$4.57B</span>
-                <p className="text-xs text-slate-500">total investment fraud losses reported in 2023 (FBI)</p>
+                <span className="text-lg font-bold text-slate-900">$8.65B</span>
+                <p className="text-xs text-slate-500">lost to investment fraud in 2025 (FBI IC3)</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">$3.96B</span>
-                <p className="text-xs text-slate-500">of that was crypto-related investment fraud</p>
+                <span className="text-lg font-bold text-slate-900">55,000+</span>
+                <p className="text-xs text-slate-500">investment fraud complaints in 2025</p>
               </div>
               <div>
                 <span className="text-lg font-bold text-slate-900">#1</span>
-                <p className="text-xs text-slate-500">most costly fraud type tracked by the FBI</p>
+                <p className="text-xs text-slate-500">highest-loss scam type in the U.S.</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-slate-900">53%</span>
-                <p className="text-xs text-slate-500">increase in investment fraud losses year over year</p>
+                <span className="text-lg font-bold text-slate-900">+89%</span>
+                <p className="text-xs text-slate-500">growth in losses since 2023</p>
               </div>
+                </div>
                 </div>
               </div>
             </div>
