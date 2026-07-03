@@ -1,4 +1,6 @@
 // app/sitemap.js — Auto-generated sitemap for scamcomplaints.org
+import { getAllStateSlugs } from "@/lib/scam-data";
+
 const BASE = "https://scamcomplaints.org";
 
 export default function sitemap() {
@@ -28,6 +30,14 @@ export default function sitemap() {
     { path: "/how-to-identify-a-scam", priority: 0.8, changeFrequency: "monthly" },
     { path: "/what-to-do-if-scammed", priority: 0.8, changeFrequency: "monthly" },
   ];
+
+  // State-specific scam pages (51 pages)
+  const stateSlugs = getAllStateSlugs();
+  const statePages = stateSlugs.map((slug) => ({
+    path: `/state-of-scams-2026-${slug}`,
+    priority: 0.8,
+    changeFrequency: "yearly",
+  }));
 
   // All scam type report pages
   const scamPages = [
@@ -73,7 +83,7 @@ export default function sitemap() {
     "/report-ransomware",
   ].map((path) => ({ path, priority: 0.7, changeFrequency: "weekly" }));
 
-  const allPages = [...core, ...pillar, ...scamPages];
+  const allPages = [...core, ...pillar, ...statePages, ...scamPages];
 
   return allPages.map((p) => ({
     url: `${BASE}${p.path}`,
