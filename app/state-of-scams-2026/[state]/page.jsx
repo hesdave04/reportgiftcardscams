@@ -26,13 +26,16 @@ export function generateMetadata({ params }) {
   const losses = fmt(data.total.y25);
   const rank = data.total.rank;
 
+  const percapRank = data.percap?.rank || "N/A";
+
   return {
-    title: `${stateName} Scam Statistics 2025–2026: ${losses} Lost — Ranked #${rank} in the U.S.`,
-    description: `${stateName} (${abbrev}) residents lost ${fmtFull(data.total.y25)} to internet scams in 2025 — a ${data.yoyChange > 0 ? "+" : ""}${data.yoyChange.toFixed(0)}% change from 2024. See ${stateName}'s rankings, metro area breakdown, top scam types, and how to protect yourself.`,
+    title: `Scams in ${stateName} (2025–2026): ${losses} Lost, #${rank} in the U.S. | Fraud Statistics`,
+    description: `How much money did ${stateName} (${abbrev}) lose to scams in 2025? ${fmtFull(data.total.y25)} in reported fraud — ${data.yoyChange > 0 ? "up" : "down"} ${Math.abs(data.yoyChange).toFixed(0)}% from 2024. See ${stateName} scam rankings, top fraud types, metro area breakdown, and how to report a scam in ${stateName}.`,
+    keywords: `scams in ${stateName}, ${stateName} scam statistics, ${stateName} fraud report, how to report a scam in ${stateName}, ${stateName} internet crime, ${stateName} online fraud, ${abbrev} scam losses, ${stateName} identity theft, ${stateName} consumer protection`,
     alternates: { canonical: `/state-of-scams-2026-${params.state}` },
     openGraph: {
-      title: `${stateName} Scam Statistics 2025–2026: ${losses} Lost`,
-      description: `${stateName} ranks #${rank} in total scam losses and #${data.percap?.rank || "N/A"} per capita. Full data from FBI IC3 & FTC.`,
+      title: `Scams in ${stateName}: ${losses} Lost to Fraud in 2025 — Full Report`,
+      description: `${stateName} ranks #${rank} in total scam losses and #${percapRank} per capita. FBI IC3 & FTC data, top scam types, metro areas, and protection tips.`,
       type: "article",
     },
   };
@@ -127,8 +130,8 @@ export default function StatePage({ params }) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: `${stateName} Scam Statistics 2025–2026: ${fmt(total.y25)} Lost`,
-    description: `${stateName} residents reported ${fmtFull(total.y25)} in scam losses in 2025. Ranked #${total.rank} nationally and #${percap?.rank || "N/A"} per capita.`,
+    headline: `Scams in ${stateName}: ${fmt(total.y25)} Lost to Online Fraud in 2025`,
+    description: `${stateName} residents reported ${fmtFull(total.y25)} in scam losses in 2025 — ranked #${total.rank} nationally. Full fraud statistics, metro area breakdown, and how to report a scam in ${stateName}.`,
     datePublished: "2026-07-03",
     dateModified: "2026-07-03",
     author: { "@type": "Organization", name: "Social Catfish", url: "https://socialcatfish.com" },
@@ -146,6 +149,37 @@ export default function StatePage({ params }) {
     },
   };
 
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: `How much money did ${stateName} lose to scams in 2025?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: `${stateName} residents reported ${fmtFull(total.y25)} in losses to the FBI's Internet Crime Complaint Center in 2025, ranking #${total.rank} nationally.`,
+        },
+      },
+      {
+        "@type": "Question",
+        name: `What are the most common scams in ${stateName}?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: `The biggest threats nationally are investment fraud ($8.65B), business email compromise ($3.05B), tech support scams ($2.13B), and romance scams ($929M). Phishing is the most common by volume.`,
+        },
+      },
+      {
+        "@type": "Question",
+        name: `How do I report a scam in ${stateName}?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: `Report to the FBI IC3 at ic3.gov, the FTC at reportfraud.ftc.gov, the ${stateName} Attorney General's consumer protection office, or ScamComplaints.org.`,
+        },
+      },
+    ],
+  };
+
   const breadcrumbLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -159,6 +193,7 @@ export default function StatePage({ params }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
       <article className="mx-auto max-w-4xl px-4 py-12 sm:py-16">
@@ -173,7 +208,7 @@ export default function StatePage({ params }) {
 
         {/* ── Hero ─────────────────────────────────────────────── */}
         <h1 className="text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
-          {stateName} Scam Report 2025–2026
+          Scams in {stateName}: 2025–2026 Fraud Statistics &amp;&nbsp;Report
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-slate-600 sm:text-xl">
           According to the FBI&rsquo;s latest IC3 filing, {stateName} residents lost{" "}
@@ -224,7 +259,8 @@ export default function StatePage({ params }) {
               ...(metros.length > 0 ? [["metros", `${stateName} Metro Areas`]] : []),
               ["top-scams", `Most Dangerous Scams in ${stateName}`],
               ["protect", `How ${stateName} Residents Can Protect Themselves`],
-              ["report", "How to Report a Scam"],
+              ["report", `How to Report a Scam in ${stateName}`],
+              ["faq", `FAQ: Scams in ${stateName}`],
             ].map(([id, label]) => (
               <li key={id}>
                 <a href={`#${id}`} className="text-slate-700 underline decoration-slate-300 underline-offset-2 hover:text-red-600">
@@ -553,6 +589,40 @@ export default function StatePage({ params }) {
           >
             Run a Free Search →
           </a>
+        </div>
+
+        {/* ── FAQ (local SEO + featured snippets) ─────────────── */}
+        <SectionH2 id="faq">{metros.length > 0 ? "8" : "7"}. Frequently Asked Questions About Scams in {stateName}</SectionH2>
+        <div className="mt-6 space-y-6">
+          {[
+            {
+              q: `How much money did ${stateName} lose to scams in 2025?`,
+              a: `${stateName} residents reported ${fmtFull(total.y25)} in losses to the FBI's Internet Crime Complaint Center (IC3) in 2025. That's a ${Math.abs(yoyChange).toFixed(1)}% ${yoyChange >= 0 ? "increase" : "decrease"} from ${fmtFull(total.y24)} in 2024. ${stateName} ranks #${total.rank} nationally for total scam losses.`,
+            },
+            {
+              q: `What are the most common scams in ${stateName}?`,
+              a: `While the FBI doesn't publish scam-type data at the state level, the biggest threats nationally — and almost certainly in ${stateName} — are investment fraud ($8.65B), business email compromise ($3.05B), tech support scams ($2.13B), and romance scams ($929M). Phishing is the most common by volume with over 191,000 complaints.`,
+            },
+            {
+              q: `How do I report a scam in ${stateName}?`,
+              a: `File a complaint with the FBI's IC3 at ic3.gov for internet-related fraud. You can also report to the FTC at reportfraud.ftc.gov, contact the ${stateName} Attorney General's consumer protection office, file a local police report, or submit a report at ScamComplaints.org.`,
+            },
+            {
+              q: `How does ${stateName} compare to other states for scam losses?`,
+              a: `${stateName} ranks #${total.rank} out of 51 (all states plus D.C.) for total reported scam losses and #${percap?.rank || "N/A"} on a per-capita basis. ${stateName} accounts for ${shareOfNational.toFixed(1)}% of the $20.8 billion in national losses.`,
+            },
+            {
+              q: `Are scams getting worse in ${stateName}?`,
+              a: yoyChange >= 0
+                ? `Yes. Reported scam losses in ${stateName} increased ${yoyChange.toFixed(1)}% from 2024 to 2025. Nationally, losses are up 25.8% year over year and have grown 67% in just two years.`
+                : `Reported losses in ${stateName} actually decreased ${Math.abs(yoyChange).toFixed(1)}% from 2024 to 2025, though the national trend is upward — losses grew 25.8% nationwide. The decline may reflect changes in reporting rather than fewer scams.`,
+            },
+          ].map((item, i) => (
+            <div key={i} className="rounded-lg border border-slate-200 bg-white p-5">
+              <h3 className="font-semibold text-slate-900">{item.q}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.a}</p>
+            </div>
+          ))}
         </div>
 
         {/* ── Methodology ──────────────────────────────────────── */}
