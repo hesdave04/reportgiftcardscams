@@ -74,19 +74,19 @@ function Callout({ emoji, title, children, variant = "default" }) {
 
 /* ── Top scam descriptions per state (contextual) ───────────────── */
 const SCAM_DESCRIPTIONS = {
-  "Investment Fraud (incl. Pig Butchering)": "Fake investment platforms and 'pig butchering' schemes where scammers build trust over weeks before luring victims into fraudulent crypto or forex trading platforms.",
-  "Business Email Compromise (BEC)": "Criminals impersonate executives, vendors, or business partners via spoofed emails to trick companies into wiring funds to fraudulent accounts.",
-  "Tech / Customer Support Scams": "Fake tech support pop-ups, calls, or emails claiming your device is infected, then charging hundreds or thousands for unnecessary 'repairs.'",
-  "Personal Data Breach": "Exposure of sensitive personal information through hacking, phishing, or insider threats, leading to identity theft and financial fraud.",
-  "Confidence / Romance Scams": "Scammers create fake online identities to build emotional relationships, then exploit that trust to steal money — often through fabricated emergencies.",
-  "Government Impersonation": "Callers or emailers posing as IRS agents, Social Security officials, or law enforcement, threatening arrest or legal action to extract payments.",
-  "Employment / Job Scams": "Fake job listings and recruiter scams that trick job seekers into paying for training, equipment, or background checks that never materialize.",
-  "Credit Card / Check Fraud": "Unauthorized use of credit card numbers or creation of counterfeit checks to make purchases or withdraw funds.",
-  "Real Estate Fraud": "Wire fraud targeting home buyers, fake rental listings, title theft, and mortgage fraud schemes.",
-  "Phishing / Spoofing": "Deceptive emails, texts, or websites designed to steal login credentials, financial information, or install malware.",
-  "Lottery / Sweepstakes / Inheritance": "Victims told they've won a prize or inherited money but must pay fees or taxes upfront to claim their nonexistent windfall.",
-  "Identity Theft": "Criminals steal personal information to open accounts, file fraudulent tax returns, or commit crimes under someone else's identity.",
-  "Extortion / Sextortion": "Threats to release compromising images or information unless the victim pays — increasingly targeting teenagers and young adults.",
+  "Investment Fraud (incl. Pig Butchering)": "Fraudulent crypto and forex platforms — often preceded by weeks of friendly texting or dating-app conversation — where victims watch fabricated returns pile up before the scammer vanishes with their money.",
+  "Business Email Compromise (BEC)": "A spoofed email from the CEO or a trusted vendor lands in an employee's inbox requesting an urgent wire transfer. By the time anyone notices, the money's in an overseas account.",
+  "Tech / Customer Support Scams": "A pop-up freezes your screen. A fake Microsoft or Apple rep calls. Older adults sometimes get talked into converting savings to gold bars and handing them to a courier who shows up at the front door.",
+  "Personal Data Breach": "When hackers or insiders expose sensitive records — Social Security numbers, medical data, financial accounts — the downstream identity theft can linger for years.",
+  "Confidence / Romance Scams": "Weeks of emotional bonding with someone who isn't real, followed by an invented emergency that requires cash. AI-generated photos and deepfake video calls make these harder to spot than ever.",
+  "Government Impersonation": "'This is the IRS. There's a warrant for your arrest.' Robocalls and spoofed caller IDs make the threat feel genuine — and victims pay before thinking twice.",
+  "Employment / Job Scams": "Fake remote-work listings, bogus recruiters, and 'task scams' that pay small amounts for simple online tasks before asking victims to invest larger sums into platforms that don't exist.",
+  "Credit Card / Check Fraud": "Stolen card numbers, counterfeit checks, and card-not-present fraud that drains accounts before alerts even fire.",
+  "Real Estate Fraud": "A single spoofed email during closing can redirect a down payment to a scammer's account. Title theft and fake rental listings round out a category that hit $275M nationally.",
+  "Phishing / Spoofing": "The most-reported scam by volume. One stolen password can cascade into a drained bank account, a hijacked email, or a full-blown identity theft case.",
+  "Lottery / Sweepstakes / Inheritance": "You didn't win anything. The 'prize' notification is bait — victims pay fees, taxes, or 'processing charges' for a windfall that never arrives.",
+  "Identity Theft": "Stolen personal details used to open credit lines, file bogus tax returns, or commit crimes under someone else's name — damage that can take years to untangle.",
+  "Extortion / Sextortion": "Threats to release real or fabricated compromising images unless the victim pays up. Increasingly targeting teenagers through social media with AI-generated content.",
 };
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -176,12 +176,13 @@ export default function StatePage({ params }) {
           {stateName} Scam Report 2025–2026
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-slate-600 sm:text-xl">
-          {stateName} residents reported{" "}
-          <strong className="text-red-600">{fmtFull(total.y25)}</strong> in scam losses to the FBI in 2025 —{" "}
-          {yoyChange >= 0 ? "an increase" : "a decrease"} of{" "}
-          <strong>{Math.abs(yoyChange).toFixed(1)}%</strong> from 2024.
-          That ranks {stateName} <strong>#{total.rank}</strong> in the nation for total losses
-          and <strong>#{percap?.rank || "N/A"}</strong> per capita.
+          According to the FBI&rsquo;s latest IC3 filing, {stateName} residents lost{" "}
+          <strong className="text-red-600">{fmtFull(total.y25)}</strong> to internet scams in 2025 &mdash;{" "}
+          {yoyChange >= 0 ? "a" : "a"}{" "}
+          <strong>{Math.abs(yoyChange).toFixed(1)}%</strong>{" "}
+          {yoyChange >= 0 ? "jump" : "drop"} from the prior year.
+          That puts {stateName} at <strong>#{total.rank}</strong> nationally for total losses
+          and <strong>#{percap?.rank || "N/A"}</strong> when you adjust for population.
         </p>
         <p className="mt-2 text-sm text-slate-400">
           Published July 2026 · Data from FBI IC3 & FTC Consumer Sentinel · By{" "}
@@ -270,40 +271,40 @@ export default function StatePage({ params }) {
 
         <div className="mt-4 space-y-4 leading-relaxed text-slate-700">
           <p>
-            Between 2024 and 2025, scam losses in {stateName} went from{" "}
-            <strong>{fmtFull(total.y24)}</strong> to <strong>{fmtFull(total.y25)}</strong> — a{" "}
+            In 2024, {stateName} residents reported {fmtFull(total.y24)} in losses to the FBI&rsquo;s IC3.
+            A year later that number moved to {fmtFull(total.y25)} &mdash; a{" "}
             <strong className={yoyChange >= 0 ? "text-red-600" : "text-emerald-600"}>
-              {yoySign}{yoyChange.toFixed(1)}%
+              {Math.abs(yoyChange).toFixed(1)}%
             </strong>{" "}
-            {yoyChange >= 0 ? "increase" : "decrease"}.
+            {yoyChange >= 0 ? "climb" : "decline"} that {yoyChange >= 0 ? "tracks above" : "bucks"} the national trend.
           </p>
 
           {yoyChange > 30 && (
             <Callout emoji="🚨" title={`${stateName} losses growing faster than the national average`}>
-              The national average increase was 25.8%. {stateName}&rsquo;s {yoyChange.toFixed(1)}% jump is{" "}
-              {(yoyChange - 25.8).toFixed(1)} percentage points above the national trend, signaling that{" "}
-              {stateName} residents may be facing an outsized scam problem.
+              Nationally, losses climbed 25.8%. {stateName}&rsquo;s {yoyChange.toFixed(1)}% surge runs{" "}
+              {(yoyChange - 25.8).toFixed(1)} percentage points above that baseline &mdash; a gap wide enough to suggest{" "}
+              {stateName} is dealing with a concentration of fraud activity that deserves closer scrutiny.
             </Callout>
           )}
 
           {yoyChange < 0 && (
             <Callout emoji="📉" title={`${stateName} saw a decline in reported losses`} variant="info">
-              While most states saw increases, {stateName}&rsquo;s losses dropped by{" "}
-              {Math.abs(yoyChange).toFixed(1)}%. This could reflect better fraud prevention or
-              changes in reporting patterns.
+              Most states trended up; {stateName}&rsquo;s losses fell{" "}
+              {Math.abs(yoyChange).toFixed(1)}%. It&rsquo;s tempting to call that progress, but it may also reflect
+              shifts in how victims report rather than fewer scams taking place.
             </Callout>
           )}
 
           <p>
-            Nationally, Americans lost <strong>{fmt(nationalTotal25)}</strong> in 2025 — a 25.8% increase from 2024.
-            {stateName} accounted for <strong>{shareOfNational.toFixed(1)}%</strong> of that total.
+            For context, the national tab came to <strong>{fmt(nationalTotal25)}</strong> last year, up 25.8% from 2024.
+            {stateName}&rsquo;s slice: <strong>{shareOfNational.toFixed(1)}%</strong> of every dollar reported stolen.
           </p>
 
           {percap && (
             <p>
-              On a per capita basis, {stateName} ranked <strong>#{percap.rank}</strong> nationally.
-              For every 100,000 {stateName} residents, <strong>${(percap.y25 / 100000).toLocaleString("en-US", { maximumFractionDigits: 0 })}</strong> was
-              reported lost to scams in 2025{percap.y24 ? `, compared to $${(percap.y24 / 100000).toLocaleString("en-US", { maximumFractionDigits: 0 })} in 2024` : ""}.
+              Adjusting for population, {stateName} sits at <strong>#{percap.rank}</strong>.
+              That works out to <strong>${(percap.y25 / 100000).toLocaleString("en-US", { maximumFractionDigits: 0 })}</strong> lost
+              for every 100,000 residents in 2025{percap.y24 ? ` — up from $${(percap.y24 / 100000).toLocaleString("en-US", { maximumFractionDigits: 0 })} the year before` : ""}.
             </p>
           )}
         </div>
@@ -312,7 +313,7 @@ export default function StatePage({ params }) {
         <SectionH2 id="rankings">3. How {stateName} Compares</SectionH2>
 
         <p className="mt-4 leading-relaxed text-slate-700">
-          Here&rsquo;s where {stateName} falls among the states with the highest total scam losses in 2025:
+          To put {stateName}&rsquo;s position in context, here are the states closest to it in the FBI&rsquo;s loss rankings:
         </p>
 
         <div className="mt-6 overflow-x-auto">
@@ -371,8 +372,8 @@ export default function StatePage({ params }) {
           <>
             <SectionH2 id="metros">4. {stateName} Metro Areas in the FTC Top 50</SectionH2>
             <p className="mt-4 leading-relaxed text-slate-700">
-              The FTC tracks scam reports by metropolitan area. {metros.length === 1 ? "One" : metros.length}{" "}
-              {stateName} metro {metros.length === 1 ? "area appears" : "areas appear"} in the national top 50 for fraud reports per capita:
+              The FTC&rsquo;s Consumer Sentinel data breaks fraud reports down by metro area. {metros.length === 1 ? "One" : metros.length}{" "}
+              {stateName} metro {metros.length === 1 ? "area landed" : "areas landed"} in the national top 50 for per-capita fraud complaints:
             </p>
 
             <div className="mt-6 overflow-x-auto">
@@ -396,9 +397,8 @@ export default function StatePage({ params }) {
 
             {metros.some((m) => m.rank <= 10) && (
               <Callout emoji="⚠️" title={`${stateName} has a metro area in the national top 10`} variant="warning">
-                {metros.filter((m) => m.rank <= 10).map((m) => m.metro).join(" and ")} ranked among the
-                10 most-scammed metro areas in the entire United States. Residents in {metros.length > 1 ? "these areas" : "this area"} should
-                be especially vigilant.
+                {metros.filter((m) => m.rank <= 10).map((m) => m.metro).join(" and ")} cracked the national top&nbsp;10 for per-capita fraud reports.
+                If you live in {metros.length > 1 ? "either of those areas" : "that area"}, the odds of encountering a scam attempt are measurably higher than the national average.
               </Callout>
             )}
           </>
@@ -408,8 +408,7 @@ export default function StatePage({ params }) {
         <SectionH2 id="top-scams">{metros.length > 0 ? "5" : "4"}. Most Dangerous Scams Affecting {stateName}</SectionH2>
 
         <p className="mt-4 leading-relaxed text-slate-700">
-          While the FBI does not break down scam types by state, the national trends paint a clear picture
-          of the threats {stateName} residents face. These are the top scam categories nationally in 2025:
+          The FBI doesn&rsquo;t publish scam-type breakdowns at the state level, but the national data offers a strong proxy for what {stateName} residents are up against. Here are the ten costliest categories in 2025:
         </p>
 
         <div className="mt-6 space-y-6">
@@ -453,8 +452,7 @@ export default function StatePage({ params }) {
 
         <div className="mt-6 space-y-4 leading-relaxed text-slate-700">
           <p>
-            With {fmt(total.y25)} lost to scams in {stateName} in 2025 alone, it has never been more important for
-            {" "}{stateName} residents to stay informed and vigilant. Here are proven strategies to protect yourself:
+            {fmt(total.y25)} didn&rsquo;t disappear into thin air &mdash; it was taken from real {stateName} families. A few habits can cut your risk dramatically:
           </p>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -462,32 +460,32 @@ export default function StatePage({ params }) {
               {
                 icon: "🔍",
                 title: "Verify Before You Trust",
-                text: "Use reverse image search tools like Social Catfish to verify photos, phone numbers, and email addresses before sending money or sharing personal information.",
+                text: "Run a reverse image search on profile photos. Tools like Social Catfish let you check a photo, phone number, or email against public records in seconds — before you send a dime.",
               },
               {
                 icon: "🛑",
                 title: "Never Send Money to Strangers",
-                text: "Legitimate businesses and government agencies will never ask for payment via gift cards, cryptocurrency, or wire transfers.",
+                text: "No real company or government agency will ever demand payment in gift cards, crypto, or wire transfers. Full stop. If someone asks for those, it's a scam.",
               },
               {
                 icon: "🔒",
                 title: "Enable Two-Factor Authentication",
-                text: "Add an extra layer of security to your email, banking, and social media accounts to prevent unauthorized access.",
+                text: "It takes 30 seconds to turn on 2FA for your email, bank, and social accounts. That one step blocks most account-takeover attempts cold.",
               },
               {
                 icon: "📞",
                 title: "Verify Independently",
-                text: "If someone claims to be from a company or agency, hang up and call the organization directly using a number from their official website.",
+                text: "Got a call claiming to be your bank or the IRS? Hang up. Find the official number yourself and call back. Scammers spoof caller ID — the number on your screen means nothing.",
               },
               {
                 icon: "🧊",
                 title: "Slow Down High-Pressure Situations",
-                text: "Scammers create urgency to prevent you from thinking critically. Any legitimate request can wait for verification.",
+                text: "The urgency is the tell. 'Act now or lose everything' is a psychological lever, not a fact. Any legitimate request can survive a 24-hour pause.",
               },
               {
                 icon: "👨‍👩‍👧‍👦",
                 title: "Talk to Vulnerable Family Members",
-                text: `Adults over 60 lost $7.75 billion nationally in 2025. Have frank conversations with older ${stateName} residents about common scam tactics.`,
+                text: `Seniors lost $7.75 billion last year — more than any other age group. If you have older family members in ${stateName}, a candid conversation about scam tactics could save them thousands.`,
               },
             ].map((tip, i) => (
               <div key={i} className="rounded-lg border border-slate-200 bg-white p-4">
@@ -504,8 +502,7 @@ export default function StatePage({ params }) {
 
         <div className="mt-4 space-y-3 leading-relaxed text-slate-700">
           <p>
-            If you or someone you know in {stateName} has been the victim of a scam, report it immediately.
-            Reporting helps law enforcement track scam trends and may help recover losses:
+            Been scammed &mdash; or suspect someone you know in {stateName} has? Filing a report matters, even if you think it&rsquo;s too late. Every complaint helps law enforcement spot patterns and, in some cases, claw money back:
           </p>
 
           <ul className="list-inside list-disc space-y-2 pl-2">
@@ -562,11 +559,11 @@ export default function StatePage({ params }) {
         <div className="mt-12 rounded-lg border border-slate-200 bg-slate-50 p-6">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">📊 Methodology</h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-600">
-            State-level dollar loss data is sourced from the FBI&rsquo;s Internet Crime Complaint Center (IC3)
-            2024 and 2025 Annual Reports. Per capita figures use 2024 Census population estimates. Metro area
-            rankings come from FTC Consumer Sentinel data. National scam type data combines FBI IC3 crime
-            type classifications. Not all scams are reported — the FBI estimates only 2–6% of victims file
-            complaints, meaning {stateName}&rsquo;s true losses could be 17–50× higher than reported.
+            Dollar-loss figures by state come from the FBI IC3&rsquo;s 2024 and 2025 annual reports. We calculated
+            per-capita numbers using the Census Bureau&rsquo;s 2024 population estimates. Metro rankings draw on FTC
+            Consumer Sentinel complaint data. Scam-type breakdowns reflect IC3 crime-type categories and are national,
+            not state-specific. Keep in mind that the FBI itself estimates only 2&ndash;6% of victims ever file
+            complaints &mdash; so {stateName}&rsquo;s real losses could realistically run 17 to 50 times what appears here.
           </p>
         </div>
 

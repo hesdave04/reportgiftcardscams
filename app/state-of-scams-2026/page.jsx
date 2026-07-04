@@ -275,7 +275,7 @@ export default function StateOfScams2026() {
         State of Scams 2026: America&rsquo;s Top&nbsp;25 Scams &mdash; Ranked&nbsp;by Every State&nbsp;&amp;&nbsp;City
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-slate-600 sm:text-xl">
-        Americans lost a record <strong className="text-red-600">$20.8&nbsp;billion</strong> to internet scams in 2025 &mdash; a 67% increase in just two&nbsp;years. Here&rsquo;s every scam type, every state, and every major metro area, ranked by the&nbsp;data.
+        That&rsquo;s the number the FBI just put on paper: <strong className="text-red-600">$20.8&nbsp;billion</strong> stolen from Americans in a single year. Two years ago it was $12.5&nbsp;billion. We pulled federal data from every available source, ranked all 25 scam types, and mapped losses across every state and 50 metro&nbsp;areas so you can see exactly where the damage&nbsp;lands.
       </p>
       <p className="mt-2 text-sm text-slate-400">
         Published July 2026 &middot; Data from FBI IC3, FTC Consumer Sentinel, BBB Scam Tracker &middot; By{" "}
@@ -321,10 +321,10 @@ export default function StateOfScams2026() {
       {/* ═══════════ 1. BIG PICTURE ═══════════ */}
       <SectionH2 id="overview">1. The Big Picture: 3-Year Scam Trends (2023–2025)</SectionH2>
       <p className="mt-4 leading-relaxed text-slate-700">
-        The numbers tell a story that should alarm every American: scam losses are not just growing — they&rsquo;re <strong>accelerating</strong>. In just two years, losses reported to the FBI&rsquo;s Internet Crime Complaint Center (IC3) surged from $12.5&nbsp;billion to $20.8&nbsp;billion — a staggering 67%&nbsp;increase.
+        Here&rsquo;s what jumps out when you line the last three years of FBI IC3 data up side by side: losses aren&rsquo;t just climbing &mdash; they&rsquo;re picking up speed. The bureau&rsquo;s Internet Crime Complaint Center logged $12.5&nbsp;billion in 2023, $16.6&nbsp;billion in 2024, and now $20.8&nbsp;billion. That 67% leap in twenty-four months outpaces almost every other category of property crime in the country.
       </p>
       <p className="mt-3 leading-relaxed text-slate-700">
-        For context, that $20.8&nbsp;billion is more than the entire GDP of Iceland. And because the FBI estimates that <strong>only 2–6% of fraud victims actually file complaints</strong>, the true cost of scams in America could exceed <strong>$195&nbsp;billion per&nbsp;year</strong>.
+        Put differently, $20.8&nbsp;billion is larger than Iceland&rsquo;s entire GDP. And that figure almost certainly undercounts the real damage. The FBI has long noted that <strong>somewhere between 2% and 6% of fraud victims ever bother to file a report</strong>. Run the math and you land in the neighborhood of <strong>$195&nbsp;billion a year</strong> &mdash; a hole in the economy that barely makes the evening news.
       </p>
 
       <h3 className="mt-8 text-lg font-semibold text-slate-800">FBI IC3: Year-Over-Year Comparison</h3>
@@ -375,13 +375,13 @@ export default function StateOfScams2026() {
       </div>
 
       <Callout emoji="⚠️" title="Key Trend: Scams cost more per victim, not just more victims." variant="warning">
-        While complaint volumes grew modestly, the <em>amount people lose per scam</em> is skyrocketing. The FBI&rsquo;s average loss per complaint jumped from $14,196 in 2023 to $20,699 in 2025. Scams are getting more sophisticated — and more expensive.
+        Complaint numbers crept up &mdash; about 15% over two years. But the dollar figure per victim? That&rsquo;s where the story gets ugly. Average loss per IC3 complaint climbed from $14,196 to $20,699 in the same window. Scammers aren&rsquo;t just casting a wider net; they&rsquo;re reeling in bigger catches each time.
       </Callout>
 
       {/* ═══════════ 2. TOP 25 ═══════════ */}
       <SectionH2 id="top25">2. The Top 25 Scams of 2025, Ranked by Financial&nbsp;Losses</SectionH2>
       <p className="mt-4 leading-relaxed text-slate-700">
-        Using FBI IC3 crime type data — the most comprehensive federal dataset on cybercrime — here are the costliest scam types affecting Americans in 2025, with three-year trend&nbsp;data:
+        We ranked every crime type the FBI tracks by total dollar losses, then pulled the two prior years for comparison. A few of these categories will look familiar. Others &mdash; like the explosion in employment scams &mdash; caught us off&nbsp;guard.
       </p>
 
       <div className="mt-6 overflow-x-auto">
@@ -431,13 +431,13 @@ export default function StateOfScams2026() {
           <h3 className="text-xl font-bold text-slate-900">Investment Fraud &amp; Pig Butchering — $8.65 Billion</h3>
         </div>
         <p className="mt-3 leading-relaxed text-slate-700">
-          Investment fraud has been the #1 costliest scam in America for three consecutive years, and it&rsquo;s not even close. In 2025, victims reported <strong>$8.65&nbsp;billion in losses</strong> from 72,984 complaints — more than the next two scam types combined.
+          Three years running, investment fraud sits at the top of the FBI&rsquo;s chart &mdash; and the gap keeps widening. In 2025 alone, 72,984 complaints added up to <strong>$8.65&nbsp;billion</strong>. That&rsquo;s more than the next two scam categories combined. Not close.
         </p>
         <p className="mt-3 leading-relaxed text-slate-700">
-          The dominant scheme is &ldquo;pig butchering&rdquo; (<em>sha zhu pan</em>), where scammers build long-term relationships with victims — often through dating apps, social media, or wrong-number texts — before luring them into fake cryptocurrency investment platforms. Victims see fabricated returns, invest more, then the scammer disappears.
+          Most of that money vanishes through what the industry calls &ldquo;pig butchering&rdquo; &mdash; <em>sha zhu pan</em> in Mandarin. The playbook is disarmingly simple: a stranger reaches out on a dating app, LinkedIn, or even a wrong-number text. Weeks of friendly conversation follow. Eventually they suggest a &ldquo;can&rsquo;t-miss&rdquo; crypto trading platform. The victim watches fabricated returns pile up, sinks in more cash, and one day the dashboard goes dark.
         </p>
         <p className="mt-3 leading-relaxed text-slate-700">
-          <strong>3-year trajectory:</strong> $4.57B → $6.57B → $8.65B. An <strong>89% increase</strong> in two years. Cryptocurrency was the payment method in 71% of investment fraud losses, totaling $7.2&nbsp;billion.
+          <strong>The trajectory speaks for itself:</strong> $4.57B &rarr; $6.57B &rarr; $8.65B. An <strong>89% jump</strong> over two years. Crypto accounted for 71% of those losses &mdash; roughly $7.2&nbsp;billion routed through wallets that are next to impossible to claw back.
         </p>
       </div>
 
@@ -448,10 +448,10 @@ export default function StateOfScams2026() {
           <h3 className="text-xl font-bold text-slate-900">Business Email Compromise (BEC) — $3.05 Billion</h3>
         </div>
         <p className="mt-3 leading-relaxed text-slate-700">
-          BEC targets businesses by impersonating executives, vendors, or partners to trick employees into authorizing fraudulent wire transfers. Despite relatively low complaint volume (24,768), the average BEC incident costs <strong>more than $123,000</strong>, making it the highest-damage-per-incident scam type.
+          BEC doesn&rsquo;t make headlines the way romance scams do, but dollar for dollar it&rsquo;s the most devastating per incident. A scammer spoofs an executive&rsquo;s email, sends a routine-looking wire-transfer request to someone in accounts payable, and the money&rsquo;s gone before anyone questions it. Only 24,768 complaints were filed in 2025 &mdash; yet the average hit landed north of <strong>$123,000</strong>.
         </p>
         <p className="mt-3 leading-relaxed text-slate-700">
-          <strong>3-year trajectory:</strong> $2.95B → $2.77B → $3.05B — steady and massive. Over <strong>$8.77&nbsp;billion</strong> lost in three years. AI-generated emails are making BEC nearly impossible to distinguish from legitimate communications.
+          <strong>Look at the three-year line:</strong> $2.95B &rarr; $2.77B &rarr; $3.05B. Steady, massive, and almost boring in its consistency. That&rsquo;s <strong>$8.77&nbsp;billion</strong> drained from American businesses over thirty-six months. The emergence of AI-generated prose &mdash; grammatically flawless, tone-matched to the spoofed sender &mdash; has made these emails nearly undetectable.
         </p>
       </div>
 
@@ -462,10 +462,10 @@ export default function StateOfScams2026() {
           <h3 className="text-xl font-bold text-slate-900">Tech / Customer Support Scams — $2.13 Billion</h3>
         </div>
         <p className="mt-3 leading-relaxed text-slate-700">
-          Tech support scams have <strong>more than doubled</strong> in two years. Scammers impersonate Microsoft, Apple, or Amazon, convincing victims their devices are compromised and demanding payment. A subset — <strong>&ldquo;gold courier&rdquo; scams</strong> — convinces elderly victims to convert savings to gold bars, then sends physical couriers to pick them up. In 2024, just 525 gold courier complaints resulted in $219&nbsp;million — an average of <strong>$417,000 per victim</strong>.
+          Your screen freezes. A pop-up warns you&rsquo;ve been &ldquo;compromised.&rdquo; A phone number flashes &mdash; call now or risk losing everything. It&rsquo;s fake, of course, but the panic feels real. Scammers posing as Microsoft, Apple, or Amazon support reps have <strong>more than doubled</strong> their take in two years. One particularly cruel variant &mdash; the <strong>&ldquo;gold courier&rdquo; scheme</strong> &mdash; talks elderly victims into converting their savings into physical gold bars, then dispatches an actual courier to their doorstep. In 2024, a mere 525 of those complaints accounted for $219&nbsp;million. Do the math: <strong>$417,000 per victim</strong>.
         </p>
         <p className="mt-3 leading-relaxed text-slate-700">
-          <strong>3-year trajectory:</strong> $925M → $1.46B → $2.13B — a <strong>131% increase</strong>. Adults 60+ accounted for over 58% of tech support losses.
+          <strong>Two-year arc:</strong> $925M &rarr; $1.46B &rarr; $2.13B. That&rsquo;s a <strong>131% climb</strong>. Seniors bore the brunt &mdash; adults 60 and older made up over 58% of total tech-support losses.
         </p>
       </div>
 
@@ -476,9 +476,9 @@ export default function StateOfScams2026() {
           <h3 className="text-xl font-bold text-slate-900">Confidence / Romance Scams — $929 Million</h3>
         </div>
         <p className="mt-3 leading-relaxed text-slate-700">
-          Romance scams remain one of the most emotionally devastating fraud types. Scammers create fake online personas, build romantic relationships over weeks or months, then manipulate victims into sending money. The BBB ranks romance scams as having the <strong>highest median loss ($6,099)</strong> of any scam type. Scammers increasingly use AI-generated photos, voice cloning, and deepfake video calls to sustain fake identities.
+          The cruelty of romance scams is hard to overstate. Victims don&rsquo;t just lose money &mdash; they lose trust in their own judgment. A scammer builds what feels like a genuine relationship over weeks, sometimes months, then invents emergencies that require cash. According to the BBB, the <strong>median loss is $6,099</strong> &mdash; the highest of any scam category they track. What&rsquo;s changed recently is the toolbox: AI-generated profile photos that don&rsquo;t appear in reverse-image searches, voice cloning that passes a phone call, even real-time deepfake video.
         </p>
-        <p className="mt-3 leading-relaxed text-slate-700"><strong>3-year trajectory:</strong> $653M → $672M → $929M — up 42%.</p>
+        <p className="mt-3 leading-relaxed text-slate-700"><strong>The numbers:</strong> $653M &rarr; $672M &rarr; $929M. A 42% rise, and almost certainly an undercount given how reluctant victims are to come forward.</p>
       </div>
 
       {/* Gov Impersonation */}
@@ -488,7 +488,7 @@ export default function StateOfScams2026() {
           <h3 className="text-xl font-bold text-slate-900">Government Impersonation — $798 Million</h3>
         </div>
         <p className="mt-3 leading-relaxed text-slate-700">
-          Scammers posing as IRS agents, Social Security officials, or FBI representatives stole <strong>$798&nbsp;million</strong> in 2025 — <strong>nearly double</strong> the 2024 figure ($406M). Common tactics include threatening arrest for unpaid taxes and claiming SSNs have been &ldquo;suspended.&rdquo;
+          &ldquo;This is the IRS. There is a warrant for your arrest.&rdquo; That single sentence &mdash; delivered by robocall, spoofed caller ID and all &mdash; helped scammers extract <strong>$798&nbsp;million</strong> in 2025. That&rsquo;s <strong>nearly double</strong> the $406M logged the year before. SSA impersonators telling people their Social Security numbers have been &ldquo;suspended&rdquo; make up the rest. Fear is the product, and business is booming.
         </p>
       </div>
 
@@ -499,7 +499,7 @@ export default function StateOfScams2026() {
           <h3 className="text-xl font-bold text-slate-900">Employment / Job Scams — $363 Million</h3>
         </div>
         <p className="mt-3 leading-relaxed text-slate-700">
-          The <strong>fastest-growing major scam category</strong>: employment scam losses exploded from $70 million in 2023 to $363&nbsp;million in 2025 — a <strong>417% increase</strong> in just two years. Fake remote job postings, fraudulent recruitment emails, and &ldquo;task scam&rdquo; schemes (where victims are paid small amounts before being asked to invest larger sums) drive this explosive growth.
+          This one blindsided us. In 2023, employment scam losses totaled $70&nbsp;million &mdash; bad, but not a headliner. By 2025 the number hit $363&nbsp;million. That&rsquo;s a <strong>417% spike</strong>. The mechanism? Fake remote-work listings on LinkedIn and Indeed, bogus recruitment emails, and a newer breed called &ldquo;task scams&rdquo; &mdash; victims get paid small amounts for simple online tasks, build confidence, and then get asked to &ldquo;invest&rdquo; to unlock higher-paying work. By the time they realize the platform is fake, thousands are gone.
         </p>
       </div>
 
@@ -510,7 +510,7 @@ export default function StateOfScams2026() {
           <h3 className="text-xl font-bold text-slate-900">Phishing / Spoofing — $216 Million</h3>
         </div>
         <p className="mt-3 leading-relaxed text-slate-700">
-          Phishing remains the <strong>most-reported scam by volume</strong> (191,561 complaints). While per-incident losses tend to be lower, phishing is a gateway crime — compromised credentials lead to BEC, account takeovers, and identity theft. Losses grew <strong>over 1,000%</strong> in two years ($19M → $70M → $216M) as AI-crafted phishing messages become virtually indistinguishable from legitimate communications.
+          By sheer complaint volume, phishing dwarfs everything else &mdash; 191,561 reports in 2025. Individual losses tend to be small, which is why analysts sometimes dismiss it. That&rsquo;s a mistake. Phishing is the gateway drug of cybercrime: one stolen password can cascade into a BEC wire transfer, a drained bank account, or a full-blown identity theft case. And the dollar damage is catching up fast &mdash; $19M in 2023, $70M in 2024, $216M in 2025. A <strong>tenfold increase</strong> in twenty-four months, fueled by AI tools that churn out flawless phishing messages at scale.
         </p>
       </div>
 
@@ -521,14 +521,14 @@ export default function StateOfScams2026() {
           <h3 className="text-xl font-bold text-slate-900">Other Notable Scams</h3>
         </div>
         <p className="mt-3 leading-relaxed text-slate-700">
-          <strong>Personal Data Breach ($1.31B)</strong> — up 76% since 2023. <strong>Non-Payment/Non-Delivery ($503M)</strong> — online marketplace fraud. <strong>Real Estate Fraud ($275M)</strong> — wire diversion in home purchases, up 59%. <strong>Lottery/Sweepstakes ($194M)</strong> — nearly doubled in one year. <strong>Extortion/Sextortion ($122M)</strong> — increasingly targeting teenagers with AI-generated images. <strong>Ransomware ($32M reported)</strong> — likely massively underreported; 63 new variants identified. <strong>Malware ($19M)</strong> — saw a <strong>1,318% increase</strong>. <strong>SIM Swap ($17M)</strong> — declining as carriers improve protections.
+          A quick sweep through the rest of the list: <strong>Personal Data Breach ($1.31B)</strong> climbed 76% in two years &mdash; breaches are constant background noise at this point. <strong>Non-Payment/Non-Delivery ($503M)</strong> covers the Facebook Marketplace and OfferUp fraud most people have encountered at least once. <strong>Real Estate Fraud ($275M)</strong> hits hardest during closing &mdash; a spoofed wire instruction redirects a down payment, and the buyer&rsquo;s savings vanish. Up 59%. <strong>Lottery/Sweepstakes ($194M)</strong> nearly doubled year over year. <strong>Sextortion ($122M)</strong> is migrating toward teenagers, now often using AI-generated images. <strong>Ransomware ($32M reported)</strong> is almost certainly understated by an order of magnitude; the FBI identified 63 new variants this year. <strong>Malware ($19M)</strong> posted a staggering <strong>1,318% increase</strong>. And <strong>SIM Swap ($17M)</strong> actually declined &mdash; one of the few bright spots, thanks to carrier-level protections finally kicking in.
         </p>
       </div>
 
       {/* ═══════════ 4. STATES TOTAL ═══════════ */}
       <SectionH2 id="by-state">4. Scam Losses by State: All 50 States + D.C. Ranked&nbsp;(2025)</SectionH2>
       <p className="mt-4 leading-relaxed text-slate-700">
-        Where you live determines your scam risk. Every U.S. state and the District of Columbia ranked by total reported losses to the FBI IC3 in 2025:
+        Geography matters more than most people realize. A retiree in Nevada faces a very different threat landscape than a college student in Iowa. Below: every state and D.C., ranked by what their residents reported losing to the FBI&rsquo;s IC3 in 2025.
       </p>
       <div className="mt-6 overflow-x-auto">
         <table className="w-full text-left text-sm">
@@ -561,13 +561,13 @@ export default function StateOfScams2026() {
       </p>
 
       <Callout emoji="🔑" title="Key Finding">
-        California alone lost <strong>$3.67&nbsp;billion</strong> — more than the bottom 30 states combined. The top 4 states (CA, TX, FL, NY) account for <strong>$8.3&nbsp;billion — roughly 40%</strong> of all national losses. West Virginia saw the largest percentage jump (+283%), while South Dakota (+106%), Arkansas (+98%), and Hawaii (+93%) also surged.
+        California&rsquo;s $3.67&nbsp;billion alone exceeds the combined total of the bottom 30 states. The usual suspects &mdash; CA, TX, FL, NY &mdash; account for <strong>$8.3&nbsp;billion, roughly 40%</strong> of the national total. But the percentage swings tell a different story: West Virginia spiked +283%, South Dakota +106%, Arkansas +98%, Hawaii +93%. Smaller states aren&rsquo;t immune &mdash; they&rsquo;re just underreported.
       </Callout>
 
       {/* ═══════════ 5. PER CAPITA ═══════════ */}
       <SectionH2 id="per-capita">5. States Ranked by Losses Per Capita (Per 100K&nbsp;Residents)</SectionH2>
       <p className="mt-4 leading-relaxed text-slate-700">
-        Raw dollar losses favor populous states. Per-capita rankings reveal where scams hit hardest <em>relative to population</em> — and the picture changes dramatically:
+        Total dollars naturally skew toward big states. Adjusting for population flips the script &mdash; suddenly states like Nevada, Arizona, and Hawaii climb near the top, and the concentration of damage per person becomes a lot harder to ignore.
       </p>
       <div className="mt-6 overflow-x-auto">
         <table className="w-full text-left text-sm">
@@ -600,13 +600,13 @@ export default function StateOfScams2026() {
       </p>
 
       <Callout emoji="🏛️" title="Why D.C. ranks #1 per capita" variant="info">
-        Despite a drop from $41.5M to $14M per 100K, the District of Columbia still leads — likely driven by the concentration of federal workers, government contractors, and tech professionals targeted by BEC and investment scams. <strong>West Virginia (+284%)</strong>, <strong>Rhode Island (+204%)</strong>, and <strong>South Dakota (+104%)</strong> saw the most dramatic per-capita surges.
+        D.C.&rsquo;s per-capita number actually fell from $41.5M to $14M per 100K &mdash; yet it still sits at #1. The likely culprit: a small population packed with federal employees, defense contractors, and lobbyists who are prime BEC and investment-fraud targets. Meanwhile, <strong>West Virginia (+284%)</strong>, <strong>Rhode Island (+204%)</strong>, and <strong>South Dakota (+104%)</strong> saw the kind of per-capita surges that deserve local news coverage.
       </Callout>
 
       {/* ═══════════ 6. METRO AREAS ═══════════ */}
       <SectionH2 id="by-city">6. Top 50 Most-Scammed Metro Areas in America</SectionH2>
       <p className="mt-4 leading-relaxed text-slate-700">
-        For residents and local journalists, the metro-area data is the most actionable. Using FTC Consumer Sentinel Network data for 2024, here are the 50 metropolitan areas with the highest per-capita fraud report rates:
+        This is the table we suspect local reporters will find most useful. The FTC&rsquo;s Consumer Sentinel Network tracks fraud complaints by metro area &mdash; here are the 50 with the highest per-capita report rates in 2024, the latest year available.
       </p>
       <div className="mt-6 overflow-x-auto">
         <table className="w-full text-left text-sm">
@@ -634,10 +634,10 @@ export default function StateOfScams2026() {
 
       <Callout emoji="🏙️" title="Regional Patterns" variant="info">
         <ul className="mt-1 list-disc pl-5 space-y-1">
-          <li><strong>Florida dominates:</strong> 7 of the top 50 metros, including #1 Miami, #5 Orlando, and #9 Tampa.</li>
-          <li><strong>Texas is close behind:</strong> 6 metros — Houston (#3), Dallas (#10), Killeen (#8), San Antonio (#16), Odessa (#17), Austin (#39).</li>
-          <li><strong>Georgia has 5 metros</strong> in the top 50: Atlanta (#2), Macon (#12), Savannah (#20), Columbus (#32), Augusta (#33).</li>
-          <li><strong>Military towns hit hard:</strong> Killeen (#8) and Odessa (#17) rank surprisingly high per capita.</li>
+          <li><strong>Florida is overrepresented:</strong> 7 of the top 50 metros sit in the Sunshine State, led by Miami at #1, Orlando at #5, and Tampa at #9.</li>
+          <li><strong>Texas keeps pace:</strong> 6 metros &mdash; Houston (#3), Killeen (#8), Dallas (#10), San Antonio (#16), Odessa (#17), Austin (#39).</li>
+          <li><strong>Georgia punches above its weight:</strong> 5 metros crack the list &mdash; Atlanta (#2), Macon (#12), Savannah (#20), Columbus (#32), Augusta (#33).</li>
+          <li><strong>Military towns stand out:</strong> Killeen (#8) is home to Fort Cavazos; Odessa (#17) has a transient oil-field workforce. Both conditions seem to attract scammers.</li>
         </ul>
       </Callout>
 
@@ -663,16 +663,16 @@ export default function StateOfScams2026() {
       </div>
 
       <Callout emoji="⚠️" title="Elder Fraud Crisis" variant="warning">
-        Americans aged 60+ lost <strong>$7.75&nbsp;billion</strong> in 2025 — a <strong>59% increase</strong> from $4.9B in 2024. This group filed the <strong>most complaints</strong> (201,266), lost <strong>37% of all money</strong> reported stolen, and had the <strong>highest average loss</strong> ($38,500). Over <strong>12,444 seniors</strong> each lost more than $100,000. Top scams targeting seniors: investment fraud ($3.5B), tech support ($1B+), romance ($584M), and BEC ($568M).
+        There is no gentle way to say this: Americans over 60 lost <strong>$7.75&nbsp;billion</strong> last year &mdash; <strong>59% more</strong> than the $4.9B in 2024. They filed the most complaints (201,266), surrendered 37% of all stolen dollars, and averaged <strong>$38,500 per victim</strong>. More than <strong>12,444 seniors</strong> individually lost over $100,000. The scams that hit them hardest: investment fraud ($3.5B), tech support ($1B+), romance ($584M), and BEC ($568M).
       </Callout>
       <p className="mt-4 leading-relaxed text-slate-700">
-        <strong>Counterintuitive FTC finding:</strong> Younger adults (20–29) are actually <em>more likely</em> to report losing money — 44% of their reports involve a loss, vs. just 24% for ages 70–79. But when older adults do lose money, they lose <em>far more</em>: the median loss for 80+ is $1,650, vs. $189 for under-20s.
+        <strong>Here&rsquo;s the twist the FTC flagged:</strong> people in their twenties are actually <em>more likely</em> to report a loss &mdash; 44% of their fraud reports involve money out the door, compared with just 24% for people in their seventies. But when an older adult does get taken, the damage is catastrophic. Median loss for 80+ is $1,650. For under-20s, it&rsquo;s $189. Age doesn&rsquo;t make you more gullible &mdash; it makes you a bigger target.
       </p>
 
       {/* ═══════════ 8. AI SCAMS ═══════════ */}
       <SectionH2 id="ai-scams">8. The AI Scam Explosion</SectionH2>
       <p className="mt-4 leading-relaxed text-slate-700">
-        The single most alarming trend: the weaponization of artificial intelligence for fraud.
+        If there&rsquo;s one trend in this entire report that keeps fraud analysts up at night, it&rsquo;s this one.
       </p>
 
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
@@ -682,7 +682,7 @@ export default function StateOfScams2026() {
         <StatCard number="$40B" label="Projected AI Fraud by 2027" change="Deloitte forecast" />
       </div>
 
-      <h3 className="mt-8 text-lg font-semibold text-slate-800">AI Scam Statistics That Should Alarm You:</h3>
+      <h3 className="mt-8 text-lg font-semibold text-slate-800">Numbers worth sitting with:</h3>
       <ul className="mt-3 list-disc space-y-2 pl-5 text-slate-700">
         <li><strong>Voice cloning:</strong> Just <strong>3 seconds of audio</strong> creates an 85% voice match. 1 in 4 adults have experienced an AI voice scam, and <strong>77% of those targeted lost money</strong> (McAfee).</li>
         <li><strong>Deepfake videos:</strong> Human accuracy in identifying high-quality deepfakes is just <strong>24.5%</strong>. One deepfake video call cost engineering firm Arup <strong>$25.6 million</strong>.</li>
@@ -693,7 +693,7 @@ export default function StateOfScams2026() {
       </ul>
 
       <Callout emoji="🌍" title="The Global Picture" variant="warning">
-        According to the Global Anti-Scam Alliance (GASA), global scam losses reached <strong>$442&nbsp;billion</strong> in 2024, with <strong>57% of adults worldwide</strong> targeted at least once a week. In the U.S. alone, deepfake-enabled fraud is projected to reach <strong>$40&nbsp;billion by 2027</strong> (Deloitte).
+        GASA&rsquo;s 2025 report puts global scam losses at <strong>$442&nbsp;billion</strong> for 2024 &mdash; and finds that <strong>57% of adults worldwide</strong> encounter at least one scam attempt per week. Deloitte&rsquo;s financial-services team projects deepfake-enabled fraud alone will reach <strong>$40&nbsp;billion in the U.S. by 2027</strong>. We&rsquo;re not ready.
       </Callout>
 
       {/* ═══════════ 9. PROTECT ═══════════ */}
@@ -738,9 +738,9 @@ export default function StateOfScams2026() {
       <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-6 text-sm leading-relaxed text-slate-600">
         <h3 className="text-base font-semibold text-slate-800">About This Report</h3>
         <p className="mt-2">
-          This analysis was compiled by{" "}
+          The{" "}
           <a href="https://socialcatfish.com" className="font-medium text-red-600 underline decoration-red-200 underline-offset-2 hover:text-red-700" target="_blank" rel="noopener noreferrer">Social Catfish</a>{" "}
-          Research using publicly available data from federal agencies and research organizations. All figures represent <em>reported</em> losses. The FBI estimates only 2–6% of victims file complaints, suggesting true annual fraud costs could exceed $195&nbsp;billion.
+          research team compiled this report from publicly released federal data and peer-reviewed fraud research. Every number here reflects <em>reported</em> losses only. Given the FBI&rsquo;s own estimate that just 2&ndash;6% of victims file complaints, actual annual fraud costs in the U.S. likely land somewhere north of $195&nbsp;billion.
         </p>
 
         <h3 className="mt-5 text-base font-semibold text-slate-800">Primary Sources</h3>
