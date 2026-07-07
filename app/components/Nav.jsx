@@ -24,6 +24,7 @@ export default function Nav() {
   }, []);
 
   const mainLinks = [
+    { href: "/state-of-scams-2026", label: "State of Scams" },
     { href: "/wall-of-shame", label: "Wall of Shame" },
     { href: "/leaderboard", label: "Leaderboard" },
     { href: "/scams", label: "Resources" },
