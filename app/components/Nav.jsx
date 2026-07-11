@@ -135,6 +135,7 @@ export default function Nav() {
   ];
 
   return (
+    <>
     <nav className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         {/* ── Logo ── */}
@@ -292,7 +293,9 @@ export default function Nav() {
         </button>
       </div>
 
-      {/* ── Mobile menu ── */}
+    </nav>
+
+      {/* ── Mobile menu (outside nav to avoid backdrop-filter containing block) ── */}
       {mobileOpen && (
         <div className="fixed left-0 right-0 bottom-0 top-[57px] z-30 lg:hidden">
           {/* Backdrop */}
@@ -410,6 +413,6 @@ export default function Nav() {
           </div>
         </div>
       )}
-    </nav>
+    </>
   );
 }
