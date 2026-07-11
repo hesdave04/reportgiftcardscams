@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import EmailVerification from "@/app/components/EmailVerification";
+import AuthOrEmailVerify from "@/app/components/AuthOrEmailVerify";
 
 const SCAM_TYPES = [
   { value: "phishing", label: "Phishing / fake login page" },
@@ -37,6 +37,8 @@ export default function ReportFraudulentWebsiteClient() {
         body: JSON.stringify({
           reportType: "website_report",
           emailProof: verified.proof,
+          isLoggedIn: verified.isLoggedIn || false,
+          reporterId: verified.reporterId || null,
           url: url.trim(),
           additionalUrls: additionalUrls
             .split("\n")
@@ -122,7 +124,7 @@ export default function ReportFraudulentWebsiteClient() {
       </p>
 
       <div className="mt-6">
-        <EmailVerification onVerified={setVerified} />
+        <AuthOrEmailVerify onVerified={setVerified} />
       </div>
 
       {verified && (

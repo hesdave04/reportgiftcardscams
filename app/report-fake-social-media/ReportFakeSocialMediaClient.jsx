@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import EmailVerification from "@/app/components/EmailVerification";
+import AuthOrEmailVerify from "@/app/components/AuthOrEmailVerify";
 
 const PLATFORMS = [
   { value: "facebook", label: "Facebook" },
@@ -55,6 +55,8 @@ export default function ReportFakeSocialMediaClient() {
         body: JSON.stringify({
           reportType: "social_media_report",
           emailProof: verified.proof,
+          isLoggedIn: verified.isLoggedIn || false,
+          reporterId: verified.reporterId || null,
           profileUrl: profileUrl.trim(),
           platform,
           fakeName: fakeName.trim() || undefined,
@@ -141,7 +143,7 @@ export default function ReportFakeSocialMediaClient() {
       </p>
 
       <div className="mt-6">
-        <EmailVerification onVerified={setVerified} />
+        <AuthOrEmailVerify onVerified={setVerified} />
       </div>
 
       {verified && (

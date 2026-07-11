@@ -3,6 +3,7 @@ import Script from "next/script";
 import Nav from "@/app/components/Nav";
 import Footer from "@/app/components/Footer";
 import RecaptchaProvider from "@/app/providers/RecaptchaProvider";
+import AuthProvider from "@/app/providers/AuthProvider";
 
 const GA_ID = "G-4RDYHX774R";
 
@@ -78,11 +79,13 @@ export default function RootLayout({ children }) {
           `}
         </Script>
 
-        <RecaptchaProvider>
-          <Nav />
-          <main>{children}</main>
-          <Footer />
-        </RecaptchaProvider>
+        <AuthProvider>
+          <RecaptchaProvider>
+            <Nav />
+            <main>{children}</main>
+            <Footer />
+          </RecaptchaProvider>
+        </AuthProvider>
       </body>
     </html>
   );

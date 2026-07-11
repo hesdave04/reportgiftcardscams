@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import EmailVerification from "@/app/components/EmailVerification";
+import AuthOrEmailVerify from "@/app/components/AuthOrEmailVerify";
 
 const BLOCKCHAINS = [
   { value: "bitcoin", label: "Bitcoin (BTC)" },
@@ -55,6 +55,8 @@ export default function ReportCryptoWalletClient() {
         body: JSON.stringify({
           reportType: "crypto_wallet_report",
           emailProof: verified.proof,
+          isLoggedIn: verified.isLoggedIn || false,
+          reporterId: verified.reporterId || null,
           walletAddress: walletAddress.trim(),
           blockchain,
           associatedDomain: associatedDomain.trim() || undefined,
@@ -143,7 +145,7 @@ export default function ReportCryptoWalletClient() {
       </p>
 
       <div className="mt-6">
-        <EmailVerification onVerified={setVerified} />
+        <AuthOrEmailVerify onVerified={setVerified} />
       </div>
 
       {verified && (

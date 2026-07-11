@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import WallOfFame from "@/app/components/WallOfFame";
 
 export default function WallOfShamePage() {
   const [days, setDays] = useState(180);
@@ -150,6 +151,11 @@ export default function WallOfShamePage() {
             color="slate"
           />
         )}
+      </div>
+
+      {/* Wall of Fame */}
+      <div className="mt-10">
+        <WallOfFame />
       </div>
 
       {/* CTA */}
