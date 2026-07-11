@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import EmailVerification from "@/app/components/EmailVerification";
+import AuthOrEmailVerify from "@/app/components/AuthOrEmailVerify";
 
 /**
  * Shared quick-report form for scam-type landing pages.
@@ -45,6 +45,8 @@ export default function QuickScamReport({
         body: JSON.stringify({
           reportType: "scam_type_report",
           emailProof: verified.proof,
+          isLoggedIn: verified.isLoggedIn || false,
+          reporterId: verified.reporterId || null,
           scamTypeValue,
           ...values,
         }),
@@ -145,7 +147,7 @@ export default function QuickScamReport({
       )}
 
       <div className="mt-6">
-        <EmailVerification onVerified={setVerified} />
+        <AuthOrEmailVerify onVerified={setVerified} />
       </div>
 
       {verified && (

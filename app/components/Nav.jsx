@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "@/app/providers/AuthProvider";
 
 export default function Nav() {
+  const { user, reporter, signOut, loading: authLoading } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
@@ -230,13 +232,46 @@ export default function Nav() {
             )}
           </div>
 
-          {/* CTA */}
-          <a
-            href="/case-builder"
-            className="ml-2 rounded-lg bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-800 transition-colors"
-          >
-            Submit a Report
-          </a>
+          {/* Auth + CTA */}
+          {!authLoading && (
+            user ? (
+              <div className="ml-2 flex items-center gap-2">
+                <a
+                  href="/dashboard"
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-slate-600 hover:bg-slate-100 transition-colors"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                  </svg>
+                  {reporter?.display_name || "Dashboard"}
+                  {(reporter?.role === "scambaiter" || reporter?.is_whitelisted) && (
+                    <span className="ml-0.5 inline-block h-2 w-2 rounded-full bg-amber-400" title="Verified Scambaiter" />
+                  )}
+                </a>
+                <a
+                  href="/case-builder"
+                  className="rounded-lg bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-800 transition-colors"
+                >
+                  Submit a Report
+                </a>
+              </div>
+            ) : (
+              <div className="ml-2 flex items-center gap-2">
+                <a
+                  href="/login"
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-slate-600 hover:bg-slate-100 transition-colors"
+                >
+                  Sign In
+                </a>
+                <a
+                  href="/case-builder"
+                  className="rounded-lg bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-800 transition-colors"
+                >
+                  Submit a Report
+                </a>
+              </div>
+            )
+          )}
         </div>
 
         {/* ── Mobile hamburger ── */}
@@ -281,6 +316,36 @@ export default function Nav() {
                 </svg>
                 Submit a Report
               </a>
+
+              {/* ── Auth ── */}
+              {!authLoading && (
+                user ? (
+                  <a
+                    href="/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                    className="mt-2 flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-5 py-3 text-[15px] font-medium text-slate-700 active:bg-slate-100 transition-colors"
+                  >
+                    <svg className="h-[18px] w-[18px] text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                    {reporter?.display_name || "My Dashboard"}
+                    {(reporter?.role === "scambaiter" || reporter?.is_whitelisted) && (
+                      <span className="inline-block h-2 w-2 rounded-full bg-amber-400" title="Verified Scambaiter" />
+                    )}
+                  </a>
+                ) : (
+                  <a
+                    href="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="mt-2 flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-5 py-3 text-[15px] font-medium text-slate-700 active:bg-slate-100 transition-colors"
+                  >
+                    <svg className="h-[18px] w-[18px] text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                    Sign In / Create Account
+                  </a>
+                )
+              )}
 
               {/* ── Tools grid ── */}
               <div className="mt-5">

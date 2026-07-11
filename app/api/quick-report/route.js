@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { verifyRecaptcha } from '@/lib/recaptcha';
+import { computeTrustScore, trustTier } from '@/lib/trustScore';
 import crypto from 'crypto';
 import rateLimit from '@/utils/rate-limit';
+import { createClient } from '@supabase/supabase-js';
 
 const limiter = rateLimit({ window: 60, limit: 10 });
 
@@ -64,8 +66,27 @@ export async function POST(request) {
       captchaStatus = "no-token";
     }
 
-    // Verify email proof
-    const verifiedEmail = verifyProof(emailProof);
+    // Verify email proof OR authenticated session
+    let verifiedEmail = verifyProof(emailProof);
+
+    // If no email proof, check for authenticated user via Authorization header
+    if (!verifiedEmail && body.isLoggedIn && body.reporterId) {
+      const supabaseUrl = process.env.SUPABASE_URL;
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (supabaseUrl && supabaseKey) {
+        const authClient = createClient(supabaseUrl, supabaseKey);
+        // Verify the reporter exists and get their email
+        const { data: reporterRow } = await authClient
+          .from('reporters')
+          .select('email')
+          .eq('id', body.reporterId)
+          .single();
+        if (reporterRow?.email) {
+          verifiedEmail = reporterRow.email;
+        }
+      }
+    }
+
     if (!verifiedEmail) {
       return NextResponse.json(
         { error: 'Email verification required. Please verify your email first.' },
@@ -203,6 +224,61 @@ export async function POST(request) {
     delete payload.full_payload.emailProof;
     delete payload.full_payload.recaptchaToken;
 
+    // ── Reporter linkage (authenticated users) ──
+    let reporterId = null;
+    let reporterRole = null;
+    let isWhitelisted = false;
+    let priorReportCount = 0;
+    const isLoggedIn = body.isLoggedIn === true;
+
+    if (body.reporterId) {
+      // Verify reporter exists
+      const { data: reporterRow } = await supabase
+        .from('reporters')
+        .select('id, role, is_whitelisted, reports_count')
+        .eq('id', body.reporterId)
+        .single();
+
+      if (reporterRow) {
+        reporterId = reporterRow.id;
+        reporterRole = reporterRow.role;
+        isWhitelisted = reporterRow.is_whitelisted;
+        priorReportCount = reporterRow.reports_count || 0;
+        payload.reporter_id = reporterId;
+        payload.reporter_role = reporterRole;
+      }
+    }
+
+    // ── Compute trust score ──
+    let recaptchaNum = null;
+    if (captchaStatus.includes('score=')) {
+      const m = captchaStatus.match(/score=([\d.]+)/);
+      if (m) recaptchaNum = parseFloat(m[1]);
+    }
+
+    const { score: trustScore, factors: trustFactors } = computeTrustScore({
+      story: payload.story,
+      evidenceUrls: payload.evidence_urls,
+      amount: payload.amount,
+      paymentMethods: payload.payment_methods,
+      suspectPhone: payload.suspect_phone,
+      suspectEmail: payload.full_payload?.fraud_email,
+      suspectWallet: payload.suspect_wallet,
+      suspectWebsite: payload.suspect_website,
+      suspectName: payload.suspect_name,
+      suspectUsername: payload.suspect_username,
+      emailVerified: !!verifiedEmail,
+      isLoggedIn,
+      reporterRole,
+      isWhitelisted,
+      priorReportCount,
+      recaptchaScore: recaptchaNum,
+    });
+
+    payload.trust_score = trustScore;
+    payload.trust_tier = trustTier(trustScore);
+    payload.full_payload._trustFactors = trustFactors;
+
     const { data, error } = await supabase
       .from('case_intakes')
       .insert([payload])
@@ -215,6 +291,21 @@ export async function POST(request) {
         { error: 'Failed to save report' },
         { status: 500 }
       );
+    }
+
+    // Increment reporter's report count (fire and forget)
+    if (reporterId) {
+      supabase.rpc('increment_reporter_count', { reporter_row_id: reporterId })
+        .then(() => {})
+        .catch(() => {
+          // Fallback: direct update
+          supabase
+            .from('reporters')
+            .update({ reports_count: priorReportCount + 1 })
+            .eq('id', reporterId)
+            .then(() => {})
+            .catch(() => {});
+        });
     }
 
     return NextResponse.json({
