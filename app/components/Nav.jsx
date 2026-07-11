@@ -294,7 +294,7 @@ export default function Nav() {
 
       {/* ── Mobile menu ── */}
       {mobileOpen && (
-        <div className="fixed inset-0 top-[57px] z-30 lg:hidden">
+        <div className="fixed left-0 right-0 bottom-0 top-[57px] z-30 lg:hidden">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/20 backdrop-blur-sm"
