@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 import { authenticateApiKey } from "@/lib/apiAuth";
+import { toDigits } from "@/utils/phoneNormalize";
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +60,15 @@ export async function GET(request) {
     const conditions = [];
     if (wallet) conditions.push(`suspect_wallet.ilike.%${wallet}%`);
     if (email) conditions.push(`suspect_email.ilike.%${email}%`);
-    if (phone) conditions.push(`suspect_phone.ilike.%${phone}%`);
+    if (phone) {
+      // Normalize phone to digits so any formatting variation matches
+      const digits = toDigits(phone);
+      if (digits.length >= 7) {
+        conditions.push(`phone_normalized.ilike.%${digits}%`);
+      } else {
+        conditions.push(`suspect_phone.ilike.%${phone}%`);
+      }
+    }
     if (url) conditions.push(`suspect_website.ilike.%${url}%`);
     if (name) conditions.push(`suspect_name.ilike.%${name}%`);
 

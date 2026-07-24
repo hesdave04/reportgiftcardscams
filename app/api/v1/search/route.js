@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 import { authenticateApiKey } from "@/lib/apiAuth";
+import { isPhoneLike, toDigits } from "@/utils/phoneNormalize";
 
 export const dynamic = "force-dynamic";
 
@@ -48,26 +49,32 @@ export async function GET(request) {
   }
 
   try {
+    const phoneQuery = isPhoneLike(q);
+
     // Build search conditions based on type
+    // When the query looks like a phone number, search the digits-only
+    // normalized column so any formatting variation matches.
     const typeFieldMap = {
       wallet: ["suspect_wallet"],
       email: ["suspect_email"],
-      phone: ["suspect_phone"],
+      phone: ["phone_normalized"],
       url: ["suspect_website"],
       name: ["suspect_name"],
       username: ["suspect_username"],
-      all: [
-        "suspect_wallet",
-        "suspect_email",
-        "suspect_phone",
-        "suspect_website",
-        "suspect_name",
-        "suspect_username",
-      ],
+      all: phoneQuery
+        ? ["phone_normalized", "suspect_wallet", "suspect_email", "suspect_website", "suspect_name", "suspect_username"]
+        : ["suspect_wallet", "suspect_email", "suspect_phone", "suspect_website", "suspect_name", "suspect_username"],
     };
 
     const fields = typeFieldMap[type] || typeFieldMap.all;
-    const conditions = fields.map((f) => `${f}.ilike.%${q}%`);
+
+    // For phone-related fields, use digits-only matching
+    const searchValue = (field) => {
+      if (field === "phone_normalized") return toDigits(q);
+      return q;
+    };
+
+    const conditions = fields.map((f) => `${f}.ilike.%${searchValue(f)}%`);
 
     const { data, error, count } = await supa
       .from("case_intakes")
