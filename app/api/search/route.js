@@ -6,6 +6,7 @@ export const runtime = 'nodejs';
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import rateLimit from '@/utils/rate-limit';
+import { isPhoneLike, toDigits } from '@/utils/phoneNormalize';
 
 const limiter = rateLimit({ window: 60, limit: 30 });
 
@@ -27,6 +28,8 @@ export async function GET(request) {
     const page = Math.max(parseInt(url.searchParams.get('page') || '1', 10), 1);
     const pageSize = Math.min(Math.max(parseInt(url.searchParams.get('pageSize') || '20', 10), 1), 100);
 
+    const phoneQuery = isPhoneLike(q);
+
     // ── Query both tables in parallel ──
 
     // 1. Gift card reports (original table)
@@ -44,15 +47,26 @@ export async function GET(request) {
     }
 
     // 2. Case intakes (main reports table)
+    // For phone-like queries, search the normalized digits column so any
+    // formatting variation ("+234 705 824 0576", "2347058240576", etc.) matches.
     let ciQuery = supabase
       .from('case_intakes')
       .select('id, scam_type, platforms, story, suspect_name, suspect_email, suspect_phone, suspect_username, suspect_wallet, suspect_website, amount, created_at', { count: 'exact' })
       .order('created_at', { ascending: false });
 
     if (q) {
-      ciQuery = ciQuery.or(
-        `story.ilike.%${q}%,scam_type.ilike.%${q}%,suspect_name.ilike.%${q}%,suspect_email.ilike.%${q}%,suspect_phone.ilike.%${q}%,suspect_username.ilike.%${q}%,suspect_wallet.ilike.%${q}%,suspect_website.ilike.%${q}%`
-      );
+      if (phoneQuery) {
+        const digits = toDigits(q);
+        // Search the digits-only normalized column + fall back to story/name
+        // in case the phone number appears in the narrative text too
+        ciQuery = ciQuery.or(
+          `phone_normalized.ilike.%${digits}%,story.ilike.%${q}%,suspect_name.ilike.%${q}%`
+        );
+      } else {
+        ciQuery = ciQuery.or(
+          `story.ilike.%${q}%,scam_type.ilike.%${q}%,suspect_name.ilike.%${q}%,suspect_email.ilike.%${q}%,suspect_phone.ilike.%${q}%,suspect_username.ilike.%${q}%,suspect_wallet.ilike.%${q}%,suspect_website.ilike.%${q}%`
+        );
+      }
     }
 
     // Fetch both in parallel — get enough rows to fill one page
