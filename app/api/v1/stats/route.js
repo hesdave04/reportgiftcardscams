@@ -56,16 +56,35 @@ export async function GET() {
       totalDataPoints += c;
     });
 
-    // Source breakdown
-    const knownSources = [
-      "submitted",
-      "scf_verified",
-      "3p_chainabuse",
-      "3p_cryptolegal",
-      "user_submitted",
-    ];
+    // Source breakdown — dynamically discover all sources
+    const sourceLabels = {
+      submitted: "User Submitted",
+      user_submitted: "User Submitted",
+      scf_verified: "SCF Verified",
+      "3p_chainabuse": "ChainAbuse",
+      "3p_cryptolegal": "CryptoLegal",
+      "bulk-import": "Imported",
+      imported: "Imported",
+      ScamHatersUnited: "ScamHaters United",
+    };
+
+    // Discover all distinct source values
+    let discoveredSources = [];
+    try {
+      const { data: sourceRows } = await supa
+        .from("case_intakes")
+        .select("source")
+        .not("source", "is", null)
+        .neq("source", "")
+        .limit(50000);
+      discoveredSources = [...new Set((sourceRows || []).map((r) => r.source).filter(Boolean))];
+    } catch (err) {
+      console.error("Source discovery error:", err);
+      discoveredSources = ["submitted", "scf_verified", "3p_chainabuse", "3p_cryptolegal", "user_submitted"];
+    }
+
     const sourceResults = await Promise.all(
-      knownSources.map((src) =>
+      discoveredSources.map((src) =>
         supa
           .from("case_intakes")
           .select("id", { count: "exact", head: true })
@@ -73,16 +92,8 @@ export async function GET() {
       )
     );
 
-    const sourceLabels = {
-      submitted: "User Submitted",
-      user_submitted: "User Submitted",
-      scf_verified: "SCF Verified",
-      "3p_chainabuse": "ChainAbuse",
-      "3p_cryptolegal": "CryptoLegal",
-    };
-
     const sources = {};
-    knownSources.forEach((src, i) => {
+    discoveredSources.forEach((src, i) => {
       const c = sourceResults[i]?.count || 0;
       if (c > 0) {
         sources[sourceLabels[src] || src] = c;

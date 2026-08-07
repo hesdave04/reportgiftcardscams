@@ -80,12 +80,40 @@ const SOURCE_LABELS = {
   "3p_cryptolegal": "CryptoLegal",
   "3p_giftcard": "Gift Card Reports",
   "bulk-import": "Imported",
+  imported: "Imported",
+  ScamHatersUnited: "ScamHaters United",
 };
 
-const KNOWN_SOURCES = [
-  "submitted", "scf_verified", "3p_chainabuse", "3p_cryptolegal",
-  "user_submitted", "imported", "bulk-import",
-];
+/**
+ * Dynamically discover all distinct source values in the case_intakes table.
+ * Falls back to a static list if the query fails.
+ */
+async function discoverSources(supa, cutoffISO) {
+  try {
+    // Supabase JS doesn't support SELECT DISTINCT, so we use a grouped approach:
+    // Pull source values from recent records (limited scan).
+    const { data, error } = await supa
+      .from("case_intakes")
+      .select("source")
+      .gte("created_at", cutoffISO)
+      .not("source", "is", null)
+      .neq("source", "")
+      .limit(50000);
+
+    if (error || !data) {
+      console.error("discoverSources error:", error);
+      return ["submitted", "scf_verified", "3p_chainabuse", "3p_cryptolegal", "user_submitted", "imported", "bulk-import"];
+    }
+
+    const unique = [...new Set(data.map((r) => r.source).filter(Boolean))];
+    return unique.length > 0
+      ? unique
+      : ["submitted", "scf_verified", "3p_chainabuse", "3p_cryptolegal", "user_submitted", "imported", "bulk-import"];
+  } catch (err) {
+    console.error("discoverSources exception:", err);
+    return ["submitted", "scf_verified", "3p_chainabuse", "3p_cryptolegal", "user_submitted", "imported", "bulk-import"];
+  }
+}
 
 /* ── Count helper: uses Supabase head:true to get count without data ── */
 async function countWhere(supa, table, filters = {}, cutoffISO) {
@@ -218,9 +246,9 @@ export async function GET(request) {
     // 3a. Get total case_intakes count
     const totalIntakeCount = await countWhere(supa, "case_intakes", {}, cutoffISO);
 
-    // 3b. Get all unique sources that exist
-    //     (query each known source to see if it has records)
-    const sourceCountPromises = KNOWN_SOURCES.map(async (src) => {
+    // 3b. Dynamically discover all sources and count each
+    const discoveredSources = await discoverSources(supa, cutoffISO);
+    const sourceCountPromises = discoveredSources.map(async (src) => {
       const count = await countWhere(supa, "case_intakes", { source: src }, cutoffISO);
       return { source: src, count };
     });
@@ -265,7 +293,7 @@ export async function GET(request) {
       .sort((a, b) => b[1]._reports - a[1]._reports)
       .map(([src, counts]) => ({
         source: src,
-        label: SOURCE_LABELS[src] || src.replace(/^3p_/, "").replace(/_/g, " "),
+        label: SOURCE_LABELS[src] || src.replace(/^3p_/, "").replace(/_/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2"),
         reports: counts._reports,
         ...Object.fromEntries(DATA_FIELDS.map(({ field }) => [field, counts[field]])),
       }));
