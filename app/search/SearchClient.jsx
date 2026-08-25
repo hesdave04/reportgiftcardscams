@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import PrivacyLockCTA from "@/app/components/PrivacyLockCTA";
 
 /* ── Scam type label formatter ── */
 const SCAM_TYPE_LABELS = {
@@ -208,6 +209,9 @@ export default function SearchClient() {
               )}
             </>
           )}
+
+          {/* Next step: protect your own exposed data */}
+          <PrivacyLockCTA variant="search" query={query.trim()} className="mt-10" />
         </div>
       )}
     </main>

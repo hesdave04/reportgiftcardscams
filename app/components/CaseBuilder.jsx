@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
+import PrivacyLockCTA from "@/app/components/PrivacyLockCTA";
 /* ─── constants ─── */
 
 const STORAGE_KEY = "scamcomplaints_draft";
@@ -462,6 +463,9 @@ export default function CaseBuilder() {
               ))}
             </ol>
           </div>
+
+          {/* Next step: protect your own exposed data */}
+          <PrivacyLockCTA variant="report" className="mt-8" />
 
           {/* Quick links */}
           <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">

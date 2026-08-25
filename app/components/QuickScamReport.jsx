@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import AuthOrEmailVerify from "@/app/components/AuthOrEmailVerify";
+import PrivacyLockCTA from "@/app/components/PrivacyLockCTA";
 
 /**
  * Shared quick-report form for scam-type landing pages.
@@ -87,6 +88,7 @@ export default function QuickScamReport({
             File Detailed Complaint
           </a>
         </div>
+        <PrivacyLockCTA variant="report" className="mt-8 text-left" />
       </div>
     );
   }
