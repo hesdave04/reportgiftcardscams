@@ -29,6 +29,7 @@ export default function sitemap() {
     { path: "/scam-websites", priority: 0.8, changeFrequency: "daily" },
     { path: "/how-to-identify-a-scam", priority: 0.8, changeFrequency: "monthly" },
     { path: "/what-to-do-if-scammed", priority: 0.8, changeFrequency: "monthly" },
+    { path: "/how-to-report", priority: 0.9, changeFrequency: "monthly" },
   ];
 
   // State-specific scam pages (51 pages)

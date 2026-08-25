@@ -128,6 +128,7 @@ export default function Nav() {
 
   const moreLinks = [
     { href: "/how-to-identify-a-scam", label: "How to Identify a Scam" },
+    { href: "/how-to-report", label: "How to Report a Scam" },
     { href: "/what-to-do-if-scammed", label: "What to Do If Scammed" },
     { href: "/trust", label: "Trust & Security" },
     { href: "/xml", label: "Data Access" },
