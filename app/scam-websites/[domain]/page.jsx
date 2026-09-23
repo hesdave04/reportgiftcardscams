@@ -165,6 +165,7 @@ function buildVerdict(domain, row) {
   } else if (row.server_country) {
     bits.push(`The site is hosted in ${row.server_country}${row.server_isp ? ` (${row.server_isp})` : ""}.`);
   }
+  if (row.rdap_status === "not_registered") bits.push(`The domain is no longer registered — it has been dropped or taken down, which is typical of short-lived scam sites. Watch for the same operators re-appearing under a new name.`);
   if (row.trust_score != null) bits.push(`Our automated safety check gave it a trust score of ${row.trust_score}/100${row.risk_level ? ` (${row.risk_level.replace(/_/g, " ")})` : ""}.`);
   if (!bits.length) bits.push(`${domain} is listed in the ScamComplaints scam-website database.`);
   return bits;
@@ -322,13 +323,15 @@ export default async function DomainPage({ params }) {
             </div>
 
             {/* Domain intelligence */}
-            {(row.registrar || row.server_country || row.ssl_issuer || row.page_title || row.nameservers?.length) && (
+            {(row.registrar || row.server_country || row.ssl_issuer || row.page_title || row.nameservers?.length || row.rdap_status) && (
               <div>
                 <h2 className="text-xl font-bold text-slate-900">Domain intelligence</h2>
                 <p className="mt-1 text-sm text-slate-500">Pulled from public registration (RDAP/WHOIS), DNS, TLS and hosting records{row.checked_at ? ` on ${formatDate(row.checked_at)}` : ""}.</p>
                 <dl className="mt-4 grid gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2">
                   <Fact label="Registered" value={row.registration_date ? `${formatDate(row.registration_date)}${row.domain_age_days != null ? ` · ${row.domain_age_days < 365 ? `${Math.max(1, Math.round(row.domain_age_days / 30))} months old` : `${Math.floor(row.domain_age_days / 365)} yrs old`}` : ""}` : null} warn={row.domain_age_days != null && row.domain_age_days < 180} />
                   <Fact label="Registrar" value={row.registrar} />
+                  <Fact label="Expires" value={row.expiration_date ? formatDate(row.expiration_date) : null} />
+                  <Fact label="Registration status" value={row.rdap_status === "not_registered" ? "No longer registered — domain dropped or taken down" : row.rdap_status === "ok" ? "Active registration" : null} warn={false} />
                   <Fact label="Hosting country" value={row.server_country} />
                   <Fact label="Hosting provider" value={row.server_isp} />
                   <Fact label="Nameservers" value={row.nameservers} />
