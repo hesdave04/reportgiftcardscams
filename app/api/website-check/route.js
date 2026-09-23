@@ -969,12 +969,14 @@ export async function GET(request) {
           .select("id", { count: "exact", head: true })
           .ilike("suspect_website", `%${domain}%`);
 
-        if (!count || count === 0) {
+        // Only low-scoring domains belong in the scam directory — a clean
+        // check must never create a "scam website" page for a legit site.
+        if ((!count || count === 0) && normalizedScore <= 40) {
           await supa.from("case_intakes").insert({
             suspect_website: domain,
             source: "website-checker",
             status: "checked",
-            scam_type: normalizedScore <= 40 ? "suspicious_website" : null,
+            scam_type: "suspicious_website",
             story: `Automated website trust check — score ${normalizedScore}/100 (${risk.label}). ${allFlags.length} flag(s): ${allFlags.join("; ") || "none"}.`,
             full_payload: response,
           });

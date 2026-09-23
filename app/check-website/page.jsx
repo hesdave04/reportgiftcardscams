@@ -16,6 +16,7 @@ export const metadata = {
   alternates: { canonical: "/check-website" },
 };
 
-export default function CheckWebsitePage() {
-  return <CheckWebsiteClient />;
+export default function CheckWebsitePage({ searchParams }) {
+  const initialUrl = typeof searchParams?.url === "string" ? searchParams.url.slice(0, 253) : "";
+  return <CheckWebsiteClient initialUrl={initialUrl} />;
 }

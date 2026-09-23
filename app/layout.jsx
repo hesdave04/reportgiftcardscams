@@ -13,6 +13,7 @@ export const metadata = {
   description:
     "Report scams and fraud incidents quickly and clearly. Your reports help protect others and support law enforcement investigations.",
   alternates: { canonical: "/" },
+  verification: { google: "2IHFnLBsBoDNnAocrpjeeKHnVaqiDVQ0IN39BUt7DOk" },
   openGraph: {
     title: "ScamComplaints — Report Scams & Fraud",
     description:

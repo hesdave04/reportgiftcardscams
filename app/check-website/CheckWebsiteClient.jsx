@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 /* ── Score ring SVG ── */
 function ScoreRing({ score, color, size = 160 }) {
@@ -105,16 +105,26 @@ function CategoryCard({ title, icon, score, max, pct, details, flags }) {
 }
 
 /* ── Main component ── */
-export default function CheckWebsiteClient() {
-  const [url, setUrl] = useState("");
+export default function CheckWebsiteClient({ initialUrl = "" }) {
+  const [url, setUrl] = useState(initialUrl);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const inputRef = useRef(null);
 
+  // Auto-run when arriving from a /scam-websites/{domain} page (?url=...)
+  useEffect(() => {
+    if (initialUrl) runCheck(initialUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialUrl]);
+
   async function handleCheck(e) {
     e.preventDefault();
-    const trimmed = url.trim();
+    return runCheck(url);
+  }
+
+  async function runCheck(raw) {
+    const trimmed = (raw || "").trim();
     if (!trimmed) return;
     setLoading(true);
     setError("");
