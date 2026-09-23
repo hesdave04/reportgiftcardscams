@@ -27,7 +27,7 @@ export default function DirectoryTable({ rows }) {
         <thead>
           <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
             <th className="px-4 py-3">Website</th>
-            <th className="px-4 py-3 text-center">Reports</th>
+            <th className="px-4 py-3 text-center">Reports / ⚑ Blocklists</th>
             <th className="hidden px-4 py-3 sm:table-cell">Scam Type</th>
             <th className="hidden px-4 py-3 text-center md:table-cell">Trust Score</th>
             <th className="hidden px-4 py-3 md:table-cell">Hosting</th>
@@ -44,14 +44,15 @@ export default function DirectoryTable({ rows }) {
                     {w.domain}
                   </Link>
                   {w.kind === "legit" && <span className="ml-2 rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-800">legit · impersonated</span>}
+                  {w.kind === "blocklisted" && <span className="ml-2 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-semibold text-orange-800">{w.feed_count} blocklists</span>}
                 </td>
                 <td className="px-4 py-3 text-center">
-                  <span className={`inline-flex h-6 min-w-[24px] items-center justify-center rounded-full px-2 text-xs font-semibold ${badge.bg} ${badge.text}`}>{w.report_count}</span>
+                  <span className={`inline-flex h-6 min-w-[24px] items-center justify-center rounded-full px-2 text-xs font-semibold ${badge.bg} ${badge.text}`}>{w.kind === "blocklisted" ? `${w.feed_count}⚑` : w.report_count}</span>
                 </td>
                 <td className="hidden px-4 py-3 text-slate-600 sm:table-cell">{w.primary_scam_type ? formatScamType(w.primary_scam_type) : "—"}</td>
                 <td className="hidden px-4 py-3 text-center md:table-cell">{w.trust_score != null ? <span className={`font-semibold ${w.trust_score <= 40 ? "text-red-600" : "text-slate-700"}`}>{w.trust_score}</span> : <span className="text-slate-300">—</span>}</td>
                 <td className="hidden px-4 py-3 text-slate-500 md:table-cell">{w.server_country || "—"}</td>
-                <td className="hidden px-4 py-3 text-right text-slate-400 lg:table-cell">{timeSince(w.latest_report)}</td>
+                <td className="hidden px-4 py-3 text-right text-slate-400 lg:table-cell">{timeSince(w.latest_report || w.updated_at)}</td>
               </tr>
             );
           })}

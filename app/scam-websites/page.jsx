@@ -45,7 +45,7 @@ export default async function ScamWebsitesPage({ searchParams }) {
             <span className="text-orange-400">Check before you buy.</span>
           </h1>
           <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-300">
-            {stats.total.toLocaleString()} domains reported for phishing, fraud, non-delivery and investment scams — each with its own report history, trust score, registration and hosting data.
+            {stats.total.toLocaleString()} domains reported or blocklisted for phishing, fraud, non-delivery and investment scams — each with its own report history, trust score, registration and hosting data.
             Not on the list? <Link href="/check-website" className="font-medium text-orange-400 underline underline-offset-2 hover:text-orange-300">Run the AI website checker</Link> or{" "}
             <Link href="/report-fraudulent-website" className="font-medium text-orange-400 underline underline-offset-2 hover:text-orange-300">report it</Link>.
           </p>

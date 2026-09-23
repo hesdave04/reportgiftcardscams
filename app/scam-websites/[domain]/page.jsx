@@ -9,6 +9,7 @@ import {
   sourceLabel,
   legitCategoryCopy,
   riskBadge,
+  feedList,
   getDomainRow,
   getDomainReports,
   buildRowFromReports,
@@ -69,6 +70,21 @@ export async function generateMetadata({ params }) {
       description: `Is ${domain} safe? No victim reports yet. Automated check: trust score ${row.trust_score ?? "—"}/100${row.registration_date ? `, registered ${formatDate(row.registration_date)}` : ""}${row.server_country ? `, hosted in ${row.server_country}` : ""}. Registrar, SSL, blocklists and report search.`,
       alternates: { canonical },
       robots: { index: false, follow: true },
+    };
+  }
+  if (row?.kind === "blocklisted") {
+    const f = row.feed_count || 0;
+    const names = feedList(row).map((x) => x.label).slice(0, 3).join(", ");
+    const bl = [];
+    if (row.registration_date) bl.push(`registered ${formatDate(row.registration_date)}`);
+    if (row.server_country) bl.push(`hosted in ${row.server_country}`);
+    if (row.trust_score != null) bl.push(`trust score ${row.trust_score}/100`);
+    return {
+      title: `Is ${domain} a Scam? Flagged by ${f} Phishing Blocklists | ScamComplaints`,
+      description: `${domain} is listed on ${f} independent scam/phishing blocklists (${names}).${bl.length ? ` ${bl.join(", ")}.` : ""} See registration data, hosting, similar scam sites and how to report it.`,
+      alternates: { canonical },
+      robots: row.indexable ? { index: true, follow: true } : { index: false, follow: true },
+      openGraph: { title: `Is ${domain} a scam? — ScamComplaints`, description: `Flagged by ${f} security blocklists${bl.length ? ` · ${bl.join(", ")}` : ""}`, siteName: "ScamComplaints", type: "article" },
     };
   }
   const facts = [];
@@ -133,7 +149,7 @@ function DomainList({ title, items, subtitle }) {
         {items.map((d) => (
           <li key={d.domain} className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm">
             <Link href={`/scam-websites/${d.domain}`} className="truncate font-medium text-slate-800 hover:text-red-700">{d.domain}</Link>
-            <span className="shrink-0 text-xs text-slate-400">{d.report_count} rpt{d.report_count === 1 ? "" : "s"}</span>
+            <span className="shrink-0 text-xs text-slate-400">{d.kind === "blocklisted" ? `${d.feed_count} blocklist${d.feed_count === 1 ? "" : "s"}` : `${d.report_count} rpt${d.report_count === 1 ? "" : "s"}`}</span>
           </li>
         ))}
       </ul>
@@ -156,6 +172,12 @@ function buildVerdict(domain, row) {
     if (row.registration_date) bits.push(`The domain was registered on ${formatDate(row.registration_date)}${row.registrar ? ` through ${row.registrar}` : ""}${row.server_country ? ` and is hosted in ${row.server_country}` : ""}.`);
     bits.push(`A check result is not a verdict — review the domain intelligence below and search our reports before you buy.`);
     return bits;
+  }
+  if (row.kind === "blocklisted") {
+    const f = row.feed_count || 0;
+    const feeds = feedList(row);
+    bits.push(`${domain} is flagged as a scam or phishing site by ${f} independent security blocklist${f === 1 ? "" : "s"} maintained by security researchers (${feeds.map((x) => x.label).join(", ")}). It has not been reported by a victim on ScamComplaints yet.`);
+    if (feeds.some((x) => x.kind === "Web3 phishing")) bits.push(`Blocklists of this kind track fake wallet-connect pages, token airdrops and exchange clones designed to drain crypto wallets — the domain is blocked inside wallets such as MetaMask for that reason.`);
   }
   if (n > 0) bits.push(`${domain} has been reported ${n} time${n === 1 ? "" : "s"} to ScamComplaints${row.primary_scam_type ? `, most often as a ${formatScamType(row.primary_scam_type).toLowerCase()}` : ""}.`);
   if (row.total_lost > 0) bits.push(`Victims reported combined losses of ${formatMoney(row.total_lost)}.`);
@@ -184,6 +206,26 @@ function sourceNotes(row, reports) {
   return notes;
 }
 
+/** Attribution block for external blocklists (their licences require it). */
+function FeedAttribution({ row }) {
+  const feeds = feedList(row);
+  if (!feeds.length) return null;
+  return (
+    <div>
+      <h2 className="text-xl font-bold text-slate-900">Security blocklists flagging {row.domain}</h2>
+      <p className="mt-1 text-sm text-slate-500">Open-source threat feeds maintained by independent security researchers. A listing means the feed's maintainers classified the domain as malicious; it is not a ScamComplaints victim report.</p>
+      <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+        {feeds.map((f) => (
+          <li key={f.label} className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm">
+            <span className="font-medium text-slate-800">{f.url ? <a href={f.url} target="_blank" rel="noopener nofollow" className="hover:text-red-700">{f.label}</a> : f.label}</span>
+            <span className="shrink-0 text-xs text-slate-400">{f.kind}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function buildFaq(domain, row) {
   const n = row.report_count || 0;
   if (row.kind === "legit") {
@@ -198,6 +240,15 @@ function buildFaq(domain, row) {
       { q: `Is ${domain} a scam?`, a: `No victim has reported ${domain} to ScamComplaints. Our automated check scored it ${row.trust_score ?? "—"}/100${row.risk_level ? ` (${row.risk_level.replace(/_/g, " ")})` : ""}. Use the domain intelligence on this page — registration date, registrar, hosting and blocklist status — to judge for yourself, and pay by credit card so you can dispute the charge.` },
       { q: `Who owns ${domain}?`, a: row.registrar ? `Public registration records show ${domain} was registered${row.registration_date ? ` on ${formatDate(row.registration_date)}` : ""} through ${row.registrar}.` : `Run the AI Website Safety Check above to pull live registration, hosting and SSL data for ${domain}.` },
       { q: `I had a bad experience with ${domain}. What should I do?`, a: `File a report using the button on this page with the details of what happened. If you paid, contact your bank or card issuer right away, and report to the FTC (reportfraud.ftc.gov).` },
+    ];
+  }
+  if (row.kind === "blocklisted") {
+    const f = row.feed_count || 0;
+    return [
+      { q: `Is ${domain} a scam?`, a: `${domain} is listed on ${f} independent scam and phishing blocklists${row.trust_score != null ? ` and scored ${row.trust_score}/100 on our automated safety check` : ""}. Security researchers flag a domain only after classifying it as malicious, so treat it as unsafe: do not connect a wallet, enter passwords or send money.` },
+      { q: `Why is ${domain} blocked in my wallet or browser?`, a: `Wallets such as MetaMask and many browser extensions subscribe to the same blocklists. When a domain is added to one, users see a warning page or are blocked outright. The feeds flagging ${domain} are listed on this page.` },
+      { q: `Who owns ${domain}?`, a: row.registrar ? `Public registration records show ${domain} was registered${row.registration_date ? ` on ${formatDate(row.registration_date)}` : ""} through ${row.registrar}.${row.rdap_status === "not_registered" ? " The registration has since lapsed — the domain was dropped or taken down." : ""}` : `Run the AI Website Safety Check above to pull live registration, hosting and SSL data for ${domain}.` },
+      { q: `I interacted with ${domain}. What should I do?`, a: `If you connected a crypto wallet, revoke token approvals (revoke.cash) and move remaining funds to a fresh wallet. If you entered a password, change it everywhere you reused it. If you paid, contact your bank or exchange immediately, then file a report here and with the FTC (reportfraud.ftc.gov) and FBI IC3 (ic3.gov).` },
     ];
   }
   return [
@@ -216,6 +267,7 @@ export default async function DomainPage({ params }) {
   const { domain, row, reports, similar } = data;
   const badge = riskBadge(row);
   const isLegit = row.kind === "legit";
+  const isBlocklisted = row.kind === "blocklisted";
   const verdict = buildVerdict(domain, row);
   const faq = buildFaq(domain, row);
   const realStories = reports.filter((r) => !isBoilerplateStory(r.story));
@@ -277,6 +329,12 @@ export default async function DomainPage({ params }) {
             <p className="mt-2 text-xs text-slate-400">
               First seen {formatDate(row.first_reported)} · Latest report {formatDate(row.latest_report)}
               {sources.length > 0 && <> · Sources: {sources.join("; ")}</>}
+              {row.feed_count > 0 && <> · Also on {row.feed_count} security blocklist{row.feed_count === 1 ? "" : "s"}</>}
+            </p>
+          )}
+          {isBlocklisted && (
+            <p className="mt-2 text-xs text-slate-400">
+              Flagged by {feedList(row).map((f) => f.label).join(", ")} · Added to our database {formatDate(row.feed_added_at)}
             </p>
           )}
         </div>
@@ -286,8 +344,8 @@ export default async function DomainPage({ params }) {
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 px-4 py-6 sm:grid-cols-4">
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-center">
-            <p className={`text-2xl font-bold ${isLegit ? "text-slate-900" : "text-red-600"}`}>{row.kind === "checked_only" ? row.organic_count : row.report_count}</p>
-            <p className="text-xs text-slate-500">{isLegit ? "Reports mentioning it" : row.kind === "checked_only" ? "Victim reports" : "Reports Filed"}</p>
+            <p className={`text-2xl font-bold ${isLegit ? "text-slate-900" : "text-red-600"}`}>{row.kind === "checked_only" ? row.organic_count : isBlocklisted ? row.feed_count : row.report_count}</p>
+            <p className="text-xs text-slate-500">{isLegit ? "Reports mentioning it" : row.kind === "checked_only" ? "Victim reports" : isBlocklisted ? "Security blocklists" : "Reports Filed"}</p>
           </div>
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-center">
             <p className="text-2xl font-bold text-slate-900">{row.trust_score != null ? `${row.trust_score}/100` : "—"}</p>
@@ -312,8 +370,9 @@ export default async function DomainPage({ params }) {
             <div>
               <h2 className="text-xl font-bold text-slate-900">{isLegit ? `Why ${domain} appears in scam reports` : `What we know about ${domain}`}</h2>
               <div className="mt-3 space-y-3 text-base leading-relaxed text-slate-700">
-                {row.ai_summary ? <p>{row.ai_summary}</p> : verdict.map((s, i) => <p key={i}>{s}</p>)}
-                {row.kind === "reported" && sourceNotes(row, reports).map((s, i) => <p key={`src-${i}`}>{s}</p>)}
+                {row.ai_summary ? row.ai_summary.split(/\n\s*\n/).map((s, i) => <p key={`ai-${i}`}>{s}</p>) : verdict.map((s, i) => <p key={i}>{s}</p>)}
+                {row.kind === "reported" && !row.ai_summary && sourceNotes(row, reports).map((s, i) => <p key={`src-${i}`}>{s}</p>)}
+                {row.kind === "reported" && !row.ai_summary && row.feed_count > 0 && <p>Independently, {row.domain} also appears on {row.feed_count} open-source security blocklist{row.feed_count === 1 ? "" : "s"} ({feedList(row).map((f) => f.label).join(", ")}), which corroborates the victim reports.</p>}
                 {isLegit && (
                   <p>
                     Genuine {domain} pages never ask you to send money, gift cards or cryptocurrency to a stranger, and the real address is exactly <strong>{domain}</strong> — watch for extra words, hyphens or a different ending (for example <em>{domain.split(".")[0]}-support.com</em>).
@@ -342,6 +401,8 @@ export default async function DomainPage({ params }) {
               </div>
             )}
 
+            {(isBlocklisted || row.feed_count > 0) && <FeedAttribution row={row} />}
+
             {/* Reports */}
             {row.kind !== "checked_only" && (
             <div>
@@ -366,10 +427,14 @@ export default async function DomainPage({ params }) {
                 </div>
               ) : (
                 <div className="mt-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-600">
+                  {isBlocklisted ? (
+                    <p>No victim has filed a report about {domain} on ScamComplaints yet — it is listed because {row.feed_count} security blocklist{row.feed_count === 1 ? "" : "s"} classified it as a scam or phishing site.</p>
+                  ) : (
                   <p>
                     {row.report_count} record{row.report_count === 1 ? "" : "s"} for {domain} {row.report_count === 1 ? "comes" : "come"} from {sources.length ? sources.join(" and ") : "partner data"}
                     {reports.some((r) => r.story?.includes("PhishFort")) ? " — an automated phishing-detection feed that flagged this domain as a threat." : "."} No written victim story has been submitted yet.
                   </p>
+                  )}
                   <p className="mt-2">
                     Have you dealt with {domain}? <Link href={`/report-fraudulent-website?website=${encodeURIComponent(domain)}`} className="font-medium text-red-600 underline">Be the first to tell your story.</Link>
                   </p>
