@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 import { cfipLookup, domainRatingImpact } from "@/lib/cfip";
+import { dnsblVerdict } from "@/lib/dnsbl";
 import dns from "dns/promises";
 import https from "https";
 import http from "http";
@@ -498,7 +499,10 @@ async function checkBlacklist(domain, supabase) {
   try {
     const surblDomain = `${domain}.multi.surbl.org`;
     const records = await dns.resolve4(surblDomain).catch(() => null);
-    if (records && records.length > 0) {
+    const verdict = dnsblVerdict("surbl", records);
+    if (verdict === "unavailable") {
+      result.details.surbl = "unavailable";
+    } else if (verdict === "listed") {
       result.details.surbl = "listed";
       baseScore -= 8;
       result.flags.push("Domain is listed on SURBL spam/abuse blocklist");
@@ -513,7 +517,10 @@ async function checkBlacklist(domain, supabase) {
   try {
     const dblDomain = `${domain}.dbl.spamhaus.org`;
     const records = await dns.resolve4(dblDomain).catch(() => null);
-    if (records && records.length > 0) {
+    const verdict = dnsblVerdict("spamhaus", records);
+    if (verdict === "unavailable") {
+      result.details.spamhaus_dbl = "unavailable";
+    } else if (verdict === "listed") {
       result.details.spamhaus_dbl = "listed";
       baseScore -= 8;
       result.flags.push("Domain is listed on Spamhaus DBL blocklist");
@@ -529,7 +536,10 @@ async function checkBlacklist(domain, supabase) {
     // Use URIBL as a phishing check
     const uriblDomain = `${domain}.multi.uribl.com`;
     const records = await dns.resolve4(uriblDomain).catch(() => null);
-    if (records && records.length > 0) {
+    const verdict = dnsblVerdict("uribl", records);
+    if (verdict === "unavailable") {
+      result.details.uribl = "unavailable";
+    } else if (verdict === "listed") {
       result.details.uribl = "listed";
       baseScore -= 5;
       result.flags.push("Domain is listed on URIBL blocklist");
