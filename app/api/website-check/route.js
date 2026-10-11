@@ -1,6 +1,7 @@
 // app/api/website-check/route.js — Website Trust Score Checker API
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { cfipLookup, domainRatingImpact } from "@/lib/cfip";
 import dns from "dns/promises";
 import https from "https";
 import http from "http";
@@ -387,8 +388,27 @@ async function checkBlacklist(domain, supabase) {
 
   let baseScore = 15; // Start with a baseline "clean" score
 
-  // a) Check our own ScamComplaints database
-  if (supabase) {
+  // a) ScamComplaints intelligence via CFIP (the shared fraud-intelligence platform). It rates the
+  //    domain from victim reports + security feeds, knows legitimate brands/platforms, and ignores this
+  //    checker's own past results. Falls back to the direct case_intakes count if CFIP is unavailable.
+  const cfip = await cfipLookup("domain", domain, "browser_protection");
+  if (cfip) {
+    const impact = domainRatingImpact(cfip);
+    baseScore += impact.delta;
+    if (impact.flag) result.flags.push(impact.flag);
+    result.details.in_scamcomplaints_db = impact.listed;
+    result.details.scamcomplaints_reports = impact.reports;
+    result.intelligence_source = "cfip";
+    // flat, human-readable values (the results page renders details as label/value rows)
+    result.details.scamcomplaints_rating = cfip.risk_level;
+    result.details.scamcomplaints_evidence = cfip.evidence_status;
+    if (cfip.risk_level !== "unknown" || cfip.explanation !== "No reports on file.")
+      result.details.scamcomplaints_summary = cfip.explanation;
+    if (cfip.reported_patterns?.length) result.details.reported_scam_types = cfip.reported_patterns.map((p) => p.replace(/_/g, " "));
+    if (cfip.matched) result.details.rating_inherited_from = cfip.matched;
+    if (cfip.risk_level === "low") result.details.known_legitimate = true;
+  } else if (supabase) {
+    result.intelligence_source = "local";
     try {
       const { count, error } = await supabase
         .from("case_intakes")
@@ -938,6 +958,7 @@ export async function GET(request) {
         blacklistCheck.details.in_scamcomplaints_db || false,
       scamcomplaints_reports:
         blacklistCheck.details.scamcomplaints_reports || 0,
+      intelligence_source: blacklistCheck.intelligence_source || "none",
       checked_at: new Date().toISOString(),
       cached: false,
     };
