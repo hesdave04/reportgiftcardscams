@@ -2,6 +2,7 @@ import "./globals.css";
 import Script from "next/script";
 import Nav from "@/app/components/Nav";
 import Footer from "@/app/components/Footer";
+import CallerIDAppBadge from "@/app/components/CallerIDAppBadge";
 import RecaptchaProvider from "@/app/providers/RecaptchaProvider";
 import AuthProvider from "@/app/providers/AuthProvider";
 
@@ -83,6 +84,7 @@ export default function RootLayout({ children }) {
           <RecaptchaProvider>
             <Nav />
             <main>{children}</main>
+            <CallerIDAppBadge />
             <Footer />
           </RecaptchaProvider>
         </AuthProvider>
