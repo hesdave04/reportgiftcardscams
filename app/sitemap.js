@@ -83,7 +83,16 @@ export default function sitemap() {
     "/report-ransomware",
   ].map((path) => ({ path, priority: 0.7, changeFrequency: "weekly" }));
 
-  const allPages = [...core, ...pillar, ...statePages, ...scamPages];
+  // Scam-website hub pages (type + TLD). Individual domain pages live in
+  // /scam-websites/sitemap/N.xml, listed from /sitemap-index.xml.
+  const hubTypes = ["phishing", "crypto_investment_scam", "fake_project", "impersonation_scam", "fake_returns", "romance_scam", "sextortion", "recovery_scam", "online_shopping_scam", "suspicious_website", "employment_scam", "tech_support_scam", "gift_card_scam"];
+  const hubTlds = ["dev", "com", "app", "io", "ai", "cc", "net", "top", "vip", "org", "xyz", "media", "cn", "shop", "online"];
+  const hubPages = [
+    ...hubTypes.map((t) => ({ path: `/scam-websites/type/${t}`, priority: 0.7, changeFrequency: "daily" })),
+    ...hubTlds.map((t) => ({ path: `/scam-websites/tld/${t}`, priority: 0.6, changeFrequency: "daily" })),
+  ];
+
+  const allPages = [...core, ...pillar, ...statePages, ...scamPages, ...hubPages];
 
   return allPages.map((p) => ({
     url: `${BASE}${p.path}`,
