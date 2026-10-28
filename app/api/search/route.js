@@ -9,6 +9,14 @@ import rateLimit from '@/utils/rate-limit';
 
 const limiter = rateLimit({ window: 60, limit: 30 });
 
+// Public attribution for imported (third-party) reports. Our own reports carry no label.
+const SOURCE_LABELS = {
+  '3p_bbb_scamtracker': 'Scam Tracker',
+  '3p_chainabuse': 'Chainabuse',
+  '3p_cryptolegal': 'CryptoLegal',
+  ScamHatersUnited: 'ScamHaters United',
+};
+
 export async function GET(request) {
   try {
     const ip = request.headers.get('x-forwarded-for') || '0.0.0.0';
@@ -46,13 +54,22 @@ export async function GET(request) {
     // 2. Case intakes (main reports table)
     let ciQuery = supabase
       .from('case_intakes')
-      .select('id, scam_type, platforms, story, suspect_name, suspect_email, suspect_phone, suspect_username, suspect_wallet, suspect_website, amount, created_at', { count: 'exact' })
+      .select('id, scam_type, platforms, story, suspect_name, suspect_email, suspect_phone, suspect_username, suspect_wallet, suspect_website, amount, created_at, source, source_url:full_payload->>source_url', { count: 'exact' })
       .order('created_at', { ascending: false });
 
     if (q) {
-      ciQuery = ciQuery.or(
-        `story.ilike.%${q}%,scam_type.ilike.%${q}%,suspect_name.ilike.%${q}%,suspect_email.ilike.%${q}%,suspect_phone.ilike.%${q}%,suspect_username.ilike.%${q}%,suspect_wallet.ilike.%${q}%,suspect_website.ilike.%${q}%`
-      );
+      // Phone numbers are stored in many formats ("(715) 254-3132", "715-254-3132", "+17152543132"):
+      // a digits-only query also matches the same digits with any separators in between.
+      const digits = q.replace(/\D/g, '');
+      const isPhone = /^[\d\s().+-]+$/.test(q) && (digits.length === 10 || (digits.length === 11 && digits[0] === '1'));
+      const d10 = isPhone ? digits.slice(-10) : '';
+      const phoneOr = isPhone ? `,suspect_phone.ilike.%${d10.slice(0, 3)}%${d10.slice(3, 6)}%${d10.slice(6)}%` : '';
+      // PostgREST or() syntax breaks on ( ) , " \ — strip them from the free-text terms.
+      const t = q.replace(/[(),"\\]/g, ' ').replace(/\s+/g, ' ').trim();
+      const textOr = t
+        ? `story.ilike.%${t}%,scam_type.ilike.%${t}%,suspect_name.ilike.%${t}%,suspect_email.ilike.%${t}%,suspect_phone.ilike.%${t}%,suspect_username.ilike.%${t}%,suspect_wallet.ilike.%${t}%,suspect_website.ilike.%${t}%`
+        : '';
+      ciQuery = ciQuery.or(isPhone ? phoneOr.slice(1) : textOr);
     }
 
     // Fetch both in parallel — get enough rows to fill one page
@@ -91,6 +108,8 @@ export async function GET(request) {
         amount: r.amount,
         summary: r.story ? (r.story.length > 220 ? r.story.slice(0, 220) + '…' : r.story) : null,
         created_at: r.created_at,
+        source_label: SOURCE_LABELS[r.source] || null,
+        source_url: r.source === '3p_bbb_scamtracker' && /^https:\/\/www\.bbb\.org\/scamtracker\//.test(r.source_url || '') ? r.source_url : null,
       };
     });
 
