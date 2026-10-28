@@ -54,7 +54,7 @@ export async function GET(request) {
     // 2. Case intakes (main reports table)
     let ciQuery = supabase
       .from('case_intakes')
-      .select('id, scam_type, platforms, story, suspect_name, suspect_email, suspect_phone, suspect_username, suspect_wallet, suspect_website, amount, created_at, source, source_url:full_payload->>source_url', { count: 'exact' })
+      .select('id, scam_type, platforms, story, suspect_name, suspect_email, suspect_phone, suspect_username, suspect_wallet, suspect_website, amount, created_at, date_of_report, source, source_url:full_payload->>source_url', { count: 'exact' })
       .order('created_at', { ascending: false });
 
     if (q) {
@@ -107,7 +107,10 @@ export async function GET(request) {
         platforms: Array.isArray(r.platforms) ? r.platforms : [],
         amount: r.amount,
         summary: r.story ? (r.story.length > 220 ? r.story.slice(0, 220) + '…' : r.story) : null,
-        created_at: r.created_at,
+        // Imported Scam Tracker rows carry a calendar date only; pin it to noon UTC so it renders on the same day in US time zones.
+        created_at: r.source === '3p_bbb_scamtracker' && /^\d{4}-\d{2}-\d{2}$/.test(String(r.date_of_report || ''))
+          ? `${r.date_of_report}T12:00:00+00:00`
+          : r.created_at,
         source_label: SOURCE_LABELS[r.source] || null,
         source_url: r.source === '3p_bbb_scamtracker' && /^https:\/\/www\.bbb\.org\/scamtracker\//.test(r.source_url || '') ? r.source_url : null,
       };
