@@ -63,6 +63,7 @@ export async function GET() {
       "3p_chainabuse",
       "3p_cryptolegal",
       "user_submitted",
+      "3p_bbb_scamtracker",
     ];
     const sourceResults = await Promise.all(
       knownSources.map((src) =>
@@ -78,6 +79,7 @@ export async function GET() {
       user_submitted: "User Submitted",
       scf_verified: "SCF Verified",
       "3p_chainabuse": "ChainAbuse",
+      "3p_bbb_scamtracker": "Scam Tracker",
       "3p_cryptolegal": "CryptoLegal",
     };
 

@@ -166,6 +166,24 @@ export default function SearchClient() {
                             {r.summary}
                           </p>
                         )}
+                        {r.source_label && (
+                          <p className="mt-1 text-xs text-slate-500">
+                            Source: {r.source_label}
+                            {r.source_url && (
+                              <>
+                                {" · "}
+                                <a
+                                  href={r.source_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer nofollow"
+                                  className="text-red-600 hover:underline"
+                                >
+                                  View original report ↗
+                                </a>
+                              </>
+                            )}
+                          </p>
+                        )}
                       </div>
                       <div className="text-right shrink-0">
                         {r.amount && (
