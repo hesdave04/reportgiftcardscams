@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { PUBLIC_COMPLAINT_SOURCES } from "@/lib/publicComplaints";
+import { PUBLIC_COMPLAINT_SOURCES, isTollFree, phoneE164FromQuery } from "@/lib/publicComplaints";
 
 /* ── Scam type label formatter ── */
 const SCAM_TYPE_LABELS = {
@@ -36,6 +36,7 @@ export default function SearchClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searched, setSearched] = useState(false);
+  const [tollFree, setTollFree] = useState(false);
 
   const pageSize = 20;
 
@@ -53,7 +54,10 @@ export default function SearchClient() {
         const json = await res.json();
         setResults(json.items || []);
         setTotal(json.total || 0);
-        if (pg === 1) setPublicComplaints(json.public_complaints || null);
+        if (pg === 1) {
+          setPublicComplaints(json.public_complaints || null);
+          setTollFree(isTollFree(phoneE164FromQuery(query)));
+        }
         setPage(pg);
         setSearched(true);
       } catch (e) {
@@ -122,6 +126,7 @@ export default function SearchClient() {
             {total.toLocaleString()} result{total !== 1 ? "s" : ""} found
           </p>
 
+          {tollFree && (total > 0 || publicComplaints) && <TollFreeCaveat />}
           {publicComplaints && <PublicComplaintsCard pc={publicComplaints} />}
 
           {results.length === 0 ? (
@@ -234,6 +239,19 @@ export default function SearchClient() {
         </div>
       )}
     </main>
+  );
+}
+
+function TollFreeCaveat() {
+  return (
+    <div className="mb-4 rounded-xl border border-slate-300 bg-slate-50 p-4 text-sm text-slate-700">
+      <p className="font-semibold text-slate-900">This is a toll-free number</p>
+      <p className="mt-1">
+        Scammers often fake (spoof) toll-free numbers, and many belong to real companies. Treat these reports as a
+        warning sign, not proof. If a caller said they were a company or agency, hang up and call the number on its
+        official website or the back of your card.
+      </p>
+    </div>
   );
 }
 
