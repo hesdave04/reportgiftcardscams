@@ -6,6 +6,8 @@ export const runtime = 'nodejs';
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import rateLimit from '@/utils/rate-limit';
+import { cfipLookup } from '@/lib/cfip';
+import { publicComplaintsFromCfip, phoneE164FromQuery } from '@/lib/publicComplaints';
 
 const limiter = rateLimit({ window: 60, limit: 30 });
 
@@ -73,9 +75,12 @@ export async function GET(request) {
     }
 
     // Fetch both in parallel — get enough rows to fill one page
-    const [gcResult, ciResult] = await Promise.all([
+    // Phone searches also get FTC/FCC complaint counts from CFIP (page 1 only; null on any CFIP failure).
+    const e164 = page === 1 ? phoneE164FromQuery(q) : null;
+    const [gcResult, ciResult, cfipPhone] = await Promise.all([
       gcQuery.range(0, 999),
       ciQuery.range(0, 999),
+      e164 ? cfipLookup('phone', e164, 'caller_protection', 2000) : Promise.resolve(null),
     ]);
 
     if (gcResult.error) console.error('giftcard_reports search error:', gcResult.error);
@@ -130,6 +135,7 @@ export async function GET(request) {
       page,
       pageSize,
       total,
+      public_complaints: publicComplaintsFromCfip(cfipPhone),
     });
   } catch (e) {
     console.error(e);
