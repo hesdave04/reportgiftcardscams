@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { PUBLIC_COMPLAINT_SOURCES } from "@/lib/publicComplaints";
 
 /* ── Scam type label formatter ── */
 const SCAM_TYPE_LABELS = {
@@ -30,6 +31,7 @@ export default function SearchClient() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [total, setTotal] = useState(0);
+  const [publicComplaints, setPublicComplaints] = useState(null);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -51,6 +53,7 @@ export default function SearchClient() {
         const json = await res.json();
         setResults(json.items || []);
         setTotal(json.total || 0);
+        if (pg === 1) setPublicComplaints(json.public_complaints || null);
         setPage(pg);
         setSearched(true);
       } catch (e) {
@@ -75,7 +78,7 @@ export default function SearchClient() {
           Search Scam Reports
         </h1>
         <p className="mt-3 text-lg text-slate-600">
-          Search 253,000+ reports by scammer name, email, phone number, crypto wallet, platform, or keywords.
+          Search 800,000+ reports by scammer name, email, phone number, crypto wallet, platform, or keywords.
         </p>
       </div>
 
@@ -118,6 +121,8 @@ export default function SearchClient() {
           <p className="mb-4 text-sm text-slate-500">
             {total.toLocaleString()} result{total !== 1 ? "s" : ""} found
           </p>
+
+          {publicComplaints && <PublicComplaintsCard pc={publicComplaints} />}
 
           {results.length === 0 ? (
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-8 text-center">
@@ -229,5 +234,39 @@ export default function SearchClient() {
         </div>
       )}
     </main>
+  );
+}
+
+function PublicComplaintsCard({ pc }) {
+  const parts = [];
+  if (pc.ftc) parts.push(`${pc.ftc.toLocaleString()} to the FTC`);
+  if (pc.fcc) parts.push(`${pc.fcc.toLocaleString()} to the FCC`);
+  return (
+    <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <p className="font-semibold">
+        Government complaints: {pc.total.toLocaleString()} in the last {pc.window_days} days
+      </p>
+      <p className="mt-1">
+        This number was reported {parts.join(" and ")} as an unwanted call or text
+        {pc.topic ? ` (most often about ${pc.topic})` : ""}.
+        {pc.callback > 0 && ` ${pc.callback.toLocaleString()} complaint${pc.callback === 1 ? "" : "s"} named it as the number to call back.`}
+        {pc.last_reported && ` Last complaint ${new Date(pc.last_reported).toLocaleDateString()}.`}
+      </p>
+      <p className="mt-2 text-xs text-amber-800">
+        These complaints are not verified, and robocallers often fake real numbers. Source:{" "}
+        {pc.ftc > 0 && (
+          <a href={PUBLIC_COMPLAINT_SOURCES.ftc.url} target="_blank" rel="noopener noreferrer nofollow" className="underline">
+            {PUBLIC_COMPLAINT_SOURCES.ftc.label}
+          </a>
+        )}
+        {pc.ftc > 0 && pc.fcc > 0 && " · "}
+        {pc.fcc > 0 && (
+          <a href={PUBLIC_COMPLAINT_SOURCES.fcc.url} target="_blank" rel="noopener noreferrer nofollow" className="underline">
+            {PUBLIC_COMPLAINT_SOURCES.fcc.label}
+          </a>
+        )}
+        {" "}(public domain).
+      </p>
+    </div>
   );
 }
