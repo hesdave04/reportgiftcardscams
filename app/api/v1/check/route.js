@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 import { authenticateApiKey } from "@/lib/apiAuth";
+import { isTollFree, phoneE164FromQuery, TOLL_FREE_CAVEAT } from "@/lib/publicComplaints";
 
 export const dynamic = "force-dynamic";
 
@@ -92,6 +93,9 @@ export async function GET(request) {
         found: results.found,
         total_matches: results.totalMatches || 0,
         matches: results.matches,
+        ...(phone && results.found && isTollFree(phoneE164FromQuery(phone))
+          ? { caveat: { code: "toll_free", text: TOLL_FREE_CAVEAT } }
+          : {}),
         checked_at: new Date().toISOString(),
         rate_limit: {
           remaining_today: auth.rateLimit.remaining,
